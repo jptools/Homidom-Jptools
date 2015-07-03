@@ -1,0 +1,159 @@
+'***************************************************
+' Macro I am Alive : 
+'  Envoi un mail avec l'état de chaque élément
+'***************************************************
+Imports System
+Imports System.IO
+Imports System.Windows.Forms
+Imports Microsoft.VisualBasic
+Imports Homidom
+Imports System.Net.Mail
+
+Namespace Dynam
+    'Ne pas supprimer cette class
+    Public Class DynamicCode
+
+        'Ne pas supprimer cette function 
+        Public Function ExecuteCode(ParamArray prmParameters() As Object) As Object
+            Dim Serveur As Homidom.Homidom.server
+            Serveur = prmParameters(0)
+            Try
+
+                Serveur.log(1, 2, "Macro VB:EtatSrv", " Heure: " & Serveur.GetTime)
+
+                Dim contenu As String = ""
+                contenu = contenu & "Bonjour, le serveur Homidom est up ! " & Chr(13) & Chr(10)
+                '  Relever l'ID du composant météo et remplacer par la bonne valeur
+                Dim meteoJour As HoMIDom.HoMIDom.TemplateDevice = Serveur.ReturnDeviceById("123456789", "b46df98a-5a3b-4039-92ae-3eb85b3384a6")
+                contenu = contenu & "Météo : " & Chr(13)
+                contenu = contenu & meteoJour.JourToday & " : température : " & meteoJour.TemperatureActuel & ", minimale : " & meteoJour.MinToday & ", maximale " & meteoJour.MaxToday & ", condition : " & meteoJour.ConditionActuel & Chr(13) & Chr(10)
+                contenu = contenu & meteoJour.JourJ1 & " : minimale : " & meteoJour.MinJ1 & ", maximale " & meteoJour.MaxJ1 & ", condition : " & meteoJour.ConditionJ1 & Chr(13) & Chr(10)
+                contenu = contenu & meteoJour.JourJ2 & " : minimale : " & meteoJour.MinJ2 & ", maximale " & meteoJour.MaxJ2 & ", condition : " & meteoJour.ConditionJ2 & Chr(13) & Chr(10)
+                contenu = contenu & meteoJour.JourJ3 & " : minimale : " & meteoJour.MinJ3 & ", maximale " & meteoJour.MaxJ3 & ", condition : " & meteoJour.ConditionJ3 & Chr(13) & Chr(10)
+                contenu = contenu & Chr(13)
+                Dim saintJour As Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById("123456789", "saint01")
+                contenu = contenu & "C'est la saint " & saintJour.value & " ! " & chr(13) & Chr(10)
+                contenu = contenu & "Heure du serveur : " & Serveur.GetTime & chr(13) & Chr(10)
+                Dim demSrv As Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById("123456789", "startsrv01")
+                contenu = contenu & "Service démarré : " & demSrv.value & chr(13) & Chr(10)
+                contenu = contenu & chr(13) & Chr(10)
+                contenu = contenu & "Statut des composants : " & chr(13) & Chr(10)
+                'get value of composant
+                Dim lesDevices As System.Collections.Generic.List(Of monDevice) = New System.Collections.Generic.List(Of monDevice)
+                For Each device As Object In Serveur.Devices
+                    lesDevices.Add(New monDevice(device))
+                Next
+                lesDevices.Sort()
+                For Each device As monDevice In lesDevices
+                    contenu = contenu & device.toString()
+                Next
+                contenu = contenu & chr(13) & Chr(10)
+
+                Dim _action As Homidom.Homidom.Mail
+               ' Il faut que dans les paramètres du serveur l'envoi de mail soit configuré, et mettre son adresse email à la place de monmail @
+                _action = New Homidom.Homidom.Mail(Serveur, Serveur.GetSMTPMailServeur("123456789"), "jp.strzalka@wanadoo.fr", "Macro VB Is Alive", contenu, Serveur.GetSMTPServeur("123456789"), Serveur.GetSMTPPort("123456789"), Serveur.GetSMTPSSL("123456789"), Serveur.GetSMTPLogin("123456789"), Serveur.GetSMTPPassword("123456789"))
+                _action.Send_email()
+
+            Catch ex As Exception
+                Serveur.log(8, 2, "Macro VB:EtatSrv", "Exception: " & ex.message)
+            End Try
+
+            Return "ok"
+
+        End Function
+
+    End Class
+
+    Public Class MonDevice
+        Implements IComparable(Of MonDevice)
+        Dim nom As String
+        Dim valeur As String
+        Dim dateModif As String
+        Dim ecarModif As String
+
+        'Sub New(ByVal device As HoMIDom.HoMIDom.TemplateDevice)
+        Sub New(ByVal device As Object)
+            Me.nom = device.Name
+            Me.valeur = device.Value
+            Me.dateModif = device.LastChange
+            Me.ecarModif = stringDelai(device.LastChange)
+        End Sub
+
+        Overrides Function toString() As String
+            Dim leNom As String = nom
+            Dim laValeur As String = valeur
+            Dim laDateModif As String = dateModif
+            Dim lEcarModif As String = ecarModif
+            Dim i As Integer = 0
+            leNom = leNom & " : "
+            For i = 35 To leNom.Length Step -1
+                leNom = leNom & " "
+            Next
+            laValeur = laValeur & ", "
+            For i = 12 To laValeur.Length Step -1
+                laValeur = laValeur & " "
+            Next
+            laDateModif = "  " & laDateModif & "  "
+            Return leNom & "  " & laValeur & " " & laDateModif & "  " & lEcarModif & Chr(13) & Chr(10)
+
+        End Function
+
+' Ici on peut personnaliser comment est exprimé l'écart, j'ai fait comme ça car je trouve ça plus lisible, on peut aussi 
+' ne renvoyer que l'écart directement : return ecart.toString()
+        Function stringDelai(ByVal ladate As String) As String
+            If IsDate(ladate) = False Then Return ""
+            Dim maintenant As Date = DateTime.Now
+            Dim laDateConv As Date = Convert.ToDateTime(ladate)
+            Dim ecart As TimeSpan = maintenant - laDateConv
+            Select Case ecart.TotalMinutes
+                Case Is < 5
+                    Return "< 5 mn"
+                Case Is < 10
+                    Return "< 10 mn"
+                Case Is < 20
+                    Return "< 20 mn"
+                Case Is < 30
+                    Return "< 30 mn"
+                Case Is < 60
+                    Return "< 1 h"
+                Case Is < 120
+                    Return "< 2h"
+                Case Is < 240
+                    Return "< 4h"
+                Case Is < 480
+                    Return "< 8h"
+                Case Is < 720
+                    Return "< 12h"
+                Case Is < 1440
+                    Return "< 24 h"
+            End Select
+
+            Select Case ecart.TotalHours
+                Case Is < 48
+                    Return "1 journée"
+                Case Is < 72
+                    Return "2 jours"
+                Case Is < 96
+                    Return "3 jours"
+                Case Is < 120
+                    Return "4 jours"
+                Case Else
+                    Return "+4 jours !"
+            End Select
+        End Function
+
+        Public Function CompareTo(other As MonDevice) As Integer _
+            Implements IComparable(Of MonDevice).CompareTo
+            If Date.Parse(dateModif) = Date.Parse(other.dateModif) Then
+                Return 0
+            End If
+            If Date.Parse(dateModif) < Date.Parse(other.dateModif) Then
+                Return 1
+            Else
+                Return -1
+            End If
+        End Function
+
+    End Class
+
+End Namespace

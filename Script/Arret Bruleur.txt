@@ -1,0 +1,124 @@
+'Calcul du temps de fonctionnement
+'Calcul de la consommation du fioul
+'*******************************************
+
+Imports System
+Imports System.IO
+Imports System.Windows.Forms
+Imports Microsoft.VisualBasic
+Imports Homidom
+Namespace Dynam
+
+Public Class DynamicCode
+
+Public Function ExecuteCode(paramarray prmParameters() as object) as object
+    Dim Serveur as Homidom.Homidom.server
+    try
+      Dim IdTempBruleur as String = "d279ff81-35bb-4b91-98c0-504cab529df9"        'Temp Bruleur
+      Dim IdTpTotalBruleur as String = "70199f13-9a9f-4d9e-a71b-9018e1609fdd"       'Temp Total Bruleur
+      Dim IdCosomFioul as String = "bb9cecbd-604e-4461-b0d1-0c68790e5dbe"        'Consomation Fioul
+      Dim IdDepenseFioul as String = "d2427c07-126f-4e8c-b95f-baf09fe8064f"      'Depense Fioul
+      Dim IdCiterne as String = "6a725941-767c-45a7-9c80-41496ee26e2c"      'Citerne Fioul
+   
+      Dim IdTpBruleurJour as String = "80f6fb60-3abb-4180-b216-de82d48db218"      'Temp Bruleur du jour
+      Dim IdConsomFioulJour as String = "99e18371-9da4-4921-b3a3-e477f4753751"      'Consomation fioul du jour
+      Dim IdDepenseJour as String = "0309ddc6-9057-4ed9-89c4-6ec14a3b74b1"      'Depense fioul du jour
+      Dim IdTempFonctionTotal as String = "a01f7e4a-fd84-4c03-b218-070124c27ae6"     ' Temps de fonctionnemet bruleur
+   
+      Dim IdDuServer as string = "123456789"
+      Dim D, HeureTexte As string
+      Dim Resultat, Result, TempJour, Temps As Single
+      Dim Heures, Minutes, Secondes As Integer
+      Dim IntReste As Integer
+
+      Serveur=prmParameters(0)
+
+      'log en info
+     Serveur.log(1, 2, "Macro VB;Arret Bruleur", "Bruleur OFF: " &  " Heure: " & Serveur.GetTime)
+
+      'Convertir l'heure en secondes
+       D =  Serveur.GetTime
+       Dim TB = Split(D, ":")
+       Resultat =  (TB(0)*3600) + (TB(1) * 60) + TB(2)
+      ' Serveur.log(8, 2, "Macro VB:XXX", "Resultat 1: " & Resultat)
+
+      'update another composant
+      Dim ComposantX as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdTempBruleur)
+
+       'Calculer la difference et sauver la valeur en Secondes
+        If (Resultat > ComposantX.VariablesOfDevice("Temp")) Then
+               Resultat = (Resultat - ComposantX.VariablesOfDevice("Temp"))
+        Else
+               Resultat = (86400-ComposantX.VariablesOfDevice("Temp") + Resultat)
+        End If
+        Serveur.ChangeValueOfDevice(IdDuServer,IdTempBruleur,Resultat)
+        TempJour = Resultat
+        
+        Resultat = Resultat / 60           'Conversion en minutes
+
+        'Mise a jour du temp Total
+         Dim ComposantX1 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdTpTotalBruleur)
+         Resultat = ComposantX1.value + Resultat
+         Serveur.ChangeValueOfDevice(IdDuServer,IdTpTotalBruleur,Resultat)
+         Temps =  Resultat*60
+
+        'Calcul du temps en heures, minutres et secondes       
+         Heures = CInt(Fix(Temps/3600))
+
+         IntReste = Temps Mod 3600         
+
+         Minutes = CInt(Fix(IntReste/60))
+         Secondes =CInt( IntReste Mod 60)
+        
+         HeureTexte = CStr(Heures) +" h " 
+  If Minutes < 10 Then
+            HeureTexte = HeureTexte + "0" + CStr(Minutes) + " mn "
+  Else
+     HeureTexte = HeureTexte + CStr(Minutes) + " mn "
+  End If
+
+  If Secondes < 10 Then
+            HeureTexte = HeureTexte + "0" + CStr(Secondes) + " s"
+         Else
+     HeureTexte = HeureTexte + CStr(Secondes) + " s"
+         End If 
+
+         'Mise a jour du temps de fonctionnement total
+         'Dim ComposantX8 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdTempFonctionTotal)
+         Serveur.ChangeValueOfDevice(IdDuServer,IdTempFonctionTotal,HeureTexte)
+
+         'Mise a jour du temp Total du Jour
+         Dim ComposantX5 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdTpBruleurJour)
+         Result = ComposantX5.value + TempJour
+         Serveur.ChangeValueOfDevice(IdDuServer,IdTpBruleurJour,Result)
+
+         'Mise a jour consomation Fioul Total
+       '  Dim ComposantX2 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdCosomFioul)
+         Resultat = Resultat * 0.0471337
+         Serveur.ChangeValueOfDevice(IdDuServer,IdCosomFioul,Resultat)
+
+         'Mise a jour consomation Fioul du jour
+        ' Dim ComposantX6 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdConsomFioulJour)
+         Result = Result * 0.00078556
+         Serveur.ChangeValueOfDevice(IdDuServer,IdConsomFioulJour,Result)
+
+         'Mise a jour Depense Fioul total
+        ' Dim ComposantX3 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdDepenseFioul)
+         Serveur.ChangeValueOfDevice(IdDuServer,IdDepenseFioul,(Resultat*0.78))
+
+         'Mise a jour Depense Fioul du jour
+         'Dim ComposantX7 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdDepenseJour)
+         Serveur.ChangeValueOfDevice(IdDuServer,IdDepenseJour,(Result*0.78))
+
+        'Mise a jour Citerne Fioul
+         Dim ComposantX4 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdCiterne)
+         Resultat = ComposantX4.VariablesOfDevice("Niveau") - Resultat
+         Serveur.ChangeValueOfDevice(IdDuServer,IdCiterne,Resultat)
+
+    Catch ex As Exception
+       Serveur.log(8, 2, "Macro VB:Arret Bruleur", "Exception: " & ex.message)
+    End Try
+ End Function
+
+ End Class
+End Namespace

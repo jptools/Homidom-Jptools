@@ -1,0 +1,44 @@
+Mise en mémoire de l'heure courante
+'*******************************************
+
+Imports System
+Imports System.IO
+Imports System.Windows.Forms
+Imports Microsoft.VisualBasic
+Imports Homidom                                                                  
+Namespace Dynam
+ 
+Public Class DynamicCode
+    
+Public Function ExecuteCode(paramarray prmParameters() as object) as object
+    Dim Serveur as Homidom.Homidom.server
+    try
+      Dim IdComposant as String = "d279ff81-35bb-4b91-98c0-504cab529df9"    'Bruleur Fonct
+      Dim IdDuServer as string = "123456789"
+      Dim D As string
+      Dim Resultat As Single
+   
+      Serveur=prmParameters(0)
+           
+      'log en info
+      Serveur.log(1, 2, "Macro VB:Allumage Chaudière", "Bruleur ON: " &  " Heure: " & Serveur.GetTime)
+
+    'Convertir l'heure en nombre
+     D =  Serveur.GetTime
+
+      Dim TB = Split(D, ":")
+      Resultat = (TB(0)*3600) + (TB(1) * 60) + TB(2)
+    ' Serveur.log(8, 2, "Macro VB:XXX", "Exception: " & Resultat)
+
+      'update another composant
+      Dim ComposantX as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdComposant)
+     ' Serveur.ChangeValueOfDevice(IdDuServer,IdComposant,Resultat)
+     ComposantX.VariablesOfDevice("Temp")=Resultat
+   
+    Catch ex As Exception
+       Serveur.log(8, 2, "Macro VB:Allumage Chaudière", "Exception: " & ex.message)
+    End Try
+ End Function
+
+ End Class
+End Namespace

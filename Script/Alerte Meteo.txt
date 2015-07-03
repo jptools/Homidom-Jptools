@@ -1,0 +1,75 @@
+Imports System
+Imports System.IO
+Imports System.Windows.Forms
+Imports Microsoft.VisualBasic
+Imports Homidom    
+Imports System.Xml
+Imports System.Xml.XPath
+Imports System.Xml.Serialization    
+Imports System.Net                                                          
+Namespace Dynam
+'Ne pas supprimer cette class
+Public Class DynamicCode
+   
+  'Ne pas supprimer cette function 
+  Public Function ExecuteCode(paramarray prmParameters() as object) as object
+    Dim _serveur as Homidom.Homidom.server
+    _serveur = prmParameters(0)
+    try
+            Dim departement as String = "68"
+            Dim IdComposant1 as String = "7389110e-79b2-469b-b4af-4293bbec641e"
+            Dim IdComposant2 as String = "f82ca1b7-1455-403a-8501-1af0ee278916"
+            Dim IdComposant3 as String = "0d5c63f3-e6a3-45e8-a132-1e090ffc2ead"
+            Dim IdComposant4 as String = "c01700f2-6111-48f3-abc6-cff6b2b1f365"
+            Dim IdDuServer as string = "123456789"
+
+            Dim doc As New XmlDocument
+            Dim nodes As XmlNodeList
+            Dim niveau as String = ""
+            Dim alerte as String = ""
+            Dim risque as String = ""
+            Dim crues as String = ""
+            
+            _serveur.log(10, 2, "Macro VB:QualiteAirAction", "Chargement de  http://www2.fmaurel.fr/data/carte_vigilance_meteo.xml")
+            doc = New XmlDocument()
+            Dim url As New Uri("http://www2.fmaurel.fr/data/carte_vigilance_meteo.xml")
+            Dim Request As HttpWebRequest = CType(HttpWebRequest.Create(url), System.Net.HttpWebRequest)
+            ' Request.UserAgent = "Mozilla/5.0 (windows; U; windows NT 5.1; fr; rv:1.8.0.7) Gecko/20060909 Firefox/1.5.0.7"
+            Dim response As Net.HttpWebResponse = CType(Request.GetResponse(), Net.HttpWebResponse)
+
+            doc.Load(response.GetResponseStream)
+            nodes = doc.SelectNodes("/vigilance/dep_" & departement)
+            For Each node As XmlNode In nodes
+                 niveau = ""
+                 alerte = ""
+                 risque = ""
+                 crues = ""
+                 For Each _child As XmlNode In node
+                       Select Case _child.Name
+                              Case "niveau" : niveau = _child.FirstChild.Value
+                              Case "alerte" : alerte = _child.FirstChild.Value
+                              Case "risque" : risque = _child.FirstChild.Value
+                              Case "crues" : crues = _child.FirstChild.Value
+                       End Select
+                 Next
+                 '_serveur.log(10, 2, "Macro VB:AlerteMeteoAction", "Test: " & departement & " : " & niveau)
+'                 If (agglomeration = ville) then
+                        _serveur.log(1, 2, "Macro VB:AlerteMeteoAction", "Trouvé, Département : " & departement & " Niveau : " & niveau)
+                        _serveur.ChangeValueOfDevice(IdDuServer,IdComposant1 ,niveau)
+                        _serveur.log(1, 2, "Macro VB:AlerteMeteoAction", "Trouvé, Département : " & departement & " Alerte : " & alerte)
+                        _serveur.ChangeValueOfDevice(IdDuServer,IdComposant2 ,alerte)
+                        _serveur.log(1, 2, "Macro VB:AlerteMeteoAction", "Trouvé, Département : " & departement & " Risque : " & risque)
+                        _serveur.ChangeValueOfDevice(IdDuServer,IdComposant3 ,risque)
+                        _serveur.log(1, 2, "Macro VB:AlerteMeteoAction", "Trouvé, Département : " & departement & " Crues : " & crues)
+                        _serveur.ChangeValueOfDevice(IdDuServer,IdComposant4 ,crues)
+                        exit for
+'                End If
+            Next
+
+    Catch ex As Exception
+       _serveur.log(8, 2, "Macro VB:AlerteMeteoAction", "Exception: " & ex.message)
+    End Try
+  End Function
+
+End Class
+End Namespace

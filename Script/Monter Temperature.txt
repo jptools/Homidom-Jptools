@@ -1,0 +1,36 @@
+   Imports System
+    Imports System.IO
+    Imports System.Windows.Forms
+    Imports Microsoft.VisualBasic
+    Imports Homidom   
+    Imports System.Xml
+    Imports System.Xml.XPath
+    Imports System.Xml.Serialization   
+    Imports System.Net                                                         
+    Namespace Dynam
+    'Ne pas supprimer cette class
+    Public Class DynamicCode
+       
+      'Ne pas supprimer cette function
+      Public Function ExecuteCode(paramarray prmParameters() as object) as object
+        Dim _serveur as Homidom.Homidom.server
+        _serveur = prmParameters(0)
+        try
+                Dim IdComposant as String = "f921efd2-da64-4a76-b985-557be617ede5"    'Consigne temp
+                Dim IdDuServer as string = "123456789"
+
+                 Dim composant as  Homidom.Homidom.TemplateDevice = _Serveur.ReturnDeviceById(IdDuServer,IdComposant)
+                 _serveur.log(1, 2, "Macro VB:Action sur le composant", "composant : " & composant.name)
+
+                ' Simplement changer la valeur du composant dans Homidom (mais pas en physique, utile pour un composant virtuel par exemple)
+                 _serveur.ChangeValueOfDevice(IdDuServer,IdComposant ,(composant.value + 0.5))
+
+                 _serveur.log(1, 2, "Macro VB:Action sur le composant", "Fait")
+                 
+        Catch ex As Exception
+           _serveur.log(8, 2, "Macro VB:Action sur le composant", "Exception: " & ex.tostring)
+        End Try
+      End Function
+
+    End Class
+    End Namespace

@@ -1,0 +1,51 @@
+﻿<UserControl
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local="clr-namespace:WpfApplication1" mc:Ignorable="d" x:Class="uGestionChauff"
+    MinWidth ="419" Margin="5" Width="659.792" Height="567.836">
+
+    <Grid Background="#636060">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0*"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <Border x:Name="Border1" BorderBrush="Gray" BorderThickness="2" Grid.ColumnSpan="2" Margin="0,0,0,0">
+            <DockPanel Margin="0,0,-11,69">
+                <DockPanel DockPanel.Dock="Top" >
+                    <Image DockPanel.Dock="Left"  Height="53" HorizontalAlignment="Left" Margin="7,1,0,0" x:Name="ImgDevice" Source="/HoMIAdmiN;component/Images/NouveauComposant_128.png" Stretch="Fill" VerticalAlignment="Top" Width="53">
+                        <Image.LayoutTransform>
+                            <RotateTransform Angle="-10" CenterX="0" CenterY="0" />
+                        </Image.LayoutTransform>
+                    </Image>
+                    <Label FontSize="24" FontStyle="Italic" Foreground="DarkOrange" x:Name="Label1" VerticalAlignment="Top" HorizontalContentAlignment="Center" Content="Gestion du Chauffage" Width="349" RenderTransformOrigin="0.508,0.429"/>
+
+                </DockPanel>
+
+                <StackPanel Orientation="Horizontal" Width="644" Margin="0,0,0,-39" >
+                    <DataGrid x:Name="DataGrid1" MinWidth="200" MaxWidth="550" BorderBrush="Black" Padding="2" SelectionMode="Single" Width="520" Margin="0,0,0,-28" RowHeight="20" CanUserResizeRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" AutoGenerateColumns="True" HorizontalAlignment="Center"/>
+                    <StackPanel Height="247" Margin="5,253,0,-28" VerticalAlignment="Top" Width="112">
+                        <CheckBox x:Name="RemplirFond" Content="Remplir le fond" IsChecked="True" Foreground="#FFFFFEFE" ToolTip="Activer la couleur du fond" RenderTransformOrigin="0.491,11.867"/>
+                        <GroupBox Header="Page Active" HorizontalAlignment="Left" Height="64" Width="112" Foreground="White" BorderBrush="Black" Margin="0,25,0,0">
+                            <TextBox x:Name="ModeChauffage" HorizontalAlignment="Left" Margin="7,10,0,8" TextWrapping="Wrap" Text="TextBox" Width="86" Foreground="White" Background="#FF646363" ToolTip="Affiche le mode Actif" IsReadOnly="True" MaxLines="1" IsUndoEnabled="False" FontWeight="Bold" TextAlignment="Center"/>
+                        </GroupBox>
+                        <GroupBox Header="Valeurs Admises" HorizontalAlignment="Left" Height="133" Width="112" Foreground="White" BorderBrush="Black" Margin="0,10,0,0">
+                            <TextBox x:Name="ValeursAdmis" HorizontalAlignment="Left" Margin="7,10,0,4" TextWrapping="WrapWithOverflow" Text="TextBox" Width="86" Foreground="White" Background="#FF646363" ToolTip="Valeurs Admises" IsReadOnly="True" MaxLines="5" IsUndoEnabled="True" TextAlignment="Center" AcceptsReturn="True" UndoLimit="97" AcceptsTab="True"/>
+                        </GroupBox>
+                    </StackPanel>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+        <StackPanel Grid.ColumnSpan="2" Margin="546,24,0,459" >
+            <Button Foreground="White" Height="25" HorizontalAlignment="Right" Margin="0,0,25,0" x:Name="BtnOk" Template="{DynamicResource GlassButton}" VerticalAlignment="Top" Width="89" Content="Ok" ToolTip="Fermer et sauvegarder le fichier"/>
+            <Button Foreground="White" Height="25" HorizontalAlignment="Right" Margin="0,0,25,0" x:Name="BtnFermer" Template="{DynamicResource GlassButton}" VerticalAlignment="Top" Width="89" Content="Fermer" RenderTransformOrigin="0.573,2.2" ToolTip="Fermer sans sauvegarde"/>
+        </StackPanel>
+        <StackPanel Grid.ColumnSpan="2" Margin="546,132,0,273" >
+            <Button Foreground="White" Height="25" HorizontalAlignment="Right" Margin="0,0,25,0" x:Name="BtnCharger1" Template="{DynamicResource GlassButton}" VerticalAlignment="Top" Width="89" Content="Mode Charger" ToolTip="Afficher le mode : Charger"/>
+            <Button Foreground="White" Height="25" HorizontalAlignment="Right" Margin="0,0,25,0" x:Name="BtnNormal1" Template="{DynamicResource GlassButton}" VerticalAlignment="Top" Width="89" Content="Mode Normal" ToolTip="Afficher le mode : Normal"/>
+            <Button Foreground="White" Height="25" HorizontalAlignment="Right" Margin="0,0,25,0" x:Name="BtnConger1" Template="{DynamicResource GlassButton}" VerticalAlignment="Top" Width="89" Content="Mode Conger" ToolTip="Afficher le mode : Conger"/>
+            <Button Foreground="White" Height="25" HorizontalAlignment="Right" Margin="0,0,25,0" x:Name="BtnAbsence1" Template="{DynamicResource GlassButton}" VerticalAlignment="Top" Width="89" Content="Mode Absence" ToolTip="Afficher le mode : Absence"/>
+            <Button Foreground="White" Height="25" HorizontalAlignment="Right" Margin="0,0,25,0" x:Name="BtnReduit1" Template="{DynamicResource GlassButton}" VerticalAlignment="Top" Width="89" Content="Mode Reduit" ToolTip="Afficher le mode : Réduit"/>
+            <Button Foreground="White" Height="25" HorizontalAlignment="Right" Margin="0,0,25,0" x:Name="BtnCalendrier1" Template="{DynamicResource GlassButton}" VerticalAlignment="Top" Width="89" Content="Calendrier" RenderTransformOrigin="0.539,3.64" ToolTip="Afficher le Calendrier"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

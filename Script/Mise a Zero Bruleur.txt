@@ -1,0 +1,51 @@
+'Mise a zero du temps de fonctionnement
+'Mise a zero de la consommation du fioul
+'*******************************************
+
+Imports System
+Imports System.IO
+Imports System.Windows.Forms
+Imports Microsoft.VisualBasic
+Imports Homidom                                                                  
+Namespace Dynam
+ 
+Public Class DynamicCode
+    
+Public Function ExecuteCode(paramarray prmParameters() as object) as object
+    Dim Serveur as Homidom.Homidom.server
+    try
+        Dim IdComposant as String = "d279ff81-35bb-4b91-98c0-504cab529df9"    'Temp Bruleur
+        Dim IdComposant1 as String = "70199f13-9a9f-4d9e-a71b-9018e1609fdd"  'Temp Total Bruleur    
+        Dim IdComposant2 as String = "bb9cecbd-604e-4461-b0d1-0c68790e5dbe"  'Consomation Fioul
+        Dim IdComposant3 as String = "d2427c07-126f-4e8c-b95f-baf09fe8064f"   'Depense Fioul
+        Dim IdDuServer as string = "123456789"
+       
+        Serveur=prmParameters(0)
+           
+        'log en info
+         Serveur.log(1, 2, "Macro VB;Mise a Zero Bruleur", "Bruleur OFF: " &  " Heure: " & Serveur.GetTime)
+
+         'update another composant
+         Dim ComposantX as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdComposant)
+         
+         Serveur.ChangeValueOfDevice(IdDuServer,IdComposant,0)
+        
+         'Mise a Zero du temp Total
+         Dim ComposantX1 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdComposant1)
+         Serveur.ChangeValueOfDevice(IdDuServer,IdComposant1,0)
+
+         'Mise a Zero consomation Fioul
+         Dim ComposantX2 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdComposant2)
+         Serveur.ChangeValueOfDevice(IdDuServer,IdComposant2,0)
+
+          'Mise a Zero Depense Fioul
+         Dim ComposantX3 as Homidom.Homidom.TemplateDevice = Serveur.ReturnDeviceById(IdDuServer,IdComposant3)
+         Serveur.ChangeValueOfDevice(IdDuServer,IdComposant3, 0)
+
+    Catch ex As Exception
+       Serveur.log(8, 2, "Macro VB:Mise a Zero Bruleur", "Exception: " & ex.message)
+    End Try 
+ End Function
+
+ End Class
+End Namespace
