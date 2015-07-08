@@ -203,7 +203,7 @@ Public Class uGestionChauff
             End If
             Colorier()
             If Remplir_Fond = True Then
-                DataGrid1.AlternatingRowBackground = New SolidColorBrush(Colors.LightSlateGray)
+                DataGrid1.AlternatingRowBackground = New SolidColorBrush(Colors.WhiteSmoke)
             Else
                 DataGrid1.AlternatingRowBackground = New SolidColorBrush(Colors.White)
             End If
@@ -254,13 +254,15 @@ Public Class uGestionChauff
                 '   DataGrid1.RowBackground = New SolidColorBrush(Colors.Red)
 
                 'DataGrid1.RowHeaderStyle = Colors.Red)
+   
 
+             
 
             Next
         Next
 
-       
-        'DirectCast
+
+    'DirectCast
 
 
 
@@ -299,7 +301,7 @@ Public Class uGestionChauff
         LireModeChauffage(_listSemaineAbsence, "Absence")
     End Sub
 
-    Private Sub BtnReduit1_Click(sender As Object, e As RoutedEventArgs) Handles BtnReduit1.Click       
+    Private Sub BtnReduit1_Click(sender As Object, e As RoutedEventArgs) Handles BtnReduit1.Click
         LireModeChauffage(_listSemaineReduit, "Reduit")
     End Sub
 
@@ -357,12 +359,12 @@ Public Class uGestionChauff
 
         Dim Ligne As Integer
         Dim worksheet As ExcelWorksheet
-        Dim Donnee As Calendrier       
+        Dim Donnee As Calendrier
 
-        worksheet = pck.Workbook.Worksheets.Item(Mode)        
+        worksheet = pck.Workbook.Worksheets.Item(Mode)
         For Ligne = 0 To 51
-            Donnee = ListCalendrier.Item(Ligne)            
-            worksheet.Cells(Ligne + 2, 2).Value = Donnee.Mode        
+            Donnee = ListCalendrier.Item(Ligne)
+            worksheet.Cells(Ligne + 2, 2).Value = Donnee.Mode
         Next
 
     End Sub
@@ -374,7 +376,7 @@ Public Class uGestionChauff
         Dim worksheet As ExcelWorksheet
         Dim Donnee As Semaine
 
-        worksheet = pck.Workbook.Worksheets.Item(Mode)        
+        worksheet = pck.Workbook.Worksheets.Item(Mode)
         For Ligne = 0 To 48
             Donnee = ListSemaine.Item(Ligne)
 
@@ -407,33 +409,41 @@ Public Class uGestionChauff
 
     Private Sub ModifierSemaine(ByRef ListSemaine As List(Of Semaine))
 
-        Dim Cellule As String = ""        
+        Dim Cellule As String = ""
         Dim Donnee As Semaine
         Dim Ligne As Single
+        Dim Colog As String = ""
 
         If _Valeur <> "" Then
             Donnee = ListSemaine.Item(_Ligne)
             Select Case _Colonne
                 Case 1
                     Cellule = Donnee.Lundi
+                    Colog = "Lundi"
                 Case 2
                     Cellule = Donnee.Mardi
+                    Colog = "Mardi"
                 Case 3
                     Cellule = Donnee.Mercredi
+                    Colog = "Mercredi"
                 Case 4
                     Cellule = Donnee.Jeudi
+                    Colog = "Jeudi"
                 Case 5
                     Cellule = Donnee.Vendredi
+                    Colog = "Venderdi"
                 Case 6
                     Cellule = Donnee.Samedi
+                    Colog = "Samedi"
                 Case 7
                     Cellule = Donnee.Dimanche
+                    Colog = "Dimanche"
             End Select
             If Cellule = "ECC" Or Cellule = "EC" Or Cellule = "PRE" Then
-
+                'Bonne valeur
             Else
                 Ligne = _Ligne / 2
-                MessageBox.Show("Valeurs erronée : " & "'" & Cellule & "'" & " à la Ligne : " & CStr(Ligne), "Erreur de saisie", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                MessageBox.Show("Valeurs erronée : " & "'" & Cellule & "'" & " à la Ligne : " & CStr(Ligne) & "h, Colonne : " & Colog, "Erreur de saisie", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Select Case _Colonne
                     Case 1
                         Donnee.Lundi = _Valeur
@@ -462,7 +472,7 @@ Public Class uGestionChauff
 
     Private Sub ModifierCalendrier()
 
-        Dim Cellule As String = ""       
+        Dim Cellule As String = ""
         Dim Donnee As Calendrier
 
         If _Valeur <> "" Then
@@ -513,7 +523,7 @@ Public Class uGestionChauff
             _listCalendar.Add(New Calendrier() With {.Semaine = Text1, .Mode = Text2})
         Next
         DataGrid1.ItemsSource = _listCalendar
-       
+
     End Sub
 
 
@@ -535,14 +545,14 @@ Public Class uGestionChauff
             Text8 = worksheet.Cells(Ligne, 8).Value
             ListSemaine.Add(New Semaine() With {.Heure = Text1, .Lundi = Text2, .Mardi = Text3, .Mercredi = Text4, .Jeudi = Text5, .Vendredi = Text6, .Samedi = Text7, .Dimanche = Text8})
         Next
-        DataGrid1.ItemsSource = ListSemaine       
+        DataGrid1.ItemsSource = ListSemaine
 
     End Sub
 
 
     Private Sub RemplirFond_Checked(sender As Object, e As RoutedEventArgs) Handles RemplirFond.Checked
 
-        Remplir_Fond = True       
+        Remplir_Fond = True
         DataGridOk(Me, Nothing)
 
     End Sub
@@ -550,18 +560,18 @@ Public Class uGestionChauff
 
     Private Sub RemplirFond_Unchecked(sender As Object, e As RoutedEventArgs) Handles RemplirFond.Unchecked
 
-        Remplir_Fond = False        
+        Remplir_Fond = False
         DataGridOk(Me, Nothing)
 
     End Sub
 
-   
+
 
     Private Sub DataGrid1_SelectedCellsChanged(sender As Object, e As SelectedCellsChangedEventArgs) Handles DataGrid1.SelectedCellsChanged
         If _Mode = "Calendrier" Then
             ModifierCalendrier()
         Else
-            Select _Mode
+            Select Case _Mode
                 Case "Conger"
                     ModifierSemaine(_listSemaineConger)
                 Case "Normal"

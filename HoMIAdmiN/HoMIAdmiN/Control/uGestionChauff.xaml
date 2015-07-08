@@ -22,7 +22,8 @@
                 </DockPanel>
 
                 <StackPanel Orientation="Horizontal" Width="644" Margin="0,0,0,-39" >
-                    <DataGrid x:Name="DataGrid1" MinWidth="200" MaxWidth="550" BorderBrush="Black" Padding="2" SelectionMode="Single" Width="520" Margin="0,0,0,-28" RowHeight="20" CanUserResizeRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" AutoGenerateColumns="True" HorizontalAlignment="Center"/>
+                    <DataGrid x:Name="DataGrid1" MinWidth="200" MaxWidth="550" BorderBrush="Black" Padding="2" SelectionMode="Single" Width="520" Margin="0,0,0,-28" RowHeight="20" CanUserResizeRows="False" CanUserReorderColumns="False" CanUserResizeColumns="False" CanUserSortColumns="False" AutoGenerateColumns="True" HorizontalAlignment="Center" CanUserAddRows="False">                   
+                    </DataGrid> 
                     <StackPanel Height="247" Margin="5,253,0,-28" VerticalAlignment="Top" Width="112">
                         <CheckBox x:Name="RemplirFond" Content="Remplir le fond" IsChecked="True" Foreground="#FFFFFEFE" ToolTip="Activer la couleur du fond" RenderTransformOrigin="0.491,11.867"/>
                         <GroupBox Header="Page Active" HorizontalAlignment="Left" Height="64" Width="112" Foreground="White" BorderBrush="Black" Margin="0,25,0,0">
