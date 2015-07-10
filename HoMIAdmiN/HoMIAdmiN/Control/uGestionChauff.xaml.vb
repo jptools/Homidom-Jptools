@@ -144,6 +144,7 @@ Public Class uGestionChauff
     Dim Remplir_Fond As Boolean = True
     Dim _Colonne As Integer
     Dim _Ligne As Integer
+    Dim FichierOk As Boolean = False
 
     Public Event CloseMe(ByVal MyObject As Object)
 
@@ -165,9 +166,15 @@ Public Class uGestionChauff
 
                 If _Driver.Parametres.Item(1).Valeur <> "" Then
                     newFile = New FileInfo(_Driver.Parametres.Item(1).Valeur) 'Ouverture du fichier Excel
-                    pck = New ExcelPackage(newFile)
-                    LireCalendrier()
-                    AddHandler DataGrid1.Loaded, AddressOf DataGridOk
+                    If newFile.Exists Then
+                        FichierOk = True
+                        pck = New ExcelPackage(newFile)
+                        LireCalendrier()
+                        AddHandler DataGrid1.Loaded, AddressOf DataGridOk
+                    Else
+                        FichierOk = False
+                        AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Fichier non trouvé :" & _Driver.Parametres.Item(1).Valeur, "Erreur", "")                        
+                    End If
                 Else
                     AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Fichier Excel non définit !!", "Erreur", "")
                     RaiseEvent CloseMe(Me)
@@ -499,13 +506,15 @@ Public Class uGestionChauff
 
     Private Sub DataGrid1_Loaded(sender As Object, e As RoutedEventArgs) Handles DataGrid1.Loaded
 
-        'Preparer les pages        
-        PrepareListSemaine(_listSemaineConger, "Conger")
-        PrepareListSemaine(_listSemaineNormal, "Normal")
-        PrepareListSemaine(_listSemaineReduit, "Reduit")
-        PrepareListSemaine(_listSemaineCharger, "Charger")
-        PrepareListSemaine(_listSemaineAbsence, "Absence")
-        PrepareCalendrier("Calendrier")
+        'Preparer les pages  
+        If FichierOk = True Then
+            PrepareListSemaine(_listSemaineConger, "Conger")
+            PrepareListSemaine(_listSemaineNormal, "Normal")
+            PrepareListSemaine(_listSemaineReduit, "Reduit")
+            PrepareListSemaine(_listSemaineCharger, "Charger")
+            PrepareListSemaine(_listSemaineAbsence, "Absence")
+            PrepareCalendrier("Calendrier")
+        End If
 
     End Sub
 

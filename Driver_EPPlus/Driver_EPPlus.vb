@@ -563,16 +563,20 @@ Imports OfficeOpenXml
             Dim newFile As FileInfo
             Dim worksheet As ExcelWorksheet
             Dim pck As ExcelPackage
-            Dim Mode, CellValue As String
-
+            Dim Mode As String
+            Dim CellValue As String = ""
 
             newFile = New FileInfo(_Parametres.Item(1).Valeur)
-            pck = New ExcelPackage(newFile)
-            Mode = "Calendrier"
-            worksheet = pck.Workbook.Worksheets.Item(Mode)
-            CellValue = worksheet.Cells(1, 1).Value         'Lire HOMIDOM
+            If newFile.Exists Then
+                pck = New ExcelPackage(newFile)
+                Mode = "Calendrier"
+                worksheet = pck.Workbook.Worksheets.Item(Mode)
+                CellValue = worksheet.Cells(1, 1).Value         'Lire HOMIDOM
 
-            _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus : ", CellValue)
+                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus : ", CellValue)
+            Else
+                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " Lecture Fichier", "Fichier non trouvé")
+            End If
 
             If CellValue = "HoMIDoM" Then     'Vérifier si le fichier est compatible
                 Return 1
@@ -586,7 +590,6 @@ Imports OfficeOpenXml
     End Function
 
 
-    '-----------------------------------------------------------------------------------------------------------
     'Permet de lire le fichier 
     Public Function LireFichier(ByVal Objet As Object) As Boolean
 
@@ -603,49 +606,47 @@ Imports OfficeOpenXml
 
             NumSemaine = LireNumSemaine(Now)          ' Rechercher le numero de la semaine
             If NumSemaine = 0 Then
+                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Numéro de semaine erroné")
                 Return 0             'Erreur du numero de semaine
             End If
 
             'Lecture du mode de Chauffage
-
             newFile = New FileInfo(_Parametres.Item(1).Valeur)
-            pck = New ExcelPackage(newFile)
-            Mode = "Calendrier"
-            worksheet = pck.Workbook.Worksheets.Item(Mode)
+            If newFile.Exists Then
+                pck = New ExcelPackage(newFile)
+                Mode = "Calendrier"
+                worksheet = pck.Workbook.Worksheets.Item(Mode)
+                ModeChauffage = worksheet.Cells(NumSemaine + 1, 2).Value   'Recherche le mode  de chauffage          
+                NumJour = Weekday(Now, vbMonday)     'déterminer le num du jour       
 
+                'Num ligne a calculer en fonction de l'Heure (par tranche 1/2h)
+                Ligne = ((Timer / 3600) * 2) + 1
+                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode: ", ModeChauffage & " N° Lignes: " & CStr(Ligne + 1))
+                If ModeChauffage = "Conger" Or ModeChauffage = "Normal" Or ModeChauffage = "Reduit" Or ModeChauffage = "Charger" Or ModeChauffage = "Absence" Then
+                    worksheet = pck.Workbook.Worksheets.Item(ModeChauffage)
+                    ModeChauffage = worksheet.Cells(Ligne + 1, NumJour + 1).Value
+                    _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode : ", ModeChauffage & " N° Jour: " & CStr(NumJour) & " N° Sem: " & CStr(NumSemaine))
 
-            ModeChauffage = worksheet.Cells(NumSemaine + 1, 2).Value   'Recherche le mode  de chauffage          
-
-            NumJour = Weekday(Now, vbMonday)     'déterminer le num du jour       
-
-            'Num ligne a calculer en fonction de l'Heure (par tranche 1/2h)
-            Ligne = ((Timer / 3600) * 2) + 1
-
-            _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode: ", ModeChauffage & " N° Lignes: " & CStr(Ligne + 1))
-
-            If ModeChauffage = "Conger" Or ModeChauffage = "Normal" Or ModeChauffage = "Reduit" Or ModeChauffage = "Charger" Or ModeChauffage = "Absence" Then
-                worksheet = pck.Workbook.Worksheets.Item(ModeChauffage)
-                ModeChauffage = worksheet.Cells(Ligne + 1, NumJour + 1).Value
-                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode : ", ModeChauffage & " N° Jour: " & CStr(NumJour) & " N° Sem: " & CStr(NumSemaine))
-
-                Select Case ModeChauffage
-                    Case "ECC"
-                        Objet.Value = _Parametres.Item(2).Valeur
-                    Case "EC"
-                        Objet.Value = _Parametres.Item(3).Valeur
-                    Case "PRE"
-                        Objet.Value = _Parametres.Item(4).Valeur
-                    Case Else
-                        _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Erreur Mode Chauffage")
-                        Objet.Value = 18
-                End Select
+                    Select Case ModeChauffage
+                        Case "ECC"
+                            Objet.Value = _Parametres.Item(2).Valeur
+                        Case "EC"
+                            Objet.Value = _Parametres.Item(3).Valeur
+                        Case "PRE"
+                            Objet.Value = _Parametres.Item(4).Valeur
+                        Case Else
+                            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Erreur Mode Chauffage")
+                            Objet.Value = 18
+                    End Select
+                Else
+                    _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Erreur Mode Chauffage")
+                    Objet.Value = 18
+                End If
+                Return 1
             Else
-                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Erreur Mode Chauffage")
-                Objet.Value = 18
+                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Fichier non trouvé")
+                Return 0
             End If
-
-            Return 1
-
         Catch ex As Exception
 
             _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " Lecture Fichier", ex.ToString)
