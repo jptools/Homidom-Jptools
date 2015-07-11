@@ -263,7 +263,7 @@ Imports OfficeOpenXml
                     Select Case Objet.adresse1.toUpper
 
                         Case "TEMPERATURECONSIGNE"
-                            If _Parametres.Item(6).Valeur = False Then        ' Si ps Hors Gele
+                            If _Parametres.Item(6).Valeur = False Then        ' Si pas Hors Gele
                                 If _Parametres.Item(5).Valeur = True Then      'Si on ne désire pas lire le fichier (on garde l'ancienne consigne)
                                     LireFichier(Objet)          'Lire la consigne de température
                                 End If
@@ -283,7 +283,7 @@ Imports OfficeOpenXml
                     End Select
 
                 Case "SWITCH"
-                    _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "Excel Mode : ", Objet.Name & " : " & Objet.Value)
+                    _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EEPlus Mode : ", Objet.Name & " : " & Objet.Value)
 
                 Case Else
                     _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "Erreur Drivers EPPlus : ", "Type non conforme")
@@ -529,6 +529,7 @@ Imports OfficeOpenXml
             Add_ParamAvance("ActiverLecture", "Activer la lecture (True/False)", True)
             Add_ParamAvance("ActiverHorsGele", "Activer le Mode Hors Gêle (True/False)", False)
             Add_ParamAvance("Hors Gêle", "Température du mode Hors Gêle", "8")
+            Add_ParamAvance("Confort +", "Température du mode Confort + : PRE+", "21")
 
             'ajout des commandes avancées pour les devices
             ' Add_DeviceCommande("Ouvrir Gestionnaire", "", 0)
@@ -634,6 +635,8 @@ Imports OfficeOpenXml
                             Objet.Value = _Parametres.Item(3).Valeur
                         Case "PRE"
                             Objet.Value = _Parametres.Item(4).Valeur
+                        Case "PRE+"
+                            Objet.Value = _Parametres.Item(8).Valeur
                         Case Else
                             _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Erreur Mode Chauffage")
                             Objet.Value = 18

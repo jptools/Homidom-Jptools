@@ -237,7 +237,7 @@ Public Class uGestionChauff
 
         _Mode = Mode
         ModeChauffage.Text = _Mode
-        ValeursAdmis.Text = "ECC" & vbCrLf & "EC" & vbCrLf & "PRE"
+        ValeursAdmis.Text = "ECC" & vbCrLf & "EC" & vbCrLf & "PRE" & vbCrLf & "PRE+"
         DataGrid1.ItemsSource = ListSemaine
         DataGrid1.Items.Refresh()
         DataGridOk(Me, Nothing)
@@ -446,7 +446,7 @@ Public Class uGestionChauff
                     Cellule = Donnee.Dimanche
                     Colog = "Dimanche"
             End Select
-            If Cellule = "ECC" Or Cellule = "EC" Or Cellule = "PRE" Then
+            If Cellule = "ECC" Or Cellule = "EC" Or Cellule = "PRE" Or Cellule = "PRE+" Then
                 'Bonne valeur
             Else
                 Ligne = _Ligne / 2
