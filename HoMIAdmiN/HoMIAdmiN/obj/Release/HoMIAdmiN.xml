@@ -110,6 +110,14 @@ InitializeComponent
 	<summary>
 uTriggerTimer
 </summary>
+</member><member name="M:WpfApplication1.uSelectExp.InitializeComponent">
+	<summary>
+InitializeComponent
+</summary>
+</member><member name="T:WpfApplication1.uSelectExp">
+	<summary>
+uSelectExp
+</summary>
 </member><member name="M:WpfApplication1.uMainMenu.InitializeComponent">
 	<summary>
 InitializeComponent
@@ -165,6 +173,14 @@ InitializeComponent
 </member><member name="T:WpfApplication1.uDevice">
 	<summary>
 uDevice
+</summary>
+</member><member name="M:WpfApplication1.WImperiParametrage.InitializeComponent">
+	<summary>
+InitializeComponent
+</summary>
+</member><member name="T:WpfApplication1.WImperiParametrage">
+	<summary>
+WImperiParametrage
 </summary>
 </member><member name="M:WpfApplication1.Application.InitializeComponent">
 	<summary>
@@ -485,7 +501,7 @@ uLog
 </summary>
 </member><member name="P:WpfApplication1.My.Resources.Resources.Defaut_Img">
 	<summary>
-  Looks up a localized resource of type System.Drawing.Bitmap.
+  Recherche une ressource localisée de type System.Drawing.Bitmap.
 </summary>
 </member><member name="P:WpfApplication1.My.Resources.Resources.ExempleVBS">
 	<summary>
@@ -506,11 +522,64 @@ Namespace Dynam
 </summary>
 </member><member name="P:WpfApplication1.My.Resources.Resources.WeatherCityID_BE">
 	<summary>
-  Recherche une chaîne localisée semblable à BEXX1438;Abancourt
+  Recherche une chaîne localisée semblable à XXXX0001;------- BELGIQUE --------
+
+BEXX0034;Aalst
+BEXX0035;Aalter
+BEXX0036;Aarschot
+BEXX0038;Aiseau
+BEXX0039;Alken
+BEXX0041;Amay
+BEXX0042;Ambleve
+BEXX0043;Andenne
+BEXX0001;Anderlecht
+BEXX0045;Anhee
+BEXX0002;Ans
+BEXX0046;Antoing
+BEXX0003;Anvers
+BEXX0047;Anzegem
+BEXX0048;Ardooie
+BEXX0050;Arlon
+BEXX0051;As
+BEXX0052;Asse
+BEXX0055;Ath
+BEXX0057;Avelgem
+BEXX0058;Awans
+BEXX0004;Aywaille
+BEXX0059;Balen
+BEXX0060;Basse Lasne
+BEXX0061;Bassenge
+BEXX0062;Bastogne
+BEXX0065;Beernem
+BEXX0066;Be [le reste de la chaîne a été tronqué]";.
 </summary>
 </member><member name="P:WpfApplication1.My.Resources.Resources.WeatherCityID_FR">
 	<summary>
-  Recherche une chaîne localisée semblable à FRXX1438;Abancourt
+  Recherche une chaîne localisée semblable à XXXX0000;-------- FRANCE ---------
+FRXX1438;Abancourt
+FRXX0111;Abbeville
+FRXX1570;Ablon-sur-Seine
+FRXX5930;Abondant
+FRXX4851;Abscon
+FRXX1220;Achen
+FRXX5834;Achenheim
+FRXX5109;Acheres
+FRXX3754;Acheres-la-Foret
+FRXX1618;Acigne
+FRXX1542;Aeroport D'Orly
+FRXX4397;Agde
+FRXX0135;Agen
+FRXX2840;Agon-Coutainville
+FRXX3723;Aibes
+FRXX6269;Aigues-Vives
+FRXX2409;Aiguilles
+FRXX7004;Ailly-sur-Somme
+FRXX1137;Aimargues
+FRXX0328;Aire-sur-l'Adour
+FRXX0001;Aix-en-Provence
+FRXX0129;Ajaccio
+FRXX0002;Albi
+F [le reste de la chaîne a été tronqué]";.
 </summary>
 </member><member name="T:WpfApplication1.My.Resources.Resources">
 	<summary>
@@ -586,6 +655,20 @@ Namespace Dynam
 	<param name="sender"></param>
 	<param name="e"></param>
 	<remarks></remarks>
+</member><member name="T:WpfApplication1.DeviceParam">
+	<summary>Class DeviceParam, Défini le type parametre de composant pour le client Imperihome</summary>
+</member><member name="T:WpfApplication1.Device">
+	<summary>Class Device, Défini le type composant pour le client Imperihome</summary>
+</member><member name="T:WpfApplication1.DeviceList">
+	<summary>Class DeviceList, Défini le type liste des composants pour le client Imperihome</summary>
+</member><member name="T:WpfApplication1.Room">
+	<summary>Class Room, Défini le type piece pour le client Imperihome</summary>
+</member><member name="T:WpfApplication1.RoomList">
+	<summary>Class RoomList, Défini le type liste des pieces pour le client Imperihome</summary>
+</member><member name="T:WpfApplication1.SystemInfo">
+	<summary>Class Room, Défini le type system pour le client Imperihome</summary>
+</member><member name="T:WpfApplication1.ActionFeedback">
+	<summary>Class Room, Défini le type retour pour le client Imperihome</summary>
 </member><member name="M:WpfApplication1.uVariables.BtnNew_MouseDown(System.Object,System.Windows.Input.MouseButtonEventArgs)">
 	<summary>
  Nouvelle variable

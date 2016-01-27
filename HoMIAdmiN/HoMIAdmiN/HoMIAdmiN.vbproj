@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>WpfApplication1</RootNamespace>
     <AssemblyName>HoMIAdmiN</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <MyType>Custom</MyType>
     <OptionExplicit>On</OptionExplicit>
     <OptionCompare>Binary</OptionCompare>
@@ -47,6 +47,7 @@
     <DocumentationFile>HoMIAdmiN.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -58,6 +59,7 @@
     <DocumentationFile>HoMIAdmiN.xml</DocumentationFile>
     <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42314,42353,42354,42355</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -70,15 +72,21 @@
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EPPlus">
-      <HintPath>..\..\Dll_externes\Homidom-32bits\Drivers\EPPlus.dll</HintPath>
+    <Reference Include="EPPlus, Version=4.0.4.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\RELEASE\Drivers\EPPlus.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.AspNet.SignalR.Client">
-      <HintPath>..\..\Dll_externes\Homidom-32bits\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+    <Reference Include="HoMIOAuth2">
+      <HintPath>..\..\RELEASE\HoMIOAuth2.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\Dll_externes\Homidom-32bits\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Microsoft.AspNet.SignalR.Client">
+      <HintPath>..\..\RELEASE\Microsoft.AspNet.SignalR.Client.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\RELEASE\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
@@ -91,7 +99,7 @@
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Windows.Controls.DataVisualization.Toolkit">
-      <HintPath>..\..\Dll_externes\Homidom-32bits\System.Windows.Controls.DataVisualization.Toolkit.dll</HintPath>
+      <HintPath>..\..\RELEASE\System.Windows.Controls.DataVisualization.Toolkit.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Windows.Forms" />
@@ -163,6 +171,9 @@
     <Compile Include="Control\uScenario.xaml.vb">
       <DependentUpon>uScenario.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Control\uSelectExp.xaml.vb">
+      <DependentUpon>uSelectExp.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Control\uTriggerDevice.xaml.vb">
       <DependentUpon>uTriggerDevice.xaml</DependentUpon>
     </Compile>
@@ -174,6 +185,9 @@
     </Compile>
     <Compile Include="Control\uZone.xaml.vb">
       <DependentUpon>uZone.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Control\WParam.xaml.vb">
+      <DependentUpon>WParam.xaml</DependentUpon>
     </Compile>
     <Compile Include="Control\WTelecommande.xaml.vb">
       <DependentUpon>WTelecommande.xaml</DependentUpon>
@@ -266,6 +280,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Control\uSelectExp.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Control\uTriggerDevice.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -328,6 +346,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Control\WParam.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Control\WTelecommande.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -369,6 +391,7 @@
   </ItemGroup>
   <ItemGroup>
     <Import Include="System.Linq" />
+    <Import Include="System.Windows.Controls" />
     <Import Include="System.Xml.Linq" />
     <Import Include="Microsoft.VisualBasic" />
     <Import Include="System" />
@@ -376,7 +399,6 @@
     <Import Include="System.Collections.Generic" />
     <Import Include="System.Diagnostics" />
     <Import Include="System.Windows" />
-    <Import Include="System.Windows.Controls" />
     <Import Include="System.Windows.Data" />
     <Import Include="System.Windows.Documents" />
     <Import Include="System.Windows.Input" />

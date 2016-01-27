@@ -154,7 +154,19 @@ Public Class uNewDevice
             Dim x As New NewDevice
             x.ID = txtID.Text
             x.IdDriver = txtDriver.Text
-            x.Name = txtName.Text
+            'enleve les caratère spéciaux
+            Dim Str As String = ""
+            For i = 0 To Len(txtName.Text) - 1
+                Select Case txtName.Text(i)
+                    Case "a" To "z" : Str += txtName.Text(i)
+                    Case "A" To "Z" : Str += txtName.Text(i)
+                    Case "0" To "9" : Str += txtName.Text(i)
+                    Case " " : Str += " "
+                    Case Else
+                        Str += " "
+                End Select
+            Next
+            x.Name = Trim(Str)
             x.Adresse1 = txtAdresse1.Text
             x.Adresse2 = txtAdresse2.Text
             x.Type = CbType.Text
@@ -184,7 +196,7 @@ Public Class uNewDevice
             Dim x As HoMIDom.HoMIDom.TemplateDevice = Nothing
             x = myService.ReturnDeviceByID(IdSrv, CbComposants.SelectedItem.ID)
             If x IsNot Nothing Then 'on a trouvé le device
-                retour = myService.SaveDevice(IdSrv, x.ID, x.Name, txtAdresse1.Text, x.Enable, x.Solo, x.DriverID, x.Type, x.Refresh, txtAdresse2.Text, x.Picture, x.Modele, x.Description, x.LastChangeDuree, x.LastEtat, x.Correction, x.Formatage, x.Precision, x.ValueMax, x.ValueMin, x.ValueDef, x.Commandes, x.Unit, x.Puissance, x.AllValue)
+                retour = myService.SaveDevice(IdSrv, x.ID, x.Name, txtAdresse1.Text, x.Enable, x.Solo, x.DriverID, x.Type, x.Refresh, x.IsHisto, x.RefreshHisto, x.Purge, x.MoyJour, x.MoyHeure, txtAdresse2.Text, x.Picture, x.Modele, x.Description, x.LastChangeDuree, x.LastEtat, x.Correction, x.Formatage, x.Precision, x.ValueMax, x.ValueMin, x.ValueDef, x.Commandes, x.Unit, x.Puissance, x.AllValue)
 
                 'suppression du nouveau composant
                 Dim retour2 As Integer = myService.DeleteNewDevice(IdSrv, txtID.Text)

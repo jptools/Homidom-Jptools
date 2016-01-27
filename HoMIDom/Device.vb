@@ -227,11 +227,18 @@ Namespace HoMIDom
             Protected _AllValue As Boolean = False
             Protected _CountHisto As Double = 0
             Protected _Template As HoMIDom.Telecommande.Template = Nothing
+            Protected _IsHisto As Boolean = True
+            Protected _RefreshHisto As Double = 0
+            Protected _Purge As Double = 0
+            Protected _MoyJour As Double = 0
+            Protected _MoyHeure As Double = 0
 
             '<NonSerialized()> Protected _FirstTime As Boolean = True
             Public Commandes As New List(Of HoMIDom.Telecommande.Commandes)
 
             Public Variables As New Dictionary(Of String, String)
+
+            <NonSerialized()> Public _countTempHisto As Double
 
             ''' <summary>
             ''' Retourne la liste de tous les fichiers image (png ou jpg) présents sur le serveur
@@ -471,6 +478,66 @@ Namespace HoMIDom
                 End Set
             End Property
 
+            'si =false, on ne prend pas en comtpe les historisations
+            Public Property IsHisto() As Boolean
+                Get
+                    Return _IsHisto
+                End Get
+                Set(ByVal value As Boolean)
+                    _IsHisto = value
+                End Set
+            End Property
+
+            'temps en secondes entre chaque historisation
+            Public Property RefreshHisto() As Double
+                Get
+                    Return _RefreshHisto
+                End Get
+                Set(ByVal value As Double)
+                    _RefreshHisto = value
+                End Set
+            End Property
+
+            'temps en jour avant la purge de l'historique de ce composant
+            Public Property Purge() As Double
+                Get
+                    Return _Purge
+                End Get
+                Set(ByVal value As Double)
+                    _Purge = value
+                End Set
+            End Property
+
+            'temps en jour avant la moyenne jour de l'historique de ce composant
+            Public Property MoyJour() As Double
+                Get
+                    Return _MoyJour
+                End Get
+                Set(ByVal value As Double)
+                    _MoyJour = value
+                End Set
+            End Property
+
+            'temps en jour avant la moyenne heure de l'historique de ce composant
+            Public Property MoyHeure() As Double
+                Get
+                    Return _MoyHeure
+                End Get
+                Set(ByVal value As Double)
+                    _MoyHeure = value
+                End Set
+            End Property
+
+            'temps en jour avant la purge de l'historique de ce composant
+            Public Property countTempHisto() As Double
+                Get
+                    Return _countTempHisto
+                End Get
+                Set(ByVal value As Double)
+                    _countTempHisto = value
+                End Set
+            End Property
+
             Public ReadOnly Property GetCommandPlus As List(Of DeviceCommande)
                 Get
                     If _Driver IsNot Nothing Then
@@ -498,7 +565,7 @@ Namespace HoMIDom
                 End Try
             End Function
 
-            Public Function AddVariable(Name As String, Optional Value As String = "") As String
+            Public Function AddVariable(ByVal Name As String, Optional ByVal Value As String = "") As String
                 Try
                     If Not Variables.ContainsKey(Name) Then
                         Variables.Add(Name, Value)
@@ -512,7 +579,7 @@ Namespace HoMIDom
                 End Try
             End Function
 
-            Public Function GetValueOfVariable(Name As String) As String
+            Public Function GetValueOfVariable(ByVal Name As String) As String
                 Try
                     Return Variables(Name)
                 Catch ex As Exception
@@ -521,7 +588,7 @@ Namespace HoMIDom
                 End Try
             End Function
 
-            Public Function SetValueOfVariable(Name As String, Value As String) As String
+            Public Function SetValueOfVariable(ByVal Name As String, ByVal Value As String) As String
                 Try
                     Variables(Name) = Value
                     Return Nothing
@@ -531,7 +598,7 @@ Namespace HoMIDom
                 End Try
             End Function
 
-            Public Function DeleteVariable(Name As String) As String
+            Public Function DeleteVariable(ByVal Name As String) As String
                 Try
                     Return Variables.Remove(Name)
                 Catch ex As Exception
@@ -1986,7 +2053,7 @@ Namespace HoMIDom
             Dim _blue As Integer = 0 '0-255
             Dim _white As Integer = 0 '0-255
             Dim _temperature As Integer = 0 'use for HUE 0=Warm, 1=cold 
-            Dim _speed As Integer = "" '0-100 setting of speed change of colours/ON/OFF... 
+            Dim _speed As Integer = 0 '0-100 setting of speed change of colours/ON/OFF... 
             Dim _optionnal As String = "" 'optionnal depending on driver
 
             'Creation du device
@@ -2868,8 +2935,7 @@ Namespace HoMIDom
             End Sub
 
 
-
-' SetPoint Thermostat SCS317  *****************************************************
+            ' SetPoint Thermostat  *****************************************************
             Public Sub [SetPoint](ByVal Variation As Single)
                 If _Enable = False Then Exit Sub
 
@@ -2878,12 +2944,12 @@ Namespace HoMIDom
                 ElseIf Variation > 30 Then
                     Variation = 30
                 End If
-
                 Driver.Write(Me, "SETPOINT", Variation)
             End Sub
 
         End Class
 
+      
 
         <Serializable()> Class UV
             Inherits DeviceGenerique_ValueDouble

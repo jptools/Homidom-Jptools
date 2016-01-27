@@ -60,7 +60,8 @@ Imports OfficeOpenXml
 #End Region
 
 #Region "Declaration"
-
+    Dim ModeChauffage As String = ""
+    Dim ModeSemaine As String = ""
 
 #End Region
 
@@ -262,21 +263,26 @@ Imports OfficeOpenXml
                 Case "GENERIQUESTRING"
                     Select Case Objet.adresse1.toUpper
 
-                        Case "TEMPERATURECONSIGNE"
-                            If _Parametres.Item(6).Valeur = False Then        ' Si pas Hors Gele
-                                If _Parametres.Item(5).Valeur = True Then      'Si on ne désire pas lire le fichier (on garde l'ancienne consigne)
-                                    LireFichier(Objet)          'Lire la consigne de température
-                                End If
-                            Else
-                                Objet.Value = _Parametres.Item(7).Valeur    'Valeur Consigne Hors Gele
-                            End If
-
                         Case "NUMEROSEMAINE"
                             Objet.Value = LireNumSemaine(Now)          ' Rechercher le numero de la semaine
 
                         Case "NUMEROJOUR"
                             ' Objet.Value = Weekday(Now, vbMonday)     'déterminer le num du jour 
                             Objet.Value = DatePart(DateInterval.DayOfYear, Now, FirstDayOfWeek.Monday)  'déterminer le num du jour de l'année
+
+                        Case "MODESEMAINE"
+                            Objet.Value = ModeSemaine        'Affiche le type de semaine
+
+                        Case "MODECHAUFFAGE"               'Affiche le mode de chauffage en cours
+                            If ModeChauffage = "ECC" Then
+                                Objet.Value = "Economique"
+                            ElseIf ModeChauffage = "EC" Then
+                                Objet.Value = "1/2 Economique"
+                            ElseIf ModeChauffage = "PRE" Then
+                                Objet.Value = "Confort"
+                            ElseIf ModeChauffage = "PRE+" Then
+                                Objet.Value = "Confort +"
+                            End If
 
                         Case Else
                             _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "Erreur Drivers EPPlus : ", "Nom Valeur n'existe pas")
@@ -285,6 +291,17 @@ Imports OfficeOpenXml
                 Case "SWITCH"
                     _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EEPlus Mode : ", Objet.Name & " : " & Objet.Value)
 
+                Case "GENERIQUEVALUE"
+                    Select Case Objet.adresse1.toUpper
+                        Case "TEMPERATURECONSIGNE"
+                            If _Parametres.Item(6).Valeur = False Then        ' Si pas Hors Gele
+                                If _Parametres.Item(5).Valeur = True Then      'Si on ne désire pas lire le fichier (on garde l'ancienne consigne)
+                                    LireFichier(Objet)          'Lire la consigne de température
+                                End If
+                            Else
+                                Objet.Value = _Parametres.Item(7).Valeur    'Valeur Consigne Hors Gele
+                            End If
+                    End Select
                 Case Else
                     _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "Erreur Drivers EPPlus : ", "Type non conforme")
             End Select
@@ -519,17 +536,18 @@ Imports OfficeOpenXml
             'liste des devices compatibles
             _DeviceSupport.Add(ListeDevices.GENERIQUESTRING)
             _DeviceSupport.Add(ListeDevices.SWITCH.ToString)
+            _DeviceSupport.Add(ListeDevices.GENERIQUEVALUE)
 
             'Parametres avancés
             Add_ParamAvance("Debug", "Activer le Debug complet (True/False)", False)
             Add_ParamAvance("Fichier Excel", "Emplacement du fichier", "C:\Program Files\HoMIDoM\Config\Calendrier.xlsx")
-            Add_ParamAvance("Ecconomique", "Température du mode ecconomique : ECC", "18")
-            Add_ParamAvance("DemiEcconomique", "Température du mode 1/2 Ecconomique : EC", "19")
-            Add_ParamAvance("Confort", "Température du mode Confort : PRE", "20")
+            Add_ParamAvance("Ecconomique", "Température du mode ecconomique : ECC", 18)
+            Add_ParamAvance("DemiEcconomique", "Température du mode 1/2 Ecconomique : EC", 19)
+            Add_ParamAvance("Confort", "Température du mode Confort : PRE", 20)
             Add_ParamAvance("ActiverLecture", "Activer la lecture (True/False)", True)
             Add_ParamAvance("ActiverHorsGele", "Activer le Mode Hors Gêle (True/False)", False)
-            Add_ParamAvance("Hors Gêle", "Température du mode Hors Gêle", "8")
-            Add_ParamAvance("Confort +", "Température du mode Confort + : PRE+", "21")
+            Add_ParamAvance("Hors Gêle", "Température du mode Hors Gêle", 8)
+            Add_ParamAvance("Confort +", "Température du mode Confort + : PRE+", 21)
 
             'ajout des commandes avancées pour les devices
             ' Add_DeviceCommande("Ouvrir Gestionnaire", "", 0)
@@ -601,8 +619,7 @@ Imports OfficeOpenXml
             Dim pck As ExcelPackage
             Dim Mode As String
 
-            Dim NumJour As Integer
-            Dim ModeChauffage As String
+            Dim NumJour As Integer            
             Dim Ligne, NumSemaine As Integer
 
             NumSemaine = LireNumSemaine(Now)          ' Rechercher le numero de la semaine
@@ -617,14 +634,14 @@ Imports OfficeOpenXml
                 pck = New ExcelPackage(newFile)
                 Mode = "Calendrier"
                 worksheet = pck.Workbook.Worksheets.Item(Mode)
-                ModeChauffage = worksheet.Cells(NumSemaine + 1, 2).Value   'Recherche le mode  de chauffage          
+                ModeSemaine = worksheet.Cells(NumSemaine + 1, 2).Value   'Recherche le mode  de chauffage          
                 NumJour = Weekday(Now, vbMonday)     'déterminer le num du jour       
 
                 'Num ligne a calculer en fonction de l'Heure (par tranche 1/2h)
                 Ligne = ((Timer / 3600) * 2) + 1
-                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode: ", ModeChauffage & " N° Lignes: " & CStr(Ligne + 1))
-                If ModeChauffage = "Conger" Or ModeChauffage = "Normal" Or ModeChauffage = "Reduit" Or ModeChauffage = "Charger" Or ModeChauffage = "Absence" Then
-                    worksheet = pck.Workbook.Worksheets.Item(ModeChauffage)
+                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode: ", ModeSemaine & " N° Lignes: " & CStr(Ligne + 1))
+                If ModeSemaine = "Conger" Or ModeSemaine = "Normal" Or ModeSemaine = "Reduit" Or ModeSemaine = "Charger" Or ModeSemaine = "Absence" Then
+                    worksheet = pck.Workbook.Worksheets.Item(ModeSemaine)
                     ModeChauffage = worksheet.Cells(Ligne + 1, NumJour + 1).Value
                     _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode : ", ModeChauffage & " N° Jour: " & CStr(NumJour) & " N° Sem: " & CStr(NumSemaine))
 
@@ -683,7 +700,7 @@ Imports OfficeOpenXml
             If semain = 7 Then
                 dat = dat.AddDays(1)
             End If
-            semaine = DatePart("ww", dat, vbMonday)
+            semaine = DatePart("ww", dat, vbMonday, vbFirstFourDays)
 
             Return semaine
         End If

@@ -336,9 +336,9 @@ Public Class uGestionChauff
         Dim NomFichier As String
 
         'Sauver une copie du fichier Excel "Calendrier.bak"
-        NomFichier = _Driver.Parametres.Item(1).Valeur
+        NomFichier = _Driver.Parametres.Item(1).Valeur       
         Dim ParaFichier = Split(NomFichier, ".")
-        ParaFichier(1) = "Bak"
+        ParaFichier(1) = "bak"
         zipFile = New FileInfo(ParaFichier(0) + "." + ParaFichier(1))
         If (zipFile.Exists) Then
             zipFile.Delete()
@@ -369,7 +369,7 @@ Public Class uGestionChauff
         Dim Donnee As Calendrier
 
         worksheet = pck.Workbook.Worksheets.Item(Mode)
-        For Ligne = 0 To 51
+        For Ligne = 0 To 52
             Donnee = ListCalendrier.Item(Ligne)
             worksheet.Cells(Ligne + 2, 2).Value = Donnee.Mode
         Next
@@ -526,7 +526,7 @@ Public Class uGestionChauff
         _Mode = Mode
         worksheet = pck.Workbook.Worksheets.Item(_Mode)
         _listCalendar.Clear()
-        For Ligne = 2 To 53
+        For Ligne = 2 To 54
             Text1 = worksheet.Cells(Ligne, 1).Value
             Text2 = worksheet.Cells(Ligne, 2).Value
             _listCalendar.Add(New Calendrier() With {.Semaine = Text1, .Mode = Text2})

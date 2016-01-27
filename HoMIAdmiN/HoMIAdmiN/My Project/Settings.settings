@@ -33,7 +33,7 @@
       <Value Profile="(Default)">700</Value>
     </Setting>
     <Setting Name="AnimationDuration" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">300</Value>
+      <Value Profile="(Default)">650</Value>
     </Setting>
   </Settings>
 </SettingsFile>

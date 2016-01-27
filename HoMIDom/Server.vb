@@ -296,12 +296,19 @@ Namespace HoMIDom
                         '------------------------------------------------------------------------------------------------
                         Try
                             'Ajout dans la BDD
-                            retour = sqlite_homidom.nonquery("INSERT INTO historiques (device_id,source,dateheure,valeur) VALUES (@parameter0, @parameter1, @parameter2, @parameter3)", Device.ID, [Property], Now.ToString("yyyy-MM-dd HH:mm:ss"), valeur)
-                            If Mid(retour, 1, 4) = "ERR:" Then
-                                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "DeviceChange", "Erreur Requete sqlite : " & retour)
-                            Else
-                                Device.CountHisto += 1
-                                ManagerSequences.AddSequences(Sequence.TypeOfSequence.HistoryChange, Nothing, Nothing, Nothing)
+                            If Device.isHisto Then
+                                If Device.countTempHisto = Device.RefreshHisto Or Device.RefreshHisto = 0 Then
+                                    retour = sqlite_homidom.nonquery("INSERT INTO historiques (device_id,source,dateheure,valeur) VALUES (@parameter0, @parameter1, @parameter2, @parameter3)", Device.ID, [Property], Now.ToString("yyyy-MM-dd HH:mm:ss"), valeur)
+                                    If Mid(retour, 1, 4) = "ERR:" Then
+                                        Log(TypeLog.ERREUR, TypeSource.SERVEUR, "DeviceChange", "Erreur Requete sqlite : " & retour)
+                                    Else
+                                        Device.CountHisto += 1
+                                        Device.countTempHisto = 1
+                                        ManagerSequences.AddSequences(Sequence.TypeOfSequence.HistoryChange, Nothing, Nothing, Nothing)
+                                    End If
+                                Else
+                                    Device.countTempHisto += 1
+                                End If
                             End If
                         Catch ex As Exception
                             Log(TypeLog.ERREUR, TypeSource.SERVEUR, "DeviceChange", "Historique Exception : " & ex.Message)
@@ -343,6 +350,7 @@ Namespace HoMIDom
                 thr1.Priority = ThreadPriority.Highest
                 thr1.Start()
                 ListThread.Add(thr1)
+                thr1 = Nothing
 
                 '---- Actions à effectuer toutes les minutes ----
                 If ladate.Second = 0 Then
@@ -494,6 +502,7 @@ Namespace HoMIDom
 
                 MAJ_HeuresSoleil()
                 VerifIsWeekEnd()
+                VerifPurge()
             Catch ex As Exception
                 Log(TypeLog.ERREUR, TypeSource.SERVEUR, "Thread3h", "Exception: " & ex.ToString)
             End Try
@@ -757,6 +766,7 @@ Namespace HoMIDom
         Private Sub SaveRealTime()
             Try
                 If _SaveRealTime Then SaveConfig(_MonRepertoire & "\config\homidom.xml")
+
             Catch ex As Exception
                 Log(TypeLog.ERREUR, TypeSource.SERVEUR, "SaveRealTime", "Exception : " & ex.Message)
             End Try
@@ -1426,6 +1436,11 @@ Namespace HoMIDom
                                         End If
                                         If (Not list.Item(j).Attributes.GetNamedItem("solo") Is Nothing) Then .Solo = list.Item(j).Attributes.GetNamedItem("solo").Value
                                         If (Not list.Item(j).Attributes.GetNamedItem("lastetat") Is Nothing) Then .LastEtat = list.Item(j).Attributes.GetNamedItem("lastetat").Value
+                                        If (Not list.Item(j).Attributes.GetNamedItem("ishisto") Is Nothing) Then .IsHisto = list.Item(j).Attributes.GetNamedItem("ishisto").Value
+                                        If (Not list.Item(j).Attributes.GetNamedItem("refreshhisto") Is Nothing) Then .refreshhisto = list.Item(j).Attributes.GetNamedItem("refreshhisto").Value
+                                        If (Not list.Item(j).Attributes.GetNamedItem("purge") Is Nothing) Then .purge = list.Item(j).Attributes.GetNamedItem("purge").Value
+                                        If (Not list.Item(j).Attributes.GetNamedItem("moyjour") Is Nothing) Then .moyjour = list.Item(j).Attributes.GetNamedItem("moyjour").Value
+                                        If (Not list.Item(j).Attributes.GetNamedItem("moyheure") Is Nothing) Then .moyheure = list.Item(j).Attributes.GetNamedItem("moyheure").Value
 
                                         'on recup les variables
                                         If list.Item(j).HasChildNodes = True Then
@@ -2342,6 +2357,21 @@ Namespace HoMIDom
                         writer.WriteStartAttribute("lastetat")
                         writer.WriteValue(_ListDevices.Item(i).lastetat)
                         writer.WriteEndAttribute()
+                        writer.WriteStartAttribute("ishisto")
+                        writer.WriteValue(_ListDevices.Item(i).isHisto)
+                        writer.WriteEndAttribute()
+                        writer.WriteStartAttribute("refreshhisto")
+                        writer.WriteValue(_ListDevices.Item(i).refreshhisto)
+                        writer.WriteEndAttribute()
+                        writer.WriteStartAttribute("purge")
+                        writer.WriteValue(_ListDevices.Item(i).purge)
+                        writer.WriteEndAttribute()
+                        writer.WriteStartAttribute("moyjour")
+                        writer.WriteValue(_ListDevices.Item(i).moyjour)
+                        writer.WriteEndAttribute()
+                        writer.WriteStartAttribute("moyheure")
+                        writer.WriteValue(_ListDevices.Item(i).moyheure)
+                        writer.WriteEndAttribute()
 
                         '-- propriétés generique value --
                         If _ListDevices.Item(i).Type = "BAROMETRE" _
@@ -2808,6 +2838,81 @@ Namespace HoMIDom
                 Log(TypeLog.ERREUR, TypeSource.SERVEUR, "WriteListAction", "Exception : " & ex.Message)
             End Try
         End Sub
+
+        Public Function GetFrameworkVersionString() As String
+            Try
+                Dim CLRVersion As Version = System.Environment.Version
+
+                If (CLRVersion.Major = 4 & CLRVersion.Minor = 0) Then
+                    '4.0.30319.237   - 4.0
+                    '4.0.30319.17020 - 4.5 (Microsoft .NET Framework 4.5 Developer Preview)
+                    '4.0.30319.17379 - 4.5 (Microsoft .NET Framework 4.5 Consumer Preview)
+                    '4.0.30319.17626 - 4.5 (Microsoft .NET Framework 4.5 RC)
+                    '4.0.30319.17929 - 4.5 (Microsoft .NET Framework 4.5 RTM)
+                    '4.0.30319.18408 - 4.5.1 (Microsoft .NET Framework 4.5.1 RTM - Windows Vista/7 - KB2858728)
+                    '4.0.30319.34003 - 4.5.1 (Microsoft .NET Framework 4.5.1 RTM - Windows 8.1)
+                    '4.0.30319.34209 - 4.5.2 (Microsoft .NET Framework 4.5.2 May 2014 Update)
+                    '4.0.30319.42000 - 4.6 - In .NET Framework 4.6, the Environment.Version property returns the fixed version string 4.0.30319.42000
+
+                    If (CLRVersion >= New Version(4, 0, 30319, 42000)) Then
+                        Return "4.6"
+                    ElseIf (CLRVersion >= New Version(4, 0, 30319, 34209)) Then
+                        Return "4.5.2"
+                    ElseIf (CLRVersion >= New Version(4, 0, 30319, 18408)) Then
+                        Return "4.5.1"
+                    ElseIf (CLRVersion >= New Version(4, 0, 30319, 17020)) Then
+                        Return "4.5"
+                    End If
+                    Return "4.0"   '//4.0.30319.237
+                ElseIf (CLRVersion.Major = 2 & CLRVersion.Minor = 0) Then
+                    If (CLRVersion >= New Version(2, 0, 50727, 3521)) Then     '3.5.1
+                        '2.0.50727.3521 - 3.5.1 in Windows 7 Beta 2
+                        '2.0.50727.4016 - 3.5 SP1 in Windows Vista SP2 or Windows Server 2008 SP2
+                        '2.0.50727.4918 - 3.5.1 in Windows 7 RC or Windows Server 2008 R2
+                        Try
+                            System.Reflection.Assembly.Load("System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+                            If (Environment.OSVersion.Platform = PlatformID.Win32NT & Environment.OSVersion.Version.Major >= 6 & Environment.OSVersion.Version.Minor >= 1) Then Return "3.5.1"
+                            Return "3.5 SP1"
+                        Catch ex As Exception
+                        End Try
+                        Return "2.0 SP2"
+                    End If
+                    If (CLRVersion >= New Version(2, 0, 50727, 3053)) Then Return "3.5 SP1"
+                    If (CLRVersion >= New Version(2, 0, 50727, 1433)) Then
+                        '2.0 SP1 or 3.0 SP1 or 3.5
+                        Try
+                            System.Reflection.Assembly.Load("System.Core, Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089")
+                            Return "3.5"
+                        Catch ex As Exception
+                        End Try
+
+                        Try
+                            System.Reflection.Assembly.Load("WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
+                            Return "3.0 SP1"
+                        Catch ex As Exception
+                        End Try
+
+                        Return "2.0 SP1"
+                    End If
+
+                    If (CLRVersion = New Version(2, 0, 50727, 312)) Then Return "3.0" 'Vista RTM
+
+                    '//2.0.50727.42 RTM - 2.0 or 3.0
+                    Try
+                        System.Reflection.Assembly.Load("WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35")
+                        Return "3.0"
+                    Catch ex As Exception
+                    End Try
+
+                    Return "2.0"
+                End If
+
+                Return CLRVersion.Major.ToString(System.Globalization.CultureInfo.InvariantCulture) + "." + CLRVersion.Minor.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            Catch ex As Exception
+                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "ERREUR GetFrameworkVersionString", "Erreur lors de la récupération da la version du framework .net " & ex.Message)
+                Return ""
+            End Try
+        End Function
 #End Region
 
 #Region "Device"
@@ -3629,7 +3734,8 @@ Namespace HoMIDom
                 Else
                     Log(TypeLog.INFO, TypeSource.SERVEUR, "INFO", "Version de l'OS: " & My.Computer.Info.OSFullName.ToString & " 32 Bits")
                 End If
-                Log(TypeLog.INFO, TypeSource.SERVEUR, "INFO", "Version du Framework: " & System.Runtime.InteropServices.RuntimeEnvironment.GetSystemVersion())
+                'Log(TypeLog.INFO, TypeSource.SERVEUR, "INFO", "Version du Framework: " & System.Runtime.InteropServices.RuntimeEnvironment.GetSystemVersion())
+                Log(TypeLog.INFO, TypeSource.SERVEUR, "INFO", "Version du Framework: " & GetFrameworkVersionString() & " (" & System.Environment.Version.Major & "." & System.Environment.Version.Minor & "." & System.Environment.Version.Build & "." & System.Environment.Version.Revision & ")")
                 Log(TypeLog.INFO, TypeSource.SERVEUR, "INFO", "Répertoire utilisé: " & My.Application.Info.DirectoryPath.ToString)
 
                 'Log(TypeLog.INFO, TypeSource.SERVEUR, "INFO", "Adresse IP du serveur: " & System.Net.Dns.GetHostByName(My.Computer.Name).AddressList(0).ToString())
@@ -5134,6 +5240,18 @@ Namespace HoMIDom
             End Try
         End Function
 
+        ''' <summary>Retourne la version du framework .net du serveur</summary>
+        ''' <returns>version du framework .net du serveur</returns>
+        ''' <remarks>exemple: 4.5.2 (4.0.30319.18502)</remarks>
+        Public Function GetFrameworkNetServerVersion() As String Implements IHoMIDom.GetFrameworkNetServerVersion
+            Try
+                Return GetFrameworkVersionString() & "(" & System.Environment.Version.Major & "." & System.Environment.Version.Minor & "." & System.Environment.Version.Build & "." & System.Environment.Version.Revision & ")"
+            Catch ex As Exception
+                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "GetFrameworkNetServerVersion", "Exception : " & ex.Message)
+                Return "ERR: Exception"
+            End Try
+        End Function
+
         ''' <summary>Retourne l'heure du serveur</summary>
         ''' <returns>String : heure du serveur</returns>
         Public Function GetTime() As String Implements IHoMIDom.GetTime
@@ -5454,7 +5572,6 @@ Namespace HoMIDom
                         _dev.CountHisto -= 1
                         If _dev.CountHisto <= 0 Then _dev.CountHisto = 0
                     End If
-
 
                 End If
 
@@ -6014,9 +6131,193 @@ Namespace HoMIDom
             End Try
         End Function
 
+
+        Public Function VerifPurge() As Integer Implements IHoMIDom.VerifPurge
+
+            Try
+
+                Dim Source As String = "Value"
+                Dim result As New List(Of Historisation)
+                Dim result1 As New List(Of Historisation)
+                Dim DateTime As String = ""
+                Dim DateStart As String = ""
+
+                For Each _dev In _ListDevices
+                    If _dev.Purge > 0 Then
+
+                        result = New List(Of Historisation)
+                        DateTime = ""
+                        DateStart = ""
+
+                        'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                        DateTime = Now.AddDays(_dev.Purge * -1).ToString("yyyy-MM-dd HH:mm:ss") 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                        DateStart = "2010-01-01 01:01:01" 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+
+                        result = GetHistoDeviceSource(_IdSrv, _dev.ID, Source, DateStart, DateTime)
+
+                        If result IsNot Nothing Then
+                            For i As Integer = 0 To result.Count - 1
+
+                                'Suppression de la BDD
+                                DeleteHisto(_IdSrv, _dev.ID, result.Item(i).DateTime, result.Item(i).Value, Source)
+
+                                'decrementation du nombre d'histo du composant
+                                If _dev IsNot Nothing Then
+                                    _dev.CountHisto -= 1
+                                    If _dev.CountHisto <= 0 Then _dev.CountHisto = 0
+                                End If
+                            Next
+
+                        End If
+                    End If
+                    If _dev.MoyJour > 0 And (_dev.Purge > _dev.MoyJour Or _dev.Purge = 0) Then
+
+                        result = New List(Of Historisation)
+                        result1 = New List(Of Historisation)
+                        DateTime = ""
+                        DateStart = ""
+
+                        'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                        DateTime = Now.AddDays(_dev.MoyJour * -1).ToString("yyyy-MM-dd HH:mm:ss") 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                        If _dev.Purge > _dev.MoyJour Then
+                            DateStart = Now.AddDays(_dev.Purge * -1).ToString("yyyy-MM-dd HH:mm:ss") 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                        Else
+                            DateStart = "2010-01-01 01:01:01" 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                        End If
+
+                        result = GetHistoDeviceSource(_IdSrv, _dev.ID, Source, DateStart, DateTime)
+                        result1 = GetHistoDeviceSource(_IdSrv, _dev.ID, Source, DateStart, DateTime, "JOUR")
+
+                        If result IsNot Nothing And result1 IsNot Nothing And DateStart <> "" Then
+                            If result.Count > result1.Count Then
+                                For i As Integer = 0 To result.Count - 1
+
+                                    'Suppression de la BDD
+                                    DeleteHisto(_IdSrv, _dev.ID, result.Item(i).DateTime, result.Item(i).Value, Source)
+
+                                    'decrementation du nombre d'histo du composant
+                                    If _dev IsNot Nothing Then
+                                        _dev.CountHisto -= 1
+                                        If _dev.CountHisto <= 0 Then _dev.CountHisto = 0
+                                    End If
+                                Next
+                                For i As Integer = 0 To result1.Count - 1
+
+                                    'Ajout dans la BDD
+                                    AddHisto(_IdSrv, _dev.ID, result1.Item(i).DateTime, result1.Item(i).Value, Source)
+
+                                    'incrementation du nombre d'histo du composant
+                                    If _dev IsNot Nothing Then
+                                        _dev.CountHisto += 1
+                                    End If
+                                Next
+                            End If
+                        End If
+                    End If
+
+                    If _dev.MoyHeure > 0 And (_dev.MoyJour > _dev.MoyHeure Or _dev.MoyJour = 0) And ((_dev.Purge > _dev.MoyHeure And _dev.Purge > 0) Or _dev.Purge = 0) Then
+
+                        result = New List(Of Historisation)
+                        result1 = New List(Of Historisation)
+                        DateTime = ""
+                        DateStart = ""
+
+                        'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                        DateTime = Now.AddDays(_dev.MoyHeure * -1).ToString("yyyy-MM-dd HH:mm:ss") 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                        If _dev.MoyJour = 0 Then
+                            If _dev.Purge = 0 Then
+                                DateStart = "2010-01-01 01:01:01" 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                            Else
+                                If _dev.Purge > _dev.MoyHeure Then
+                                    DateStart = Now.AddDays(_dev.Purge * -1).ToString("yyyy-MM-dd HH:mm:ss") 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                                Else
+                                    DateStart = "2010-01-01 01:01:01" 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")									
+                                End If
+                            End If
+                        Else
+                            If _dev.MoyJour > _dev.MoyHeure Then
+                                DateStart = Now.AddDays(_dev.MoyJour * -1).ToString("yyyy-MM-dd HH:mm:ss") 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                            Else
+                                If _dev.Purge = 0 Then
+                                    DateStart = "2010-01-01 01:01:01" 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                                Else
+                                    If _dev.Purge > _dev.MoyHeure Then
+                                        DateStart = Now.AddDays(_dev.Purge * -1).ToString("yyyy-MM-dd HH:mm:ss") 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")
+                                    Else
+                                        DateStart = "2010-01-01 01:01:01" 'datetime doit etre au format ToString("yyyy-MM-dd HH:mm:ss")									
+                                    End If
+                                End If
+                            End If
+                        End If
+
+                        result = GetHistoDeviceSource(_IdSrv, _dev.ID, Source, DateStart, DateTime)
+                        result1 = GetHistoDeviceSource(_IdSrv, _dev.ID, Source, DateStart, DateTime, "HEURE")
+
+                        If result IsNot Nothing And result1 IsNot Nothing And DateStart <> "" Then
+                            If result.Count > result1.Count Then
+                                For i As Integer = 0 To result.Count - 1
+
+                                    'Suppression de la BDD
+                                    DeleteHisto(_IdSrv, _dev.ID, result.Item(i).DateTime, result.Item(i).Value, Source)
+
+                                    'decrementation du nombre d'histo du composant
+                                    If _dev IsNot Nothing Then
+                                        _dev.CountHisto -= 1
+                                        If _dev.CountHisto <= 0 Then _dev.CountHisto = 0
+                                    End If
+                                Next
+                                For i As Integer = 0 To result1.Count - 1
+
+                                    'Ajout dans la BDD
+                                    AddHisto(_IdSrv, _dev.ID, result1.Item(i).DateTime, result1.Item(i).Value, Source)
+
+                                    'incrementation du nombre d'histo du composant
+                                    If _dev IsNot Nothing Then
+                                        _dev.CountHisto += 1
+                                    End If
+                                Next
+                            End If
+                        End If
+                    End If
+                Next
+
+                Return 0
+            Catch ex As Exception
+                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "DeleteHisto", "Exception : " & ex.Message)
+                Return -1
+            End Try
+
+        End Function
+
+
 #End Region
 
 #Region "Audio"
+
+        Public Function Parler(ByVal Message As String) As Boolean Implements IHoMIDom.Parler
+            Try
+                Dim texte As String = Message
+                'remplace les balises par la valeur
+                'texte = texte.Replace("{time}", Now.ToShortTimeString)
+                'texte = texte.Replace("{date}", Now.ToLongDateString)
+                'texte = Decodestring(texte)
+
+                Dim lamachineaparler As New Speech.Synthesis.SpeechSynthesizer
+                Log(Server.TypeLog.DEBUG, Server.TypeSource.SCRIPT, "Parler", "Message: " & texte)
+                With lamachineaparler
+                    .SelectVoice(GetDefautVoice)
+                    '.SetOutputToWaveFile("C:\tet.wav")
+                    '.SetOutputToWaveFile(File)
+                    .SpeakAsync(texte)
+                End With
+
+                texte = Nothing
+                lamachineaparler = Nothing
+            Catch ex As Exception
+                Log(Server.TypeLog.ERREUR, Server.TypeSource.SCRIPT, "Parler", "Exception lors de l'annonce du message: " & Message & " : " & ex.ToString)
+            End Try
+        End Function
+
 #End Region
 
 #Region "SMTP"
@@ -7134,6 +7435,12 @@ Namespace HoMIDom
                         .AllValue = _ListDevices.Item(i).AllValue
                         .VariablesOfDevice = _ListDevices.Item(i).Variables
                         .CountHisto = _ListDevices.Item(i).CountHisto
+                        .IsHisto = _ListDevices.Item(i).isHisto
+                        .RefreshHisto = _ListDevices.Item(i).RefreshHisto
+                        .Purge = _ListDevices.Item(i).purge
+                        .MoyHeure = _ListDevices.Item(i).moyheure
+                        .MoyJour = _ListDevices.Item(i).moyjour
+
                         If IsNumeric(_ListDevices.Item(i).valuelast) Then .ValueLast = _ListDevices.Item(i).valuelast
 
                         _listact = ListMethod(_ListDevices.Item(i).id)
@@ -7276,7 +7583,7 @@ Namespace HoMIDom
         ''' <param name="valuedef"></param>
         ''' <returns></returns>
         ''' <remarks></remarks>
-        Public Function SaveDevice(ByVal IdSrv As String, ByVal deviceId As String, ByVal name As String, ByVal address1 As String, ByVal enable As Boolean, ByVal solo As Boolean, ByVal driverid As String, ByVal type As String, ByVal refresh As Integer, Optional ByVal address2 As String = "", Optional ByVal image As String = "", Optional ByVal modele As String = "", Optional ByVal description As String = "", Optional ByVal lastchangeduree As Integer = 0, Optional ByVal lastEtat As Boolean = True, Optional ByVal correction As String = "0", Optional ByVal formatage As String = "", Optional ByVal precision As Double = 0, Optional ByVal valuemax As Double = 9999, Optional ByVal valuemin As Double = -9999, Optional ByVal valuedef As Double = 0, Optional ByVal Commandes As List(Of Telecommande.Commandes) = Nothing, Optional ByVal Unit As String = "", Optional ByVal Puissance As Integer = 0, Optional ByVal AllValue As Boolean = False, Optional ByVal Variables As Dictionary(Of String, String) = Nothing, Optional ByVal Proprietes As Dictionary(Of String, String) = Nothing) As String Implements IHoMIDom.SaveDevice
+        Public Function SaveDevice(ByVal IdSrv As String, ByVal deviceId As String, ByVal name As String, ByVal address1 As String, ByVal enable As Boolean, ByVal solo As Boolean, ByVal driverid As String, ByVal type As String, ByVal refresh As Integer, ByVal Historisation As Boolean, ByVal RefreshHisto As Double, ByVal purge As Double, ByVal moyjour As Double, ByVal moyheure As Double, Optional ByVal address2 As String = "", Optional ByVal image As String = "", Optional ByVal modele As String = "", Optional ByVal description As String = "", Optional ByVal lastchangeduree As Integer = 0, Optional ByVal lastEtat As Boolean = True, Optional ByVal correction As String = "0", Optional ByVal formatage As String = "", Optional ByVal precision As Double = 0, Optional ByVal valuemax As Double = 9999, Optional ByVal valuemin As Double = -9999, Optional ByVal valuedef As Double = 0, Optional ByVal Commandes As List(Of Telecommande.Commandes) = Nothing, Optional ByVal Unit As String = "", Optional ByVal Puissance As Integer = 0, Optional ByVal AllValue As Boolean = False, Optional ByVal Variables As Dictionary(Of String, String) = Nothing, Optional ByVal Proprietes As Dictionary(Of String, String) = Nothing) As String Implements IHoMIDom.SaveDevice
             Try
                 'Vérification de l'Id du serveur pour accepter le traitement
                 If VerifIdSrv(IdSrv) = False Then
@@ -7438,6 +7745,11 @@ Namespace HoMIDom
                         .AllValue = AllValue
                         .Variables = Variables
                         .CountHisto = 0
+                        .isHisto = Historisation
+                        .RefreshHisto = RefreshHisto
+                        .Purge = purge
+                        .MoyJour = moyjour
+                        .MoyHeure = moyheure
                     End With
 
                     Select Case UCase(type)
@@ -7504,6 +7816,11 @@ Namespace HoMIDom
                             _ListDevices.Item(i).Driver.newdevice(deviceId)
                             _ListDevices.Item(i).Unit = Unit
                             _ListDevices.Item(i).AllValue = AllValue
+                            _ListDevices.Item(i).isHisto = Historisation
+                            _ListDevices.Item(i).RefreshHisto = RefreshHisto
+                            _ListDevices.Item(i).Purge = purge
+                            _ListDevices.Item(i).MoyJour = moyjour
+                            _ListDevices.Item(i).MoyHeure = moyheure
 
                             'si c'est un device de type double ou integer
                             If _ListDevices.Item(i).type = "BAROMETRE" _
@@ -7740,6 +8057,11 @@ Namespace HoMIDom
                         retour.Unit = _ListDevices.Item(i).Unit
                         retour.Puissance = _ListDevices.Item(i).Puissance
                         retour.AllValue = _ListDevices.Item(i).AllValue
+                        retour.IsHisto = _ListDevices.Item(i).isHisto
+                        retour.RefreshHisto = _ListDevices.Item(i).RefreshHisto
+                        retour.Purge = _ListDevices.Item(i).purge
+                        retour.MoyJour = _ListDevices.Item(i).moyjour
+                        retour.MoyHeure = _ListDevices.Item(i).moyheure
 
                         Try
                             retour.Value = _ListDevices.Item(i).Value
@@ -8044,55 +8366,18 @@ Namespace HoMIDom
                 End If
 
                 Dim listresultat As New ArrayList
-                Dim TypeDevice As Device.ListeDevices
 
-                For i As Integer = 0 To _ListZones.Count - 1
-                    If _ListZones.Item(i).ID = ZoneID Or (String.IsNullOrEmpty(ZoneID)) Then
-                        For j As Integer = 0 To _ListDevices.Count - 1
-                            For k As Integer = 0 To _ListZones.Item(i).ListElement.Count - 1
-                                Select Case UCase(_ListDevices.Item(i).type)
-                                    Case "APPAREIL" : TypeDevice = Device.ListeDevices.APPAREIL  'modules pour diriger un appareil  ON/OFF
-                                    Case "AUDIO" : TypeDevice = Device.ListeDevices.AUDIO
-                                    Case "BAROMETRE" : TypeDevice = Device.ListeDevices.BAROMETRE  'pour stocker les valeur issu d'un barometre meteo ou web
-                                    Case "BATTERIE" : TypeDevice = Device.ListeDevices.BATTERIE
-                                    Case "COMPTEUR" : TypeDevice = Device.ListeDevices.COMPTEUR  'compteur DS2423, RFXPower...
-                                    Case "CONTACT" : TypeDevice = Device.ListeDevices.CONTACT  'detecteur de contact : switch 1-wire
-                                    Case "DETECTEUR" : TypeDevice = Device.ListeDevices.DETECTEUR  'tous detecteurs : mouvement, obscurite...
-                                    Case "DIRECTIONVENT" : TypeDevice = Device.ListeDevices.DIRECTIONVENT
-                                    Case "ENERGIEINSTANTANEE" : TypeDevice = Device.ListeDevices.ENERGIEINSTANTANEE
-                                    Case "ENERGIETOTALE" : TypeDevice = Device.ListeDevices.ENERGIETOTALE
-                                    Case "FREEBOX" : TypeDevice = Device.ListeDevices.FREEBOX
-                                    Case "GENERIQUEBOOLEEN" : TypeDevice = Device.ListeDevices.GENERIQUEBOOLEEN
-                                    Case "GENERIQUESTRING" : TypeDevice = Device.ListeDevices.GENERIQUESTRING
-                                    Case "GENERIQUEVALUE" : TypeDevice = Device.ListeDevices.GENERIQUEVALUE
-                                    Case "HUMIDITE" : TypeDevice = Device.ListeDevices.HUMIDITE
-                                    Case "LAMPE" : TypeDevice = Device.ListeDevices.LAMPE
-                                    Case "LAMPERGBW" : TypeDevice = Device.ListeDevices.LAMPERGBW
-                                    Case "METEO" : TypeDevice = Device.ListeDevices.METEO
-                                    Case "MULTIMEDIA" : TypeDevice = Device.ListeDevices.MULTIMEDIA
-                                    Case "PLUIECOURANT" : TypeDevice = Device.ListeDevices.PLUIECOURANT
-                                    Case "PLUIETOTAL" : TypeDevice = Device.ListeDevices.PLUIETOTAL
-                                    Case "SWITCH" : TypeDevice = Device.ListeDevices.SWITCH
-                                    Case "TELECOMMANDE" : TypeDevice = Device.ListeDevices.TELECOMMANDE
-                                    Case "TEMPERATURE" : TypeDevice = Device.ListeDevices.TEMPERATURE
-                                    Case "TEMPERATURECONSIGNE" : TypeDevice = Device.ListeDevices.TEMPERATURECONSIGNE
-                                    Case "UV" : TypeDevice = Device.ListeDevices.UV
-                                    Case "VITESSEVENT" : TypeDevice = Device.ListeDevices.VITESSEVENT
-                                    Case "VOLET" : TypeDevice = Device.ListeDevices.VOLET
-                                End Select
-                                If _ListDevices.Item(j).ID = _ListZones.Item(i).ListElement.Item(k).ElementID And _
-                                    (DeviceType = "" Or _ListDevices.Item(i).type = DeviceType.ToUpper() Or TypeDevice = DeviceType.ToUpper()) And _
-                                    _ListDevices.Item(j).Enable = Enable Then
-                                    listresultat.Add(_ListDevices.Item(j))
-                                End If
-                            Next
-                        Next
+                For Each dev In _ListDevices
+                    If ((String.IsNullOrEmpty(ZoneID)) Or dev.ID = ZoneID) And _
+                        ((String.IsNullOrEmpty(DeviceType)) Or dev.type = DeviceType.ToUpper()) And _
+                        dev.Enable = Enable Then
+                        listresultat.Add(dev)
                     End If
                 Next
 
                 Return listresultat
             Catch ex As Exception
-                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "ReturnDeviceByZoneTypeDriver", "Exception : " & ex.Message)
+                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "ReturnDeviceByZoneType", "Exception : " & ex.Message)
                 Return Nothing
             End Try
         End Function
@@ -9963,7 +10248,7 @@ Namespace HoMIDom
                 Dim retour As String = ""
                 If String.IsNullOrEmpty(Requete) = True Then
                     If System.IO.File.Exists(_MonRepertoire & "\logs\log_" & DateAndTime.Now.ToString("yyyyMMdd") & ".txt") Then
-                        Dim SR As New StreamReader(_MonRepertoire & "\logs\log_" & DateAndTime.Now.ToString("yyyyMMdd") & ".txt")
+                        Dim SR As New StreamReader(_MonRepertoire & "\logs\log_" & DateAndTime.Now.ToString("yyyyMMdd") & ".txt", Encoding.GetEncoding("ISO-8859-1"))
                         retour = SR.ReadToEnd()
                         retour = HtmlDecode(retour)
                         SR.Close()
@@ -10733,55 +11018,6 @@ Namespace HoMIDom
                 Return Nothing
             End Try
         End Function
-#End Region
-
-#Region "Autorisations"
-
-        Public Function GetClientFile(ByVal type As String) As ClientOAuth2 Implements IHoMIDom.GetClientFile
-            Try
-                Dim stream = System.IO.File.ReadAllText(My.Application.Info.DirectoryPath & "\config\client_secrets_" & type & ".json")
-                Return Newtonsoft.Json.JsonConvert.DeserializeObject(stream, GetType(ClientOAuth2))
-            Catch ex As Exception
-                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "GetClient", "Exception : " & ex.Message)
-                Return Nothing
-            End Try
-        End Function
-
-        Public Function GetToken(ByVal clientOauth As String, ByVal httpsOauth As String, ByVal code As String) As Boolean Implements IHoMIDom.GetToken
-            Try
-                Dim client As New Net.WebClient
-                Dim reqparm As New Specialized.NameValueCollection
-                reqparm.Add("code", code)
-                reqparm.Add("client_id", GetClientFile(clientOauth).web.client_id)
-                reqparm.Add("client_secret", GetClientFile(clientOauth).web.client_secret)
-                reqparm.Add("redirect_uri", GetClientFile(clientOauth).web.redirect_uris(0))
-                reqparm.Add("grant_type", "authorization_code")
-                Dim responsebytes = client.UploadValues(httpsOauth, "POST", reqparm)
-                Dim responsebody = (New System.Text.UTF8Encoding).GetString(responsebytes)
-                Dim Oauth As Authentication = Newtonsoft.Json.JsonConvert.DeserializeObject(responsebody, GetType(Authentication))
-                Dim stream = Newtonsoft.Json.JsonConvert.SerializeObject(Oauth)
-                System.IO.File.WriteAllText(My.Application.Info.DirectoryPath & "\config\reponse_accesstoken_" & clientOauth & ".json", stream)
-                If Oauth.expires_in > 0 Then
-                    Log(TypeLog.DEBUG, TypeSource.SERVEUR, "GetToken : ", "Requête " & httpsOauth & " OK")
-                    Log(TypeLog.DEBUG, TypeSource.SERVEUR, "GetToken", "Connect : " & responsebody.ToString)
-                Else
-                    Log(TypeLog.ERREUR, TypeSource.SERVEUR, "GetToken", "Non connecté")
-                End If
-            Catch ex As Exception
-                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "GetToken", "Exception : " & ex.Message)
-            End Try
-        End Function
-
-        Public Function GetTokenFile(ByVal clientOauth As String) As Authentication Implements IHoMIDom.GetTokenFile
-            Try
-                Dim stream = System.IO.File.ReadAllText(My.Application.Info.DirectoryPath & "\config\reponse_accesstoken_" & clientOauth & ".json")
-                Return Newtonsoft.Json.JsonConvert.DeserializeObject(stream, GetType(Authentication))
-            Catch ex As Exception
-                Log(TypeLog.ERREUR, TypeSource.SERVEUR, "GetOauth", "Exception : " & ex.Message)
-                Return Nothing
-            End Try
-        End Function
-		
 #End Region
 
 #End Region

@@ -77,3 +77,7 @@ D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.exe
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.xml
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\uGestionChauff.baml
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\uGestionChauff.g.vb
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\uSelectExp.baml
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\uSelectExp.g.vb
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\WParam.g.vb
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\WParam.baml

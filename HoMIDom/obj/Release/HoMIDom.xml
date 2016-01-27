@@ -1044,6 +1044,10 @@ HoMIDom
 	<summary>Retourne la version du serveur</summary>
 	<returns></returns>
 	<remarks></remarks>
+</member><member name="M:HoMIDom.HoMIDom.Server.GetFrameworkNetServerVersion">
+	<summary>Retourne la version du framework .net du serveur</summary>
+	<returns>version du framework .net du serveur</returns>
+	<remarks>exemple: 4.5.2 (4.0.30319.18502)</remarks>
 </member><member name="M:HoMIDom.HoMIDom.Server.GetTime">
 	<summary>Retourne l'heure du serveur</summary>
 	<returns>String : heure du serveur</returns>
@@ -1358,7 +1362,7 @@ HoMIDom
 	<summary>Retourne la liste de tous les devices</summary>
 	<returns></returns>
 	<remarks></remarks>
-</member><member name="M:HoMIDom.HoMIDom.Server.SaveDevice(System.String,System.String,System.String,System.String,System.Boolean,System.Boolean,System.String,System.String,System.Int32,System.String,System.String,System.String,System.String,System.Int32,System.Boolean,System.String,System.String,System.Double,System.Double,System.Double,System.Double,System.Collections.Generic.List{HoMIDom.HoMIDom.Telecommande.Commandes},System.String,System.Int32,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String})">
+</member><member name="M:HoMIDom.HoMIDom.Server.SaveDevice(System.String,System.String,System.String,System.String,System.Boolean,System.Boolean,System.String,System.String,System.Int32,System.Boolean,System.Double,System.Double,System.Double,System.Double,System.String,System.String,System.String,System.String,System.Int32,System.Boolean,System.String,System.String,System.Double,System.Double,System.Double,System.Double,System.Collections.Generic.List{HoMIDom.HoMIDom.Telecommande.Commandes},System.String,System.Int32,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String})">
 	<summary>
  Sauvegarder ou créer un device
  </summary>
@@ -2069,75 +2073,6 @@ HoMIDom
 	<param name="txt"></param>
 	<returns></returns>
 	<remarks></remarks>
-</member><member name="P:HoMIDom.HoMIDom.Authentication.Nom">
-	<summary>
- Nom de cette autorisation
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="P:HoMIDom.HoMIDom.Authentication.access_token">
-	<summary>
- access_token de cette autorisation
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="P:HoMIDom.HoMIDom.Authentication.refresh_token">
-	<summary>
- refresh token de cette autorisation
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="P:HoMIDom.HoMIDom.Authentication.expires_in">
-	<summary>
- expiration du access_token de cette autorisation
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="T:HoMIDom.HoMIDom.Authentication">
-	<summary>Class Authentication, Défini le type pour les autorisations</summary>
-</member><member name="P:HoMIDom.HoMIDom.web.client_secret">
-	<summary>
- client_secret pour ce client
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="P:HoMIDom.HoMIDom.web.redirect_uris">
-	<summary>
- redirect_uris pour ce client
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="P:HoMIDom.HoMIDom.web.client_id">
-	<summary>
-client_id pour ce client
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="T:HoMIDom.HoMIDom.web">
-	<summary>Class installed, Défini le type des données clients</summary>
-</member><member name="P:HoMIDom.HoMIDom.ClientOAuth2.Nom">
-	<summary>
- Nom de ce client
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="P:HoMIDom.HoMIDom.ClientOAuth2.web">
-	<summary>
-client_id pour ce client
- </summary>
-	<value></value>
-	<returns></returns>
-	<remarks></remarks>
-</member><member name="T:HoMIDom.HoMIDom.ClientOAuth2">
-	<summary>Class ClientOAuth2, Défini le type pour le client OAuth2</summary>
 </member><member name="P:HoMIDom.HoMIDom.Groupes.DeviceAction">
 	<summary>
  List des actions associées au Device
@@ -2661,6 +2596,41 @@ client_id pour ce client
 </member><member name="P:HoMIDom.HoMIDom.TemplateDevice.optionnal">
 	<summary>
  optionnal value, use depending on driver
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:HoMIDom.HoMIDom.TemplateDevice.IsHisto">
+	<summary>
+si =false, on ne prend pas en comtpe les historisations
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:HoMIDom.HoMIDom.TemplateDevice.RefreshHisto">
+	<summary>
+temps en secondes entre chaque historisation
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:HoMIDom.HoMIDom.TemplateDevice.Purge">
+	<summary>
+temps en jour avant la purge de l'historique de ce composant
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:HoMIDom.HoMIDom.TemplateDevice.MoyJour">
+	<summary>
+temps en jour avant la moyenne jour de l'historique de ce composant
+ </summary>
+	<value></value>
+	<returns></returns>
+	<remarks></remarks>
+</member><member name="P:HoMIDom.HoMIDom.TemplateDevice.MoyHeure">
+	<summary>
+temps en jour avant la moyenne heure de l'historique de ce composant
  </summary>
 	<value></value>
 	<returns></returns>
@@ -3279,6 +3249,12 @@ client_id pour ce client
  </summary>
 	<returns>Version du serveur</returns>
 	<remarks></remarks>
+</member><member name="M:HoMIDom.HoMIDom.IHoMIDom.GetFrameworkNetServerVersion">
+	<summary>
+ Retourne la version du framework .net du serveur
+ </summary>
+	<returns>Version du framework .net du serveur</returns>
+	<remarks></remarks>
 </member><member name="M:HoMIDom.HoMIDom.IHoMIDom.GetTime">
 	<summary>
  Retourne l'heure du serveur
@@ -3572,6 +3548,13 @@ client_id pour ce client
 	<param name="separateur">caractère de séparation, si omis point-virgule</param>
 	<returns>String si OK, String "ERR:..." si erreur</returns>
 	<remarks></remarks>
+</member><member name="M:HoMIDom.HoMIDom.IHoMIDom.VerifPurge">
+	<summary>
+ Retourne le nombre d'historiques purgé 
+ <param name="IdSrv">L'ID du serveur doit être passé en paramètre pour exécuter cette fonction</param>
+	</summary>
+	<returns>nombre historiques</returns>
+	<remarks></remarks>
 </member><member name="M:HoMIDom.HoMIDom.IHoMIDom.DeleteUser(System.String,System.String)">
 	<summary>
  Supprime un user
@@ -3764,7 +3747,7 @@ client_id pour ce client
 	<param name="DeviceType">Type de device</param>
 	<returns>List de device, Nothing si non trouvé ou ID du serveur erroné</returns>
 	<remarks></remarks>
-</member><member name="M:HoMIDom.HoMIDom.IHoMIDom.SaveDevice(System.String,System.String,System.String,System.String,System.Boolean,System.Boolean,System.String,System.String,System.Int32,System.String,System.String,System.String,System.String,System.Int32,System.Boolean,System.String,System.String,System.Double,System.Double,System.Double,System.Double,System.Collections.Generic.List{HoMIDom.HoMIDom.Telecommande.Commandes},System.String,System.Int32,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String})">
+</member><member name="M:HoMIDom.HoMIDom.IHoMIDom.SaveDevice(System.String,System.String,System.String,System.String,System.Boolean,System.Boolean,System.String,System.String,System.Int32,System.Boolean,System.Double,System.Double,System.Double,System.Double,System.String,System.String,System.String,System.String,System.Int32,System.Boolean,System.String,System.String,System.Double,System.Double,System.Double,System.Double,System.Collections.Generic.List{HoMIDom.HoMIDom.Telecommande.Commandes},System.String,System.Int32,System.Boolean,System.Collections.Generic.Dictionary{System.String,System.String},System.Collections.Generic.Dictionary{System.String,System.String})">
 	<summary>
  Créer un nouveau device ou sauvegarder la modif (si ID est complété)
  </summary>
@@ -4576,46 +4559,60 @@ client_id pour ce client
 </member><member name="P:HoMIDom.My.Resources.Resources.Saint">
 	<summary>
   Recherche une chaîne localisée semblable à JOUR DE L'AN
-St Basile
-Ste Geneviève
-St Odilon
-St Edouard
-St Mélaine
-St Raymond
-St Lucien
-Ste Alix
-St Guillaume
-St Paulin
-Ste Tatiana
-Ste Yvette
-Ste Nina
-St Rémi
-St Marcel
-Ste Roseline
-Ste Prisca
-St Marius
-St Sébastien
-Ste Agnès
-St Vincent
-St Barnard
-St Fr. de Sales
-Conv. de St Paul
-Ste Paule
-Ste Angèle
-St Thomas d'Aquin
-St Gildas
-Ste Martine
-Ste Marcelle
-Ste Ella
+Basile
+Geneviève
+Odilon
+Edouard
+Mélaine
+Raymond
+Lucien
+Alix
+Guillaume
+Paulin
+Tatiana
+Yvette
+Nina
+Rémi
+Marcel
+Roseline
+Prisca
+Marius
+Sébastien
+Agnès
+Vincent
+Barnard
+Fr. de Sales
+Conv. de Paul
+Paule
+Angèle
+Thomas d'Aquin
+Gildas
+Martine
+Marcelle
+Ella
 Présentation
-St Blaise
-Ste Véronique
-Ste Agathe
-St Gaston
-Ste Eugénie
-Ste Jaqueline
-Ste Apolline
-St Arnau [le reste de la chaîne a été tronqué]";.
+Blaise
+Véronique
+Agathe
+Gaston
+Eugénie
+Jaqueline
+Apolline
+Arnaud
+ND de Lourdes
+Félix
+Béatrice
+Valentin
+Claude
+Julienne
+Alexis
+Bernadette
+Gabin
+Aimée
+Pierre-Damien
+Isabelle
+Lazare
+Modes [le reste de la chaîne a été tronqué]";.
 </summary>
 </member><member name="T:HoMIDom.My.Resources.Resources">
 	<summary>
