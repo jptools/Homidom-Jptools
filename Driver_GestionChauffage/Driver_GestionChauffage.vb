@@ -5,6 +5,7 @@ Imports System.IO
 Imports System.Xml
 Imports OfficeOpenXml
 
+Imports STRGS = Microsoft.VisualBasic.Strings
 
 
 'Imports System.Reflection
@@ -16,16 +17,16 @@ Imports OfficeOpenXml
 
 ''' <summary>Driver Excel</summary>
 ''' <remarks></remarks>
-<Serializable()> Public Class Driver_EPPlus
+<Serializable()> Public Class Driver_GestionChauffage
     Implements HoMIDom.HoMIDom.IDriver
 
 #Region "Variable Driver"
     '!!!Attention les variables ci-dessous doivent avoir une valeur par défaut obligatoirement
     'aller sur l'adresse http://www.somacon.com/p113.php pour avoir un ID
     Dim _ID As String = "3BAB5794-CBEE-11E4-A3B7-91811E5D46B0"
-    Dim _Nom As String = "EPPlus"
+    Dim _Nom As String = "GestionChauffage"
     Dim _Enable As Boolean = False
-    Dim _Description As String = "Driver EPPlus"
+    Dim _Description As String = "Driver GestionChauffage"
     Dim _StartAuto As Boolean = False
     Dim _Protocol As String = "Fichier"
     Dim _IsConnect As Boolean = False
@@ -35,7 +36,7 @@ Imports OfficeOpenXml
     Dim _Port_UDP As String = "@"
     Dim _Com As String = "@"
     Dim _Refresh As Integer = 0
-    Dim _Modele As String = "Epplus"
+    Dim _Modele As String = "EPPlus"
     Dim _Version As String = My.Application.Info.Version.ToString
     Dim _OsPlatform As String = "3264"
     Dim _Picture As String = ""
@@ -57,6 +58,11 @@ Imports OfficeOpenXml
     Dim _tempsentrereponse As Integer = 1500
     Dim _ignoreadresse As Boolean = False
     Dim _lastetat As Boolean = True
+#End Region
+
+#Region "Variables internes"
+
+
 #End Region
 
 #Region "Declaration"
@@ -91,13 +97,11 @@ Imports OfficeOpenXml
                 If Command = "" Then
                     Return False
                 Else
-                    If _DEBUG Then _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " ExecuteCommandXX1", " : " & Command)
-
+                    WriteLog("DBG: ExecuteCommandXX1 : " & Command)
                     Select Case UCase(Command)
                         Case "ON", "OFF"
                             Write(MyDevice, Command, Param(0), Param(1))
-                            If _DEBUG Then _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " ExecuteCommandXX2", " : " & Command)
-
+                            WriteLog("DBG: ExecuteCommandXX2 : " & Command)
                         Case Else
 
                     End Select
@@ -107,7 +111,7 @@ Imports OfficeOpenXml
                 Return False
             End If
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " ExecuteCommand", "exception : " & ex.Message)
+            WriteLog("ERR: ExecuteCommand exception : " & ex.Message)
             Return False
         End Try
     End Function
@@ -285,11 +289,11 @@ Imports OfficeOpenXml
                             End If
 
                         Case Else
-                            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "Erreur Drivers EPPlus : ", "Nom Valeur n'existe pas")
+                            WriteLog("ERR: Nom Valeur n'existe pas")
                     End Select
 
                 Case "SWITCH"
-                    _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EEPlus Mode : ", Objet.Name & " : " & Objet.Value)
+                    WriteLog(" Mode : " & Objet.Name & " : " & Objet.Value)
 
                 Case "GENERIQUEVALUE"
                     Select Case Objet.adresse1.toUpper
@@ -303,11 +307,11 @@ Imports OfficeOpenXml
                             End If
                     End Select
                 Case Else
-                    _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "Erreur Drivers EPPlus : ", "Type non conforme")
+                    WriteLog("ERR: Type non conforme")
             End Select
 
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " Lecture des données", ex.ToString)
+            WriteLog("ERR: Lecture des données" & ex.ToString)
         End Try
 
     End Sub
@@ -368,14 +372,14 @@ Imports OfficeOpenXml
 
             If TesterFichier() = True Then
                 _IsConnect = True
-                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus", "Driver démarré")
+                WriteLog("Driver démarré")
             Else
                 _IsConnect = False
-                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus", "Driver non démarré car le fichier n'est pas trouvé")
+                WriteLog("ERR: Driver non démarré car le fichier n'est pas trouvé")
             End If
         Catch ex As Exception
             _IsConnect = False
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus", "Driver en erreur lors du démarrage: " & ex.Message)
+            WriteLog("ERR: Driver en erreur lors du démarrage: " & ex.Message)
         End Try
     End Sub
 
@@ -391,9 +395,9 @@ Imports OfficeOpenXml
     Public Sub [Stop]() Implements HoMIDom.HoMIDom.IDriver.Stop
         Try
             _IsConnect = False
-            _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus", "Driver arrêté")
+            WriteLog("Driver arrêté")
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus", "Erreur lors de l'arrêt du Driver: " & ex.Message)
+            WriteLog("ERR: Erreur lors de l'arrêt du Driver: " & ex.Message)
         End Try
     End Sub
 
@@ -414,8 +418,7 @@ Imports OfficeOpenXml
             If _Enable = False Then Exit Sub
 
             If Objet.type = "SWITCH" Then
-                If _DEBUG Then _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteXX2", Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
-
+                WriteLog("DBG:  WriteXX2" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
                 Select Case UCase(Commande)
                     Case "ON"          'active ou désactive la lecture du fichier Excel
                         If Objet.adresse1.toUpper = "ACTIVERLECTURE" Then
@@ -426,8 +429,7 @@ Imports OfficeOpenXml
                             _Parametres.Item(6).Valeur = True
                             Objet.Value = 100
                         End If
-                        If _DEBUG Then _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteXX3", Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
-
+                        WriteLog("DBG: WriteXX3" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
                     Case "OFF"
                         If Objet.adresse1.toUpper = "ACTIVERLECTURE" Then
                             _Parametres.Item(5).Valeur = False
@@ -437,17 +439,16 @@ Imports OfficeOpenXml
                             _Parametres.Item(6).Valeur = False
                             Objet.Value = 0
                         End If
-                        If _DEBUG Then _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteXX4", Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
-
+                        WriteLog("DBG: WriteXX4" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
                     Case Else
-                        _Server.Log(TypeLog.DEBUG, TypeSource.DRIVER, "EPPlus", "Erreur la commande du device n'est pas supporté par ce driver - device: " & Objet.name & " commande:" & Commande)
+                        WriteLog("ERR: Erreur la commande du device n'est pas supporté par ce driver - device: " & Objet.name & " commande:" & Commande)
                 End Select
             Else
-                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus", "Erreur le type de device n'est pas supporté par ce driver - device: " & Objet.name & " type:" & Objet.type.ToString)
+                WriteLog("ERR:Erreur le type de device n'est pas supporté par ce driver - device: " & Objet.name & " type:" & Objet.type.ToString)
             End If
 
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus", "Erreur lors de la traitement de la commande - device: " & Objet.name & " commande:" & Commande & " erreur: " & ex.Message)
+            WriteLog("ERR: Erreur lors de la traitement de la commande - device: " & Objet.name & " commande:" & Commande & " erreur: " & ex.Message)
         End Try
     End Sub
 
@@ -472,7 +473,7 @@ Imports OfficeOpenXml
             x.CountParam = NbParam
             _DeviceCommandPlus.Add(x)
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " add_devicecommande", "Exception : " & ex.Message)
+            WriteLog("ERR: add_devicecommande : Exception : " & ex.Message)
         End Try
     End Sub
 
@@ -490,7 +491,7 @@ Imports OfficeOpenXml
             y0.Parametre = Parametre
             _LabelsDriver.Add(y0)
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " add_devicecommande", "Exception : " & ex.Message)
+            WriteLog("ERR: add_devicecommande : Exception : " & ex.Message)
         End Try
     End Sub
 
@@ -508,7 +509,7 @@ Imports OfficeOpenXml
             ld0.Parametre = Parametre
             _LabelsDevice.Add(ld0)
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " add_devicecommande", "Exception : " & ex.Message)
+            WriteLog("ERR: add_devicecommande : Exception : " & ex.Message)
         End Try
     End Sub
 
@@ -525,7 +526,7 @@ Imports OfficeOpenXml
             x.Valeur = valeur
             _Parametres.Add(x)
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " add_devicecommande", "Exception : " & ex.Message)
+            WriteLog("ERR: add_devicecommande : Exception : " & ex.Message)
         End Try
     End Sub
 
@@ -549,9 +550,9 @@ Imports OfficeOpenXml
             Add_ParamAvance("Hors Gêle", "Température du mode Hors Gêle", 8)
             Add_ParamAvance("Confort +", "Température du mode Confort + : PRE+", 21)
 
-            'ajout des commandes avancées pour les devices
-            ' Add_DeviceCommande("Ouvrir Gestionnaire", "", 0)
+            'ajout des commandes avancées pour les devices          
             'Add_DeviceCommande("COMMANDE", "DESCRIPTION", nbparametre)
+            'Add_DeviceCommande("Tester fichier", "Teste la présence du fichier", 0)
             'Add_DeviceCommande("RECEIVE", "Recevoir un Message", 1)
 
             'Libellé Driver
@@ -565,7 +566,7 @@ Imports OfficeOpenXml
             Add_LibelleDevice("LASTCHANGEDUREE", "LastChange Durée", "")
 
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " New", ex.Message)
+            WriteLog("ERR: New : " & ex.Message)
         End Try
     End Sub
 #End Region
@@ -574,8 +575,50 @@ Imports OfficeOpenXml
     '---------------------------------------------------------------------------------------------------------
 #Region "Fonctions internes"
 
-
     'Insérer ci-dessous les fonctions propres au driver et nom communes (ex: start)
+    'Ajout d'une fonction spéciale
+    Public Sub TesterPresenceFichier()
+        WriteLog("DBG: Tester la présence du fichier : Calendrier.xlsx")
+        Try
+            If TesterFichier() = True Then
+                WriteLog("Le fichier Calendrier.xlsx est trouvé")
+            Else
+                WriteLog("ERR: Le fichier Calendrier.xlsx n'est pas trouvé")
+            End If
+        Catch ex As Exception
+            WriteLog("ERR: Tester présence du fichier, Exception : " & ex.Message)
+        End Try
+    End Sub
+
+
+    Public Sub SauverCopieFichier()
+
+        Dim zipFile, newFile As FileInfo
+        Dim NomFichier As String
+
+        WriteLog("DBG: Créer une copie du fichier : Calendrier.xlsx")
+        Try
+            'Sauver une copie du fichier Excel "Calendrier.bak"
+            newFile = New FileInfo(_Parametres.Item(1).Valeur) 'Ouverture du fichier Excel
+            If newFile.Exists Then
+                NomFichier = _Parametres.Item(1).Valeur
+                Dim ParaFichier = Split(NomFichier, ".")
+                ParaFichier(1) = "bak"
+                zipFile = New FileInfo(ParaFichier(0) + "." + ParaFichier(1))
+                If (zipFile.Exists) Then
+                    zipFile.Delete()
+                End If
+                newFile.CopyTo(zipFile.FullName)
+                WriteLog("Le fichier Calendrier.bak est créé")
+            Else
+                WriteLog("ERR: Le fichier Calendrier.xlsx n'est pas trouvé")
+            End If
+        Catch ex As Exception
+            WriteLog("ERR: Créer une copie, Exception : " & ex.Message)
+        End Try
+    End Sub
+
+
     Public Function TesterFichier() As Boolean
 
         Try
@@ -591,10 +634,9 @@ Imports OfficeOpenXml
                 Mode = "Calendrier"
                 worksheet = pck.Workbook.Worksheets.Item(Mode)
                 CellValue = worksheet.Cells(1, 1).Value         'Lire HOMIDOM
-
-                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus : ", CellValue)
+                WriteLog("La valeur recherchée : " & CellValue)
             Else
-                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " Lecture Fichier", "Fichier non trouvé")
+                WriteLog("ERR: Lecture Fichier :  non trouvé")
             End If
 
             If CellValue = "HoMIDoM" Then     'Vérifier si le fichier est compatible
@@ -603,7 +645,7 @@ Imports OfficeOpenXml
                 Return 0
             End If
         Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " Lecture Fichier", ex.ToString)
+            WriteLog("ERR: Lecture Fichier" & ex.ToString)
             Return 0
         End Try
     End Function
@@ -619,12 +661,12 @@ Imports OfficeOpenXml
             Dim pck As ExcelPackage
             Dim Mode As String
 
-            Dim NumJour As Integer            
+            Dim NumJour As Integer
             Dim Ligne, NumSemaine As Integer
 
             NumSemaine = LireNumSemaine(Now)          ' Rechercher le numero de la semaine
             If NumSemaine = 0 Then
-                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Numéro de semaine erroné")
+                WriteLog("ERR: Numéro de semaine erroné")
                 Return 0             'Erreur du numero de semaine
             End If
 
@@ -639,11 +681,11 @@ Imports OfficeOpenXml
 
                 'Num ligne a calculer en fonction de l'Heure (par tranche 1/2h)
                 Ligne = ((Timer / 3600) * 2) + 1
-                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode: ", ModeSemaine & " N° Lignes: " & CStr(Ligne + 1))
+                WriteLog(" Mode: " & ModeSemaine & " N° Lignes: " & CStr(Ligne + 1))
                 If ModeSemaine = "Conger" Or ModeSemaine = "Normal" Or ModeSemaine = "Reduit" Or ModeSemaine = "Charger" Or ModeSemaine = "Absence" Then
                     worksheet = pck.Workbook.Worksheets.Item(ModeSemaine)
                     ModeChauffage = worksheet.Cells(Ligne + 1, NumJour + 1).Value
-                    _Server.Log(TypeLog.INFO, TypeSource.DRIVER, "EPPlus Mode : ", ModeChauffage & " N° Jour: " & CStr(NumJour) & " N° Sem: " & CStr(NumSemaine))
+                    WriteLog(" Mode : " & ModeChauffage & " N° Jour: " & CStr(NumJour) & " N° Sem: " & CStr(NumSemaine))
 
                     Select Case ModeChauffage
                         Case "ECC"
@@ -655,21 +697,20 @@ Imports OfficeOpenXml
                         Case "PRE+"
                             Objet.Value = _Parametres.Item(8).Valeur
                         Case Else
-                            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Erreur Mode Chauffage")
+                            WriteLog("ERR: Erreur Mode Chauffage")
                             Objet.Value = 18
                     End Select
                 Else
-                    _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Erreur Mode Chauffage")
+                    WriteLog("ERR: Erreur Mode Chauffage")
                     Objet.Value = 18
                 End If
                 Return 1
             Else
-                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, "EPPlus : ", "Fichier non trouvé")
+                WriteLog("ERR: Fichier non trouvé")
                 Return 0
             End If
         Catch ex As Exception
-
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " Lecture Fichier", ex.ToString)
+            WriteLog("ERR: Lecture Fichier" & ex.ToString)
             Return 0
         End Try
     End Function
@@ -707,6 +748,22 @@ Imports OfficeOpenXml
         Return Nothing
     End Function
 
+    Private Sub WriteLog(ByVal message As String)
+        Try
+            'utilise la fonction de base pour loguer un event
+            If STRGS.InStr(message, "DBG:") > 0 Then
+                If _DEBUG Then
+                    _Server.Log(TypeLog.DEBUG, TypeSource.DRIVER, Me.Nom, STRGS.Right(message, message.Length - 5))
+                End If
+            ElseIf STRGS.InStr(message, "ERR:") > 0 Then
+                _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom, STRGS.Right(message, message.Length - 5))
+            Else
+                _Server.Log(TypeLog.INFO, TypeSource.DRIVER, Me.Nom, message)
+            End If
+        Catch ex As Exception
+            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteLog", ex.Message)
+        End Try
+    End Sub
 
 #End Region
 

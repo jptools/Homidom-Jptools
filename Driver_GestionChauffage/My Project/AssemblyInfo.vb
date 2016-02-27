@@ -8,10 +8,10 @@ Imports System.Runtime.InteropServices
 
 ' Vérifiez les valeurs des attributs de l'assembly
 
-<Assembly: AssemblyTitle("Driver_EEPLUS")> 
+<Assembly: AssemblyTitle("Driver_GestionChauffage")> 
 <Assembly: AssemblyDescription("Lecture d'un fichier Excel")> 
 <Assembly: AssemblyCompany("HoMIDoM")> 
-<Assembly: AssemblyProduct("Driver_EEPlus")> 
+<Assembly: AssemblyProduct("Driver_GestionChauffage")> 
 <Assembly: AssemblyCopyright("Copyright © HoMIDoM 2011")> 
 <Assembly: AssemblyTrademark("HoMIDoM")> 
 
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' en utilisant '*', comme indiqué ci-dessous :
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("1.0.0.4")> 
-<Assembly: AssemblyFileVersion("1.0.0.4")> 
+<Assembly: AssemblyVersion("1.0.0.7")> 
+<Assembly: AssemblyFileVersion("1.0.0.7")> 
