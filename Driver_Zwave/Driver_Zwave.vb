@@ -706,60 +706,85 @@ Public Class Driver_ZWave
                             Case "PRESSBOUTON"
                                 Dim RetourSet As Boolean
                                 Dim ValueTemp As ZWValueID = Nothing
-                                Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
-                                NodeTemp = GetNode(m_homeId, MyDevice.Adresse1)
-                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
-                                If ValueTemp.GetType() = 5 Then        ' Uniquement Type Button
-                                    If Param(0) = 1 Then
-                                        RetourSet = m_manager.PressButton(ValueTemp)
-                                    ElseIf Param(0) = 0 Then
-                                        RetourSet = m_manager.ReleaseButton(ValueTemp)
+                                If InStr(MyDevice.adresse2, ":") Then
+                                    Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
+                                    NodeTemp = GetNode(m_homeId, MyDevice.Adresse1)
+                                    If ParaAdr2.Length < 3 Then   'si Intance   Modifier par jps
+                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                                    Else                            'si Instance : Index
+                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)), Trim(ParaAdr2(2)))
                                     End If
-                                    If RetourSet Then
-                                        WriteLog(Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
+                                    If ValueTemp.GetType() = 5 Then        ' Uniquement Type Button
+                                        If Param(0) = 1 Then
+                                            RetourSet = m_manager.PressButton(ValueTemp)
+                                        ElseIf Param(0) = 0 Then
+                                            RetourSet = m_manager.ReleaseButton(ValueTemp)
+                                        End If
+                                        If RetourSet Then
+                                            WriteLog(" ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
+                                        Else
+                                            WriteLog("ERR: ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
+                                        End If
                                     Else
-                                        WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
+                                        WriteLog("ERR: ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Button " & NodeTemp.ID)
                                     End If
+
                                 Else
-                                    WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Button " & NodeTemp.ID)
+                                    WriteLog("ERR: " & "Write, Erreur dans la definition du label et de l'instance")
                                 End If
-                                WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande PressBouton ")
+                                WriteLog("DBG: ExecuteCommand, Passage par la commande PressBouton ")
 
                             Case "SETLIST"
                                 Dim RetourSet As Boolean
                                 Dim ValueTemp As ZWValueID = Nothing
-                                Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
-                                NodeTemp = GetNode(m_homeId, MyDevice.Adresse1)
-                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
-                                If ValueTemp.GetType() = 4 Then        ' Uniquement Type list
-                                    RetourSet = m_manager.SetValueListSelection(ValueTemp, Param(0))
-                                    If RetourSet Then
-                                        WriteLog("ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
+                                If InStr(MyDevice.adresse2, ":") Then
+                                    Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
+                                    NodeTemp = GetNode(m_homeId, MyDevice.Adresse1)
+                                    If ParaAdr2.Length < 3 Then   'si Intance   Modifier par jps
+                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                                    Else                             'si Instance : Index
+                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)), Trim(ParaAdr2(2)))
+                                    End If
+                                    If ValueTemp.GetType() = 4 Then        ' Uniquement Type list
+                                        RetourSet = m_manager.SetValueListSelection(ValueTemp, Param(0))
+                                        If RetourSet Then
+                                            WriteLog("ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
+                                        Else
+                                            WriteLog("ERR: ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
+                                        End If
                                     Else
-                                        WriteLog("ERR: ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
+                                        WriteLog("ERR: ExecuteCommand,Parametre " & Param(0) & " erreur : Uniquement pour type LIST " & NodeTemp.ID)
                                     End If
                                 Else
-                                    WriteLog("ERR: ExecuteCommand,Parametre " & Param(0) & " erreur : Uniquement pour type LIST " & NodeTemp.ID)
+                                    WriteLog("ERR: " & "Write, Erreur dans la definition du label et de l'instance")
                                 End If
-                                WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande SetList ")
+                                WriteLog("DBG: ExecuteCommand, Passage par la commande SetList ")
 
                             Case "SETNEWVAL"
                                 Dim ValueTemp As ZWValueID = Nothing
-                                Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
-                                NodeTemp = GetNode(m_homeId, MyDevice.Adresse1)
-                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
-                                If (ValueTemp.GetType() = 1 Or ValueTemp.GetType() = 2 Or ValueTemp.GetType() = 3) Then        ' Uniquement Type Numérique
-                                    Write(MyDevice, "SETNEWVAL", Param(0), Param(1))
+                                If InStr(MyDevice.adresse2, ":") Then
+                                    Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
+                                    NodeTemp = GetNode(m_homeId, MyDevice.Adresse1)
+                                    If ParaAdr2.Length < 3 Then   'si Instance    Modifier par jps
+                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                                    Else                               'si Instance : Index
+                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)), Trim(ParaAdr2(2)))
+                                    End If
+                                    If (ValueTemp.GetType() = 1 Or ValueTemp.GetType() = 2 Or ValueTemp.GetType() = 3) Then        ' Uniquement Type Numérique
+                                        Write(MyDevice, "SETNEWVAL", Param(0), Param(1))
+                                    Else
+                                        WriteLog("ERR:  ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Byte, Integer , Decimal " & NodeTemp.ID)
+                                    End If
                                 Else
-                                    WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Byte, Integer , Decimal " & NodeTemp.ID)
+                                    WriteLog("ERR: " & "Write, Erreur dans la definition du label et de l'instance")
                                 End If
-                                WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande SetValeur ")
+                                WriteLog("DBG: ExecuteCommand, Passage par la commande SetValeur ")
 
                             Case Else
-                                WriteLog("ERR: " & "ExecuteCommand, La commande " & texteCommande & " n'existe pas")
+                                WriteLog("ERR: ExecuteCommand, La commande " & texteCommande & " n'existe pas")
                         End Select
-                        Return True
-                    End If
+                    Return True
+                End If
                 Else
                     Return False
                 End If
@@ -804,6 +829,9 @@ Public Class Driver_ZWave
                         If InStr(Value, ":") Then
                             Dim ParaAdr2 = Split(Value, ":")
                             Value = Trim(ParaAdr2(0)) & ":" & Trim(ParaAdr2(1))
+                            If ParaAdr2.Length > 2 Then   'si Index
+                                Value = Value & ":" & Trim(ParaAdr2(2))
+                            End If
                         End If
 
                 End Select
@@ -1025,7 +1053,11 @@ Public Class Driver_ZWave
                         WriteLog("DBG: " & "Write, Recherche de : dans l'adresse2 " & Objet.adresse2)
                         If InStr(Objet.adresse2, ":") Then
                             Dim ParaAdr2 = Split(Objet.adresse2, ":")
-                            ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                            If ParaAdr2.Length < 3 Then   'si Instance    Modifier par jps
+                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                            Else                          'si Instance : Index
+                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)), Trim(ParaAdr2(2)))
+                            End If
                             If IsNothing(ValueTemp) Then
                                 WriteLog("ERR: " & "Write, Valeur non trouvée avec l'adresse : " & Objet.Adresse1 & " et " & Objet.Adresse2)
                                 Exit Sub
@@ -1042,7 +1074,7 @@ Public Class Driver_ZWave
                     End If
                     If Objet.Type = "LAMPE" Or Objet.Type = "LAMPERGBW" Or Objet.Type = "APPAREIL" Or Objet.Type = "SWITCH" Then
                         texteCommande = UCase(Commande)
-                        If _DEBUG Then _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteXX8", Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString & " et de type " & Objet.Adresse2.ToString)
+                        WriteLog("DBG: " & Me.Nom & " WriteXX8" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString & " et de type " & Objet.Adresse2.ToString)
                         Select Case UCase(Commande)
 
                             Case "ON"
@@ -1300,7 +1332,7 @@ Public Class Driver_ZWave
 
                 'Libellé Device
                 Add_LibelleDevice("ADRESSE1", "Adresse", "Adresse du composant de Z-Wave")
-                Add_LibelleDevice("ADRESSE2", "Label de la donnée:Index", "'Temperature', 'Relative Humidity', 'Battery Level' suivi de l'index (si necessaire)")
+                Add_LibelleDevice("ADRESSE2", "Label de la donnée:Instance:Index", "'Temperature', 'Relative Humidity', 'Battery Level' suivi de l'instance et de l'index (si necessaire)")
                 Add_LibelleDevice("SOLO", "@", "")
                 Add_LibelleDevice("MODELE", "@", "")
 
@@ -1704,17 +1736,24 @@ Public Class Driver_ZWave
         ''' <param name="node"></param>
         ''' <param name="valueLabel"></param>
         ''' <returns>ValueId</returns>
-        Private Function GetValeur(ByVal node As Node, ByVal valueLabel As String, Optional ByVal ValueInstance As Byte = 0) As ZWValueID
+        Private Function GetValeur(ByVal node As Node, ByVal valueLabel As String, Optional ByVal ValueInstance As Byte = 0, Optional ByVal ValueIndex As Byte = 0) As ZWValueID
             Try
-                WriteLog("DBG: " & "GetValueID, Receive from node:" & node.ID & ":" & "Label:" & valueLabel & " Index:" & ValueInstance)
+                WriteLog("DBG: " & "GetValueID, Receive from node:" & node.ID & ":" & "Label:" & valueLabel & " Instance:" & ValueInstance & " Index:" & ValueIndex)
 
                 For Each valueID As ZWValueID In node.Values
-                    WriteLog("DBG: " & "GetValueID, Value from node:" & valueID.GetNodeId() & "-" & valueID.GetId() & ":" & "Label:" & m_manager.GetValueLabel(valueID).ToString & " Instance:" & valueID.GetInstance)
+                    WriteLog("DBG: " & "GetValueID, Value from node:" & valueID.GetNodeId() & "-" & valueID.GetId() & ":" & "Label:" & m_manager.GetValueLabel(valueID).ToString & " Instance:" & valueID.GetInstance & " Index:" & valueID.GetIndex)
                     If (valueID.GetNodeId() = node.ID) And (m_manager.GetValueLabel(valueID).ToLower = valueLabel.ToLower) Then
                         If ValueInstance Then
                             If valueID.GetInstance() = ValueInstance Then
-                                WriteLog("DBG: " & "GetValueID, Valeur trouvée  Index:" & ValueInstance)
-                                Return valueID
+                                WriteLog("DBG: " & "GetValueID, Valeur trouvée  Instance:" & ValueInstance)
+                                If ValueIndex Then     'Modifier par jps
+                                    If valueID.GetIndex() = ValueIndex Then
+                                        WriteLog("DBG: " & "GetValueID, Valeur trouvée  Index:" & ValueIndex)
+                                        Return valueID
+                                    End If
+                                Else
+                                    Return valueID
+                                End If
                             End If
                         Else
                             Return valueID
@@ -1738,18 +1777,20 @@ Public Class Driver_ZWave
             Dim m_valueString As String = ""
             Dim m_tempString As String = ""
             Dim m_devices As New ArrayList()
+            Dim m_index As Integer
 
 
             m_valueLabel = m_manager.GetValueLabel(m_notification.GetValueID())
             m_nodeId = m_notification.GetNodeId()
             m_instance = m_notification.GetValueID.GetInstance()
+            m_index = m_notification.GetValueID.GetIndex()
             m_valueID = m_notification.GetValueID()
             m_manager.GetValueAsString(m_valueID, m_valueString)
             Dim ValeurRecue As Object = Nothing
 
             Try
                 ' Log tous les informations en mode debug
-                WriteLog("DBG: " & "Receive from " & m_nodeId & ":" & m_instance & " -> " & m_valueLabel & "=" & m_valueString)
+                WriteLog("DBG: " & "Receive from " & m_nodeId & ":" & m_instance & " : " & m_index & " -> " & m_valueLabel & "=" & m_valueString)
                 If Not _IsConnect Then Exit Sub 'si on ferme le port on quitte
 
                 If (_STARTIDLETIME > 0) Then
@@ -1803,7 +1844,7 @@ Public Class Driver_ZWave
                         Dim m_device As New HoMIDom.HoMIDom.NewDevice
                         m_device.ID = System.Guid.NewGuid.ToString() 'génération d'un nouveau GUID
                         m_device.Adresse1 = m_nodeId 'ID du node
-                        m_device.Adresse2 = m_valueLabel 'type de composant
+                        m_device.Adresse2 = m_valueLabel 'Label du composant
                         m_device.IdDriver = Me.ID
                         m_device.Type = String.Empty 'TEMPERATURE, HUMIDITE, ... 
                         m_device.Ignore = False
@@ -1811,7 +1852,7 @@ Public Class Driver_ZWave
                         m_device.Value = m_valueString
                         m_device.Name = m_deviceName
 
-                        If _DEBUG Then _Server.Log(TypeLog.DEBUG, TypeSource.DRIVER, Me.Nom & " traiteValeurYY2 ", "Recherche composant a l'adresse : " & m_nodeId & ":" & m_instance & " -> " & m_valueLabel & "=" & m_valueString)
+                        WriteLog("DBG: " & Me.Nom & " traiteValeurYY2 Recherche composant a l'adresse : " & m_nodeId & ":" & m_instance & ":" & m_index & " -> " & m_valueLabel & "=" & m_valueString)
                         Select Case m_device.Adresse2.ToLower().Trim()
                             Case "Battery Level".ToLower()
                                 m_device.Type = ListeDevices.BATTERIE.ToString()
@@ -1844,7 +1885,7 @@ Public Class Driver_ZWave
                                                m_deviceName, _
                                                m_valueID.GetCommandClassId(), m_valueID.GetGenre(), m_valueID.GetIndex(), m_valueID.GetType(), m_manager.GetValueUnits(m_valueID)))
 
-                        _Server.Log(TypeLog.INFO, TypeSource.DRIVER, Me.Nom & ":NewDevice",
+                        WriteLog(Me.Nom & ":NewDevice" &
                             String.Format("{0} (CommandClassId={1},Genre={2},Index={3},Type={4}, Units={5})", _
                                             m_deviceName, _
                                             m_valueID.GetCommandClassId(), m_valueID.GetGenre(), m_valueID.GetIndex(), m_valueID.GetType(), m_manager.GetValueUnits(m_valueID)))
@@ -1871,7 +1912,8 @@ Public Class Driver_ZWave
                         ' L'adresse2 correspond au label de la valeur recherchée
                         ' L'adresse2 peut aussi être vide (pour les notifications de noeud sans label, p.ex. détecteur de mouvement)
                         ' En option, l'adresse2 peut contenir l'instance sous le format label:instance
-                        If (IsNothing(LocalDevice.adresse2) Or (LocalDevice.adresse2 = m_valueLabel) Or (LocalDevice.adresse2 = m_valueLabel & ":" & m_instance)) Then
+                        ' Modifier par jps : En option, l'adresse2 peut contenir l'instance et Index sous le format label:instance:Index
+                        If (IsNothing(LocalDevice.adresse2) Or (LocalDevice.adresse2 = m_valueLabel) Or (LocalDevice.adresse2 = m_valueLabel & ":" & m_instance) Or (LocalDevice.adresse2 = m_valueLabel & ":" & m_instance & ":" & m_index)) Then
 
                             'on maj la value si la durée entre les deux receptions est > à 1.5s
                             If (DateTime.Now - Date.Parse(LocalDevice.LastChange)).TotalMilliseconds > 1500 Then
@@ -1936,7 +1978,7 @@ Public Class Driver_ZWave
                                 End If
                                 WriteLog("DBG: " & "Z-Wave NodeID: " & m_nodeId)
                                 WriteLog("DBG: " & "Z-Wave Label: " & m_valueLabel)
-                                WriteLog("DBG: " & "Z-Wave Label: " & m_productName)
+                                WriteLog("DBG: " & "Z-Wave productName: " & m_productName)
                                 WriteLog("DBG: " & "Z-Wave ValueUnit: " & m_manager.GetValueUnits(m_notification.GetValueID()))
                                 WriteLog("DBG: " & "Valeur Homidom relevée: " & LocalDevice.value & " de type " & LocalDevice.GetType.Name)
                             Else
