@@ -277,7 +277,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                         Case "MODESEMAINE"
                             Objet.Value = ModeSemaine        'Affiche le type de semaine
 
-                        Case "MODECHAUFFAGE"               'Affiche le mode de chauffage en cours
+                        Case "MODECHAUFFAGE"               'Affiche le mode de chauffage en cours                            
                             If ModeChauffage = "ECC" Then
                                 Objet.Value = "Economique"
                             ElseIf ModeChauffage = "EC" Then
@@ -292,15 +292,23 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                             WriteLog("ERR: Nom Valeur n'existe pas")
                     End Select
 
-                Case "SWITCH"
+                Case "SWITCH"                    
                     WriteLog(" Mode : " & Objet.Name & " : " & Objet.Value)
 
                 Case "GENERIQUEVALUE"
                     Select Case Objet.adresse1.toUpper
                         Case "TEMPERATURECONSIGNE"
                             If _Parametres.Item(6).Valeur = False Then        ' Si pas Hors Gele
-                                If _Parametres.Item(5).Valeur = True Then      'Si on ne désire pas lire le fichier (on garde l'ancienne consigne)
-                                    LireFichier(Objet)          'Lire la consigne de température
+                                If _Parametres.Item(9).Valeur = False Then      'Si Pas Mode Confort Forcé
+                                    If _Parametres.Item(5).Valeur = True Then      'Si on ne désire pas lire le fichier (on garde l'ancienne consigne)
+                                        LireFichier(Objet)          'Lire la consigne de température
+                                    End If
+
+                                ElseIf PlageJour() Then     'Si 8h à 22h alors Mode confort                                    
+                                    ModeChauffage = "PRE"
+                                    Objet.Value = _Parametres.Item(4).Valeur
+                                Else
+                                    LireFichier(Objet) 'Si hors 8h à 22h revenir à la lecture
                                 End If
                             Else
                                 Objet.Value = _Parametres.Item(7).Valeur    'Valeur Consigne Hors Gele
@@ -309,7 +317,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                 Case Else
                     WriteLog("ERR: Type non conforme")
             End Select
-
+            WriteLog("Lecture effectuée sur : " & Objet.adresse1.toUpper)
         Catch ex As Exception
             WriteLog("ERR: Lecture des données" & ex.ToString)
         End Try
@@ -358,6 +366,8 @@ Imports STRGS = Microsoft.VisualBasic.Strings
         Try
             Dim retour As String = "0"
             Select Case UCase(Champ)
+                'inserer control des valeurs
+
 
             End Select
             Return retour
@@ -428,7 +438,12 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                         ElseIf Objet.adresse1.toUpper = "ACTIVERHORSGELE" Then
                             _Parametres.Item(6).Valeur = True
                             Objet.Value = 100
+
+                        ElseIf Objet.adresse1.toUpper = "ACTIVERCONFORT" Then
+                            _Parametres.Item(9).Valeur = True
+                            Objet.Value = 100
                         End If
+
                         WriteLog("DBG: WriteXX3" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
                     Case "OFF"
                         If Objet.adresse1.toUpper = "ACTIVERLECTURE" Then
@@ -438,13 +453,19 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                         ElseIf Objet.adresse1.toUpper = "ACTIVERHORSGELE" Then
                             _Parametres.Item(6).Valeur = False
                             Objet.Value = 0
+
+                        ElseIf Objet.adresse1.toUpper = "ACTIVERCONFORT" Then
+                            _Parametres.Item(9).Valeur = False
+                            Objet.Value = 0
+
                         End If
                         WriteLog("DBG: WriteXX4" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
                     Case Else
                         WriteLog("ERR: Erreur la commande du device n'est pas supporté par ce driver - device: " & Objet.name & " commande:" & Commande)
                 End Select
+                ' Read(Objet)
             Else
-                WriteLog("ERR:Erreur le type de device n'est pas supporté par ce driver - device: " & Objet.name & " type:" & Objet.type.ToString)
+            WriteLog("ERR:Erreur le type de device n'est pas supporté par ce driver - device: " & Objet.name & " type:" & Objet.type.ToString)
             End If
 
         Catch ex As Exception
@@ -549,6 +570,9 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             Add_ParamAvance("ActiverHorsGele", "Activer le Mode Hors Gêle (True/False)", False)
             Add_ParamAvance("Hors Gêle", "Température du mode Hors Gêle", 8)
             Add_ParamAvance("Confort +", "Température du mode Confort + : PRE+", 21)
+            Add_ParamAvance("ActiverConfort", "Activer le mode Confort (True/False)", False)
+            Add_ParamAvance("DebutConfort", "Début de l'heure Confort (0 à 24)", 8)
+            Add_ParamAvance("FinConfort", "Fin de l'heure Confort (0 à 24)", 22)
 
             'ajout des commandes avancées pour les devices          
             'Add_DeviceCommande("COMMANDE", "DESCRIPTION", nbparametre)
@@ -764,6 +788,22 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteLog", ex.Message)
         End Try
     End Sub
+
+    'Retourne si la plage est compriss entre 8h et 22h
+    Public Function PlageJour() As Boolean
+        Try
+            Dim Debut As Integer = (_Parametres.Item(10).Valeur()) * 3600
+            Dim Fin As Integer = (_Parametres.Item(11).Valeur()) * 3600
+
+            If (Timer >= Debut And Timer < Fin) Then
+                Return True
+            Else
+                Return False
+            End If
+        Catch ex As Exception
+            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteLog", ex.Message)
+        End Try
+    End Function
 
 #End Region
 
