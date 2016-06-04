@@ -143,7 +143,7 @@ Driver_Zwave
 	<param name="homeId"></param>
 	<param name="nodeId"></param>
 	<returns>Node</returns>
-</member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.GetValeur(Driver_Zwave.Driver_ZWave.Driver_ZWave.Node,System.String,System.Byte)">
+</member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.GetValeur(Driver_Zwave.Driver_ZWave.Driver_ZWave.Node,System.String,System.Byte,System.Byte)">
 	<summary>Gets a Node value ID</summary>
 	<param name="node"></param>
 	<param name="valueLabel"></param>
