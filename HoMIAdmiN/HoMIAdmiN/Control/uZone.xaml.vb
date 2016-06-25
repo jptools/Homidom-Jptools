@@ -352,7 +352,7 @@ Partial Public Class uZone
                 Dim y As CheckBox = stk.Children.Item(idx1)
                 If x.IsChecked = True Then
                     y.Visibility = Windows.Visibility.Visible
-                    y.IsChecked = True
+                    '  y.IsChecked = True 'Modifier JPS
                 Else
                     y.Visibility = Windows.Visibility.Collapsed
                     y.IsChecked = False

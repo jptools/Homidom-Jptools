@@ -85,8 +85,7 @@ Public Class Driver_ZWave
         Dim _parity As IO.Ports.Parity = IO.Ports.Parity.None
         Dim _nbrebitstop As IO.Ports.StopBits = IO.Ports.StopBits.One
 		
-        Dim _libelleadr1 As String = ""
-        Dim _libelleadr2 As String = ""
+        Dim _NomFileConfigZWave As String = ""
         Dim _Adr1Txt As New ArrayList()
         Dim _Getconfig As Boolean = False
 
@@ -714,26 +713,17 @@ Public Class Driver_ZWave
                             Case "PRESSBOUTON"
                                 Dim RetourSet As Boolean
                                 Dim ValueTemp As ZWValueID = Nothing
-                                If InStr(MyDevice.adresse2, ":") Then
-                                    Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
-                                    NodeTemp = GetNode(m_homeId, adr1)
-                                    Dim ParaAdr3 = Split(ParaAdr2(1), ".")   'séparer instance et index
-                                    If InStr(ParaAdr2(1), ".") Then   'si Instance . Index   Modifier par jps
-                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr3(0)), Trim(ParaAdr3(1)))
-                                    Else                           'si Instance
-                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr3(0)))
+                                Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                                If ValueTemp.GetType() = 5 Then        ' Uniquement Type Button
+                                    If Param(0) = 1 Then
+                                        RetourSet = m_manager.PressButton(ValueTemp)
+                                    ElseIf Param(0) = 0 Then
+                                        RetourSet = m_manager.ReleaseButton(ValueTemp)
                                     End If
-                                    If ValueTemp.GetType() = 5 Then        ' Uniquement Type Button
-                                        If Param(0) = 1 Then
-                                            RetourSet = m_manager.PressButton(ValueTemp)
-                                        ElseIf Param(0) = 0 Then
-                                            RetourSet = m_manager.ReleaseButton(ValueTemp)
-                                        End If
-                                        If RetourSet Then
-                                            WriteLog(" ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
-                                        Else
-                                            WriteLog("ERR: ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
-                                        End If
+                                    If RetourSet Then
+                                        WriteLog(Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
                                     Else
                                         WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
                                     End If
@@ -745,22 +735,13 @@ Public Class Driver_ZWave
                             Case "SETLIST"
                                 Dim RetourSet As Boolean
                                 Dim ValueTemp As ZWValueID = Nothing
-                                If InStr(MyDevice.adresse2, ":") Then
-                                    Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
-                                    NodeTemp = GetNode(m_homeId, adr1)
-                                    Dim ParaAdr3 = Split(ParaAdr2(1), ".")   'séparer instance et index
-                                    If InStr(ParaAdr2(1), ".") Then   'si Instance . Index   Modifier par jps
-                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr3(0)), Trim(ParaAdr3(1)))
-                                    Else                           'si Instance
-                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr3(0)))
-                                    End If
-                                    If ValueTemp.GetType() = 4 Then        ' Uniquement Type list
-                                        RetourSet = m_manager.SetValueListSelection(ValueTemp, Param(0))
-                                        If RetourSet Then
-                                            WriteLog("ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
-                                        Else
-                                            WriteLog("ERR: ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
-                                        End If
+                                Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                                If ValueTemp.GetType() = 4 Then        ' Uniquement Type list
+                                    RetourSet = m_manager.SetValueListSelection(ValueTemp, Param(0))
+                                    If RetourSet Then
+                                        WriteLog("ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
                                     Else
                                         WriteLog("ERR: ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
                                     End If
@@ -771,20 +752,11 @@ Public Class Driver_ZWave
 
                             Case "SETNEWVAL"
                                 Dim ValueTemp As ZWValueID = Nothing
-                                If InStr(MyDevice.adresse2, ":") Then
-                                    Dim ParaAdr2 = Split(MyDevice.adresse2, ":")
-                                    NodeTemp = GetNode(m_homeId, adr1)
-                                    Dim ParaAdr3 = Split(ParaAdr2(1), ".")   'séparer instance et index
-                                    If InStr(ParaAdr2(1), ".") Then   'si Instance . Index   Modifier par jps
-                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr3(0)), Trim(ParaAdr3(1)))
-                                    Else                           'si Instance
-                                        ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr3(0)))
-                                    End If
-                                    If (ValueTemp.GetType() = 1 Or ValueTemp.GetType() = 2 Or ValueTemp.GetType() = 3) Then        ' Uniquement Type Numérique
-                                        Write(MyDevice, "SETNEWVAL", Param(0), Param(1))
-                                    Else
-                                        WriteLog("ERR:  ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Byte, Integer , Decimal " & NodeTemp.ID)
-                                    End If
+                                Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                                If (ValueTemp.GetType() = 1 Or ValueTemp.GetType() = 2 Or ValueTemp.GetType() = 3) Then        ' Uniquement Type Numérique
+                                    Write(MyDevice, "SETNEWVAL", Param(0), Param(1))
                                 Else
                                     WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Byte, Integer , Decimal " & NodeTemp.ID)
                                 End If
@@ -845,10 +817,6 @@ Public Class Driver_ZWave
                         If InStr(Value, ":") Then
                             Dim ParaAdr2 = Split(Value, ":")
                             Value = Trim(ParaAdr2(0)) & ":" & Trim(ParaAdr2(1))
-
-                            ' If ParaAdr2.Length > 2 Then   'si Index (JPS)    A revoir
-                            'Value = Value & ":" & Trim(ParaAdr2(2))
-                            ' End If
                         End If
 
                 End Select
@@ -951,15 +919,34 @@ Public Class Driver_ZWave
                                 WriteLog(String.Format("{0,-15}{1,-70}{2,30}", NodeTempID & ":" & NodeTemp.Name, NodeTemp.Manufacturer & "/" & NodeTemp.Product & "     V." & m_manager.GetNodeVersion(m_homeId, NodeTemp.ID), IsSleeping))
                             Next
                         End If
+
+                        _NomFileConfigZWave = Convert.ToString(m_homeId, 16).ToString
+                        'rajoute des 0 si nécessaire devant l'id du controleur pour avoir une chaine de 8 de long
+                        _NomFileConfigZWave = _NomFileConfigZWave.PadLeft(8, "0")
+                        _NomFileConfigZWave = My.Application.Info.DirectoryPath & "\drivers\zwave\zwcfg_0x" & _NomFileConfigZWave & ".xml"
+
                         ' Sauvegarde de la configuration 
                         WriteLog("Start,  Sauvegarde de la config Zwave")
-                        m_manager.WriteConfig(m_homeId)
+                        If My.Computer.FileSystem.FileExists(_NomFileConfigZWave) Then
+                            Dim DateModif As String = FileDateTime(_NomFileConfigZWave)
+                            m_manager.WriteConfig(m_homeId)
+                            'boucle tant la date du fichier n'est pas modifiée
+                            While DateModif = FileDateTime(_NomFileConfigZWave)
+                            End While
+                        Else
+                            m_manager.WriteConfig(m_homeId)
+                        End If
+                        If _Getconfig Then
+                            Get_Config(_NomFileConfigZWave)
+                            'recharge la config toutes les 10 mn
+                            MyTimer.Interval = 600 * 1000
+                            MyTimer.Enabled = True
+                            AddHandler MyTimer.Elapsed, AddressOf TimerTick
+                        End If
 
-                        If _Getconfig Then Get_Config()
-
-                    End If
+                        End If
                 Else
-                    retour = "ERR: Port Com non défini. Impossible d'ouvrir le port !"
+                        retour = "ERR: Port Com non défini. Impossible d'ouvrir le port !"
                 End If
                 If (_STARTIDLETIME > 0) Then
                     WriteLog("Les messages ne seront pas traité pendant " & _STARTIDLETIME & " secondes.")
@@ -981,6 +968,7 @@ Public Class Driver_ZWave
                 Else
                     WriteLog("Stop, Port " & _Com & " est déjà fermé")
                 End If
+                MyTimer.Enabled = False
 
             Catch ex As Exception
                 WriteLog("ERR: " & "Stop, " & ex.Message)
@@ -1080,20 +1068,15 @@ Public Class Driver_ZWave
                         NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_MULTILEVEL_V4) Or
                         NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY) Or
                         NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY_V2) Or
-                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_WAKE_UP) Or
-                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_WAKE_UP_V2) Or
                         NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK) Or
                         NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V2) Or
-                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V3) Then
+                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V3) Or
+                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_WAKE_UP) Or
+                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_WAKE_UP_V2) Then
                         WriteLog("DBG: " & "Write, Recherche de : dans l'adresse2 " & Objet.Adresse2)
                         If InStr(Objet.Adresse2, ":") Then
                             Dim ParaAdr2 = Split(Objet.Adresse2, ":")
-                            Dim ParaAdr3 = Split(ParaAdr2(1), ".")   'séparer instance et index
-                            If InStr(ParaAdr2(1), ".") Then   'si Instance . Index   Modifier par jps
-                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr3(0)), Trim(ParaAdr3(1)))
-                            Else                           'si Instance
-                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr3(0)))
-                            End If
+                            ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
                             If IsNothing(ValueTemp) Then
                                 WriteLog("ERR: " & "Write, Valeur non trouvée avec l'adresse : " & Objet.Adresse1 & " et " & Objet.Adresse2)
                                 Exit Sub
@@ -1380,9 +1363,21 @@ Public Class Driver_ZWave
         ''' <summary>Si refresh >0 gestion du timer</summary>
         ''' <remarks>PAS UTILISE CAR IL FAUT LANCER UN TIMER QUI LANCE/ARRETE CETTE FONCTION dans Start/Stop</remarks>
         Private Sub TimerTick(ByVal source As Object, ByVal e As System.Timers.ElapsedEventArgs)
-
+            Try
+                'recharge la config
+                If _Getconfig Then
+                    Dim DateModif As String = FileDateTime(_NomFileConfigZWave)
+                    WriteLog("Timer,  Sauvegarde de la config Zwave")
+                    m_manager.WriteConfig(m_homeId)
+                    'boucle tant la date du fichier n'est pas modifiée
+                    While DateModif = FileDateTime(_NomFileConfigZWave)
+                    End While
+                    Get_Config(_NomFileConfigZWave)
+                End If
+            Catch ex As Exception
+                WriteLog("ERR: " & "TimerTick - " & ex.Message)
+            End Try
         End Sub
-
 #End Region
 
 #Region "Fonctions internes"
@@ -1483,6 +1478,7 @@ Public Class Driver_ZWave
                         Catch ex As UnauthorizedAccessException
                             Return ("ERR: Probleme lors de la suppression des noeuds" & m_nodeList.Count)
                         End Try
+
                         m_manager.RemoveDriver("\\.\" & _Com)
                         m_manager.Destroy()
                         m_options.Destroy()
@@ -1769,17 +1765,18 @@ Public Class Driver_ZWave
         ''' <param name="node"></param>
         ''' <param name="valueLabel"></param>
         ''' <returns>ValueId</returns>
-        Private Function GetValeur(ByVal node As Node, ByVal valueLabel As String, Optional ByVal ValueInstance As Byte = 0, Optional ByVal ValueIndex As Byte = 0) As ZWValueID
+        Private Function GetValeur(ByVal node As Node, ByVal valueLabel As String, Optional ByVal ValueInstance As Byte = 0) As ZWValueID
             Try
-                WriteLog("DBG: " & "GetValueID, Receive from node:" & node.ID & ":" & " Label:" & valueLabel & " Instance:" & ValueInstance & " Index:" & ValueIndex)
-                'Modifier par jps
+                WriteLog("DBG: " & "GetValueID, Receive from node:" & node.ID & ":" & " Label:" & valueLabel & " Instance:" & ValueInstance)
+
                 For Each valueID As ZWValueID In node.Values
-                    WriteLog("DBG: " & "GetValueID, Value from node:" & valueID.GetNodeId() & "-" & valueID.GetId() & ":" & "Label:" & m_manager.GetValueLabel(valueID).ToString & " Instance:" & valueID.GetInstance & " Index:" & valueID.GetIndex)
+                    WriteLog("DBG: " & "GetValueID, Value from node:" & valueID.GetNodeId() & "-" & valueID.GetId() & ":" & "Label:" & m_manager.GetValueLabel(valueID).ToString & " Instance:" & valueID.GetInstance)
                     If (valueID.GetNodeId() = node.ID) And (m_manager.GetValueLabel(valueID).ToLower = valueLabel.ToLower) Then
                         If ValueInstance Then
                             If valueID.GetInstance() = ValueInstance Then
                                 WriteLog("DBG: " & "GetValueID, Valeur trouvée  Instance:" & ValueInstance)
-                                If ValueIndex Then     'Modifier par jps
+                                If (InStr(ValueInstance, ".") > 0) Then
+                                    Dim ValueIndex As Byte = Mid(ValueInstance, InStr(ValueInstance, ".") + 1, Len(ValueInstance))
                                     If valueID.GetIndex() = ValueIndex Then
                                         WriteLog("DBG: " & "GetValueID, Valeur trouvée  Index:" & ValueIndex)
                                         Return valueID
@@ -1861,7 +1858,7 @@ Public Class Driver_ZWave
 
                     ' Ne traite pas les notifications COMMAND_CLASS_CONFIGURATION & COMMAND_CLASS_VERSION
                     If (m_valueID.GetCommandClassId() = 112 Or m_valueID.GetCommandClassId() = 134) Then Exit Sub
-                    '132***********************************
+
                     ' Contrôles
                     Dim m_manufacturerName As String = m_manager.GetNodeManufacturerName(m_notification.GetHomeId(), m_nodeId)
                     Dim m_productName As String = m_manager.GetNodeProductName(m_notification.GetHomeId(), m_nodeId)
@@ -1942,11 +1939,6 @@ Public Class Driver_ZWave
                                                m_deviceName, _
                                                m_valueID.GetCommandClassId(), m_valueID.GetGenre(), m_valueID.GetIndex(), m_valueID.GetType(), m_manager.GetValueUnits(m_valueID)))
 
-                      '  WriteLog(Me.Nom & ":NewDevice" &
-                          '  String.Format("{0} (CommandClassId={1},Genre={2},Index={3},Type={4}, Units={5})", _
-                                      '      m_deviceName, _
-                                       '     m_valueID.GetCommandClassId(), m_valueID.GetGenre(), m_valueID.GetIndex(), m_valueID.GetType(), m_manager.GetValueUnits(m_valueID)))
-
                         _Server.GetAllNewDevice().Add(m_device)
 
                     Else
@@ -1968,7 +1960,7 @@ Public Class Driver_ZWave
                         ' L'adresse2 correspond au label de la valeur recherchée
                         ' L'adresse2 peut aussi être vide (pour les notifications de noeud sans label, p.ex. détecteur de mouvement)
                         ' En option, l'adresse2 peut contenir l'instance sous le format label:instance
-                        ' Modifier par jps : En option, l'adresse2 peut contenir l'instance et Index sous le format label:instance.Index
+                        ' En option, l'adresse2 peut contenir l'index sous le format label:instance.index
                         'If (IsNothing(LocalDevice.adresse2) Or (LocalDevice.adresse2 = m_valueLabel) Or (LocalDevice.adresse2 = m_valueLabel & ":" & m_instance)) Then 'Then
 
                         If (IsNothing(LocalDevice.adresse2) Or (LocalDevice.adresse2 = m_valueLabel) Or (LocalDevice.adresse2 = m_valueLabel & ":" & m_instance) Or (LocalDevice.adresse2 = m_valueLabel & ":" & m_instance & "." & m_index)) Then
@@ -2032,6 +2024,7 @@ Public Class Driver_ZWave
                                 If UCase(m_valueLabel) = "BATTERY LEVEL" Then
                                     If m_valueString <= 10 Then WriteLog("ERR: " & LocalDevice.nom & " : Battery vide")
                                 End If
+
                                 WriteLog("DBG: " & "Z-Wave NodeID: " & m_nodeId)
                                 WriteLog("DBG: " & "Z-Wave Label: " & m_valueLabel)
                                 WriteLog("DBG: " & "Z-Wave productName: " & m_productName)
@@ -2056,18 +2049,23 @@ Public Class Driver_ZWave
             End Try
         End Sub
 		
-        Function Get_Config() As Boolean
+        Function Get_Config(nomfileconfig As String) As Boolean
             ' recupere les configurations des equipements 
 
             Try
-                Dim response As String = ""                
-                Dim ficcfg As String = My.Application.Info.DirectoryPath & "\drivers\zwave\zwcfg_0x0" & Convert.ToString(m_homeId, 16).ToString & ".xml"
-
-                ' Dim ficcfg As String = "C:\Program Files\HoMIDoM\Drivers\Zwave\zwcfg_0x0184e0f0.xml"
-
                 'recherche des equipements
                 If m_nodeList.Count Then
+                    If Not My.Computer.FileSystem.FileExists(nomfileconfig) Then
+                        Return False
+                        Exit Function
+                    End If
+
+                    _Adr1Txt.Clear()
+                    Dim _libelleadr1 As String = ""
+                    Dim _libelleadr2 As String = ""
                     Dim NodeTempID As Byte
+                    Dim response As String = ""
+
                     For Each NodeTemp As Node In m_nodeList
                         NodeTempID = NodeTemp.ID
                         _libelleadr1 += NodeTemp.ID & " # " & NodeTemp.Product & "|"
@@ -2075,7 +2073,8 @@ Public Class Driver_ZWave
                         WriteLog("DBG: _libelleadr1, " & _libelleadr1)
 
                         'recherche des parametres de l'equipement
-                        response = LectureNoeudConfigXml(ficcfg, NodeTemp.ID)
+                        response = ""
+                        response = LectureNoeudConfigXml(nomfileconfig, NodeTemp.ID)
                         If response <> "" Then
                             _libelleadr2 += response
                             WriteLog("DBG: _libelleadr2, " & response)
@@ -2094,12 +2093,13 @@ Public Class Driver_ZWave
             End Try
         End Function
 
-        Function LectureNoeudConfigXml(fichierxml As String, valeur As String) As String
+        Function LectureNoeudConfigXml(fichierxml As String, nodeid As String) As String
             Try
                 If My.Computer.FileSystem.FileExists(fichierxml) Then
-                    WriteLog("DBG: Recherche dans le fichier " & fichierxml & " de la valeur " & valeur)
+                    WriteLog("DBG: Recherche dans le fichier " & fichierxml & " de la valeur " & nodeid)
 
                     Dim valnode As String = ""
+                    Dim reader As XmlReader
                     Dim readertmp As XmlReader
                     Dim str As String = ""
                     Dim strtmp As String = ""
@@ -2113,15 +2113,15 @@ Public Class Driver_ZWave
                     While Nodes.MoveNext()
                         valnode = Nodes.Current.OuterXml
                         ' recherche de l'id demandé
-                        If InStr(1, valnode, "Node id=""" & valeur & """") > 0 Then
-                            Dim reader As XmlReader = XmlReader.Create(New StringReader(valnode))
+                        If InStr(valnode, "Node id=""" & nodeid & """") > 0 Then
+                            reader = XmlReader.Create(New StringReader(valnode))
                             reader.ReadToDescendant("CommandClasses")
                             While reader.Read()
                                 Select Case reader.NodeType
                                     Case XmlNodeType.Element
                                         valnode = reader.ReadOuterXml
-                                        'recherche des value user
-                                        If InStr(valnode, "genre=""user""") > 0 Then
+                                        'recherche des value user                  Modifié pas jps
+                                        If (InStr(valnode, "genre=""user""") > 0) Or (InStr(valnode, "genre=""system""") > 0) Then
                                             readertmp = XmlReader.Create(New StringReader(valnode))
                                             While readertmp.Read()
                                                 Select Case readertmp.NodeType
@@ -2130,7 +2130,7 @@ Public Class Driver_ZWave
                                                             strtmp = readertmp.Item("label") & ":" & readertmp.Item("instance") & "." & readertmp.Item("index")
                                                             ' ne rajoute que si existe pas. Evite les doublons
                                                             If InStr(1, str, strtmp) = 0 Then
-                                                                str += valeur & " #; " & strtmp & "|"
+                                                                str += nodeid & " #; " & strtmp & "|"
                                                                 WriteLog("DBG: Str : " & strtmp)
                                                             End If
                                                         End If

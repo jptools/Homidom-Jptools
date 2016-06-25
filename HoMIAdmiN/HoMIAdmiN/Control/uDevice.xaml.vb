@@ -120,7 +120,6 @@ Partial Public Class uDevice
                     CbType.IsEnabled = False
                     CbType.Foreground = System.Windows.Media.Brushes.Black
                     TxtAdresse1.Text = x.Adresse1
-                    'CbAdresse1.Text = x.Adresse1
                     TxtAdresse2.Text = x.Adresse2
                     CBModele.Text = x.Modele
                     TxtModele.Text = x.Modele
@@ -173,7 +172,7 @@ Partial Public Class uDevice
                     StkModel.Visibility = Visibility.Visible
 
                     'Afficher le Bouton du gestionnaire de chauffage
-                    If _Driver.Nom = "EPPlus" Or _Driver.Nom = "Excel" Then
+                    If _Driver.Nom = "GestionChauffage" Then   'Or _Driver.Nom = "Excel" Then
                         BtnGestion.Visibility = Windows.Visibility.Visible
                     End If
 
@@ -332,14 +331,12 @@ Partial Public Class uDevice
             Dim _Driver As Object = Nothing
             Me.ForceCursor = True
             'on cherche le driver
-
             If CbDriver.SelectedItem IsNot Nothing Then
                 For i As Integer = 0 To ListeDrivers.Count - 1
                     If ListeDrivers.Item(i).Nom = CbDriver.SelectedItem.ToString Then
                         _Driver = myService.ReturnDriverByID(IdSrv, ListeDrivers.Item(i).ID)
                         Exit For
                     End If
-
                 Next
             End If
 
@@ -407,7 +404,6 @@ Partial Public Class uDevice
                                         If a.Count > 1 Then
                                             For g As Integer = 0 To a.Length - 1
                                                 CbAdresse1.Items.Add(a(g))
-
                                             Next
                                             CbAdresse1.IsEditable = False
                                             CbAdresse1.Visibility = Windows.Visibility.Visible
@@ -445,10 +441,9 @@ Partial Public Class uDevice
                                         Dim a() As String = _Driver.LabelsDevice.Item(k).Parametre.Split("|")
                                         If a.Count > 1 Then
                                             For g As Integer = 0 To a.Length - 1
-                                                If Not InStr(a(g), "#;") > 0 Then  'permet de ne prendre que les valeurs à ne pas lier à adresse1
-                                                    CbAdresse2.Items.Add(a(g))
+                                                If InStr(a(g), "#;") > 0 Then  'permet de ne prendre que les valeurs à lier à adresse1
+                                                    CbAdresse2.Items.Add(Trim(Mid(a(g), InStr(a(g), "#;") + 2)))
                                                 End If
-
                                             Next
                                             CbAdresse2.IsEditable = False
                                             CbAdresse2.Visibility = Windows.Visibility.Visible
@@ -461,6 +456,7 @@ Partial Public Class uDevice
                                             TxtAdresse2.Visibility = Windows.Visibility.Visible
                                             TxtAdresse2.Tag = 1
                                             TxtAdresse2.Text = a(0)
+                                            CbAdresse1.SelectedIndex = 0  'force la selection de la valeur
                                         End If
                                     Else
                                         CbAdresse2.Visibility = Windows.Visibility.Collapsed
@@ -748,50 +744,6 @@ Partial Public Class uDevice
             End If
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur uDevice TxtValueMax_TextChanged: " & ex.ToString, "ERREUR", "TxtValueMax_TextChanged")
-        End Try
-    End Sub
-
-    Private Sub TxtValDef_TextChanged(ByVal sender As System.Object, ByVal e As System.Windows.Controls.TextChangedEventArgs) Handles TxtValDef.TextChanged
-        Try
-            If (String.IsNullOrEmpty(TxtValDef.Text)) Or (String.IsNullOrEmpty(TxtValDef.Text) = False And IsNumeric(TxtValDef.Text) = False) Then
-                AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Veuillez saisir une valeur numérique")
-                TxtValDef.Text = 0
-            End If
-        Catch ex As Exception
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur uDevice TxtValDef_TextChanged: " & ex.ToString, "ERREUR", "TxtValDef_TextChanged")
-        End Try
-    End Sub
-
-    Private Sub TxtPrecision_TextChanged(ByVal sender As System.Object, ByVal e As System.Windows.Controls.TextChangedEventArgs) Handles TxtPrecision.TextChanged
-        Try
-            If (String.IsNullOrEmpty(TxtPrecision.Text)) Or (String.IsNullOrEmpty(TxtPrecision.Text) = False And IsNumeric(TxtPrecision.Text) = False) Then
-                AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Veuillez saisir une valeur numérique")
-                TxtPrecision.Text = 0
-            End If
-        Catch ex As Exception
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur uDevice TxtPrecision_TextChanged: " & ex.ToString, "ERREUR", "TxtPrecision_TextChanged")
-        End Try
-    End Sub
-
-    Private Sub TxtCorrection_TextChanged(ByVal sender As System.Object, ByVal e As System.Windows.Controls.TextChangedEventArgs) Handles TxtCorrection.TextChanged
-        Try
-            If (String.IsNullOrEmpty(TxtCorrection.Text)) Or (String.IsNullOrEmpty(TxtCorrection.Text) = False And IsNumeric(TxtCorrection.Text) = False) Then
-                AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Veuillez saisir une valeur numérique")
-                TxtCorrection.Text = 0
-            End If
-        Catch ex As Exception
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur uDevice TxtCorrection_TextChanged: " & ex.ToString, "ERREUR", "TxtCorrection_TextChanged")
-        End Try
-    End Sub
-
-    Private Sub TxtFormatage_TextChanged(ByVal sender As System.Object, ByVal e As System.Windows.Controls.TextChangedEventArgs) Handles TxtFormatage.TextChanged
-        Try
-            If (String.IsNullOrEmpty(TxtFormatage.Text)) Or (String.IsNullOrEmpty(TxtFormatage.Text) = False And IsNumeric(TxtFormatage.Text) = False) Then
-                AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Veuillez saisir une valeur numérique")
-                TxtFormatage.Text = 0
-            End If
-        Catch ex As Exception
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur uDevice TxtFormatage_TextChanged: " & ex.ToString, "ERREUR", "TxtFormatage_TextChanged")
         End Try
     End Sub
 
@@ -1120,27 +1072,27 @@ Partial Public Class uDevice
                     '                    MsgBox("_Driver.nom " & _Driver.nom)
                     If _Driver.LabelsDevice.Count > 0 Then
                         'permet de lier l'adresse2 au choix de l'adresse1
+                        Dim tmpstr As String = Trim(Mid(CbAdresse1.SelectedValue, 1, InStr(CbAdresse1.SelectedValue, " #") + 1)) & ";"
+                        Dim a() As String
                         For k As Integer = 0 To _Driver.LabelsDevice.Count - 1
                             If UCase(_Driver.LabelsDevice.Item(k).NomChamp) = "ADRESSE2" Then
+                                CbAdresse2.Items.Clear()
                                 If String.IsNullOrEmpty(_Driver.LabelsDevice.Item(k).Parametre) = False Then
-                                    CbAdresse2.Items.Clear()
-                                    Dim a() As String = _Driver.LabelsDevice.Item(k).Parametre.Split("|")
-                                    If a.Count > 1 Then
-                                        For g As Integer = 0 To a.Length - 1
-                                            If InStr(a(g), "#;") > 0 Then  'permet de lier une valeur de adresse2 avec adresse1
-                                                If InStr(CbAdresse1.SelectedValue, Trim(Mid(a(g), 1, InStr(a(g), "#;") - 1))) > 0 Then
-                                                    CbAdresse2.Items.Add(Trim(Mid(a(g), InStr(a(g), "#;") + 2, Len(a(g)))))
-                                                End If
-                                            Else
-                                                CbAdresse2.Items.Add(a(g))
+                                    a = _Driver.LabelsDevice.Item(k).Parametre.Split("|")
+                                    For g As Integer = 0 To a.Length - 1
+                                        If InStr(a(g), "#;") > 0 Then  'permet de lier une valeur de adresse2 avec adresse1
+                                            If (InStr(a(g), tmpstr) > 0) And (Len(Trim(tmpstr)) = Len(Trim(Mid(a(g), 1, InStr(a(g), " #;") + 3)))) Then
+                                                CbAdresse2.Items.Add(Trim(Mid(a(g), InStr(a(g), "#;") + 2)))
                                             End If
-
-                                        Next
-                                        Exit For
-                                    End If
+                                        Else
+                                            CbAdresse2.Items.Add(a(g))
+                                        End If
+                                    Next
+                                    Exit For
                                 End If
                             End If
                         Next
+                        Erase a
                     End If
                 End If
             End If
@@ -1151,6 +1103,7 @@ Partial Public Class uDevice
 
     Private Sub TxtAdresse1_TextChanged(sender As System.Object, e As System.Windows.Controls.TextChangedEventArgs) Handles TxtAdresse1.TextChanged
         Try
+            Dim str As String = ""
             If CbAdresse1.Items.Count > 0 Then
                 If TxtAdresse1.Text.Trim.Length >= 8 Then 'on cherche dans la liste quand on a tapait l'ID complet
                     Dim flagTrouv As Boolean = False
@@ -1166,11 +1119,49 @@ Partial Public Class uDevice
 
                     If flagTrouv Then
                         CbAdresse1.SelectedIndex = idx
+                        str = CbAdresse1.SelectedValue
                     Else
                         CbAdresse1.Text = ""
                     End If
                 End If
             End If
+
+            If str = "" Then str = TxtAdresse1.Text
+
+            'permet de lier l'adresse2 au choix de l'adresse1
+            Dim tmpstr As String = Trim(Mid(str, 1, InStr(str, " #") + 1)) & ";"
+
+            Dim a() As String
+            Dim _Driver As Object = Nothing
+            Me.ForceCursor = True
+            'on cherche le driver
+
+            If CbDriver.SelectedItem IsNot Nothing Then
+                For i As Integer = 0 To ListeDrivers.Count - 1
+                    If ListeDrivers.Item(i).Nom = CbDriver.SelectedItem.ToString Then
+                        _Driver = myService.ReturnDriverByID(IdSrv, ListeDrivers.Item(i).ID)
+                        Exit For
+                    End If
+                Next
+            End If
+            For k As Integer = 0 To _Driver.LabelsDevice.Count - 1
+                CbAdresse2.Items.Clear()
+                If String.IsNullOrEmpty(_Driver.LabelsDevice.Item(k).Parametre) = False Then
+                    a = _Driver.LabelsDevice.Item(k).Parametre.Split("|")
+                    For g As Integer = 0 To a.Length - 1
+                        If InStr(a(g), "#;") > 0 Then  'permet de lier une valeur de adresse2 avec adresse1
+                            If (InStr(a(g), tmpstr) > 0) And (Len(Trim(tmpstr)) = Len(Trim(Mid(a(g), 1, InStr(a(g), " #;") + 3)))) Then
+                                CbAdresse2.Items.Add(Trim(Mid(a(g), InStr(a(g), "#;") + 2)))
+                            End If
+                        Else
+                            CbAdresse2.Items.Add(a(g))
+                        End If
+                    Next
+                    Exit For
+                End If
+            Next
+            Erase a
+
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur TxtAdresse1_TextChanged: " & ex.ToString, "Erreur Admin", "TxtAdresse1_TextChanged")
         End Try
@@ -1205,6 +1196,8 @@ Partial Public Class uDevice
 
                     For Each item In CbAdresse2.Items
                         If TxtAdresse2.Text.ToUpper.Trim = item.ToString.ToUpper.Trim Then
+                            '  JPHomi permet daller sur lenregistrmeent avec syntaxe approchante
+                            ' If InStr(item.ToString.ToUpper.Trim, TxtAdresse2.Text.ToUpper.Trim) > 0 Then
                             flagTrouv = True
                             Exit For
                         End If

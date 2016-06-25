@@ -286,6 +286,8 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                                 Objet.Value = "Confort"
                             ElseIf ModeChauffage = "PRE+" Then
                                 Objet.Value = "Confort +"
+                            ElseIf ModeChauffage = "HGE" Then
+                                Objet.Value = "Hors Gèle"
                             End If
 
                         Case Else
@@ -294,6 +296,12 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 
                 Case "SWITCH"                    
                     WriteLog(" Mode : " & Objet.Name & " : " & Objet.Value)
+
+                Case "GENERIQUEBOOLEEN"
+                    Select Case Objet.adresse1.toUpper
+                        Case "SEMAINEPAIRE"
+                            Objet.Value = LireIsSemainePaire(Now)          ' Rechercher le numero de la semaine
+                    End Select
 
                 Case "GENERIQUEVALUE"
                     Select Case Objet.adresse1.toUpper
@@ -312,6 +320,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                                 End If
                             Else
                                 Objet.Value = _Parametres.Item(7).Valeur    'Valeur Consigne Hors Gele
+                                ModeChauffage = "HGE"
                             End If
                     End Select
                 Case Else
@@ -449,6 +458,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                         If Objet.adresse1.toUpper = "ACTIVERLECTURE" Then
                             _Parametres.Item(5).Valeur = False
                             Objet.Value = 0
+                            ModeSemaine = "Désactivé"
 
                         ElseIf Objet.adresse1.toUpper = "ACTIVERHORSGELE" Then
                             _Parametres.Item(6).Valeur = False
@@ -559,6 +569,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             _DeviceSupport.Add(ListeDevices.GENERIQUESTRING)
             _DeviceSupport.Add(ListeDevices.SWITCH.ToString)
             _DeviceSupport.Add(ListeDevices.GENERIQUEVALUE)
+            _DeviceSupport.Add(ListeDevices.GENERIQUEBOOLEEN)
 
             'Parametres avancés
             Add_ParamAvance("Debug", "Activer le Debug complet (True/False)", False)
@@ -568,7 +579,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             Add_ParamAvance("Confort", "Température du mode Confort : PRE", 20)
             Add_ParamAvance("ActiverLecture", "Activer la lecture (True/False)", True)
             Add_ParamAvance("ActiverHorsGele", "Activer le Mode Hors Gêle (True/False)", False)
-            Add_ParamAvance("Hors Gêle", "Température du mode Hors Gêle", 8)
+            Add_ParamAvance("Hors Gêle", "Température du mode Hors Gêle : HGE", 8)
             Add_ParamAvance("Confort +", "Température du mode Confort + : PRE+", 21)
             Add_ParamAvance("ActiverConfort", "Activer le mode Confort (True/False)", False)
             Add_ParamAvance("DebutConfort", "Début de l'heure Confort (0 à 24)", 8)
@@ -583,7 +594,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             Add_LibelleDriver("HELP", "Aide...", "Pas d'aide actuellement...")
 
             'Libellé Device
-            Add_LibelleDevice("ADRESSE1", "Nom Valeur", "Nom pour TemperatureConsigne, NumeroSemaine et NumeroJour")
+            Add_LibelleDevice("ADRESSE1", "Nom Valeur", "Ex : TemperatureConsigne, NumeroSemaine, NumeroJour et SEMAINEPAIRE")
             Add_LibelleDevice("ADRESSE2", "@", "")
             Add_LibelleDevice("SOLO", "@", "")
             Add_LibelleDevice("REFRESH", "Refresh", "")
@@ -720,10 +731,14 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                             Objet.Value = _Parametres.Item(4).Valeur
                         Case "PRE+"
                             Objet.Value = _Parametres.Item(8).Valeur
+                        Case "HGE"
+                            Objet.Value = _Parametres.Item(7).Valeur
                         Case Else
                             WriteLog("ERR: Erreur Mode Chauffage")
                             Objet.Value = 18
                     End Select
+                ElseIf ModeSemaine = "Désactivé" Then
+                    WriteLog("Mode Chauffage : Désactivé")
                 Else
                     WriteLog("ERR: Erreur Mode Chauffage")
                     Objet.Value = 18
@@ -805,7 +820,26 @@ Imports STRGS = Microsoft.VisualBasic.Strings
         End Try
     End Function
 
+    Private Function LireIsSemainePaire(ByVal dat As Date) As Boolean
+        Try
+            Dim Temp As Integer
+            Dim NumSem As Integer = LireNumSemaine(Now)           
+            Temp = NumSem Mod 2
+            WriteLog("DBG: " & "Num : " & NumSem.ToString & " Paire : " & Temp.ToString)
+            If Temp = 0 Then
+                Return True
+            Else
+                Return False
+            End If
+        Catch ex As Exception
+            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteLog", ex.Message)
+        End Try
+
+    End Function
+
 #End Region
+
+   
 
 
 End Class

@@ -644,7 +644,7 @@
                     <StackPanel >
                         <StackPanel Orientation="Horizontal" >
                             <Label Content="Template:" Width="75" Foreground="White" />
-                             <ComboBox Width="150" Name="cbTemplate" />
+                            <ComboBox Width="150" Name="cbTemplate" Foreground="#FF474646" />
                                 <Button Name="BtnNewTemplate" Width="25" Margin="2" Height="25" Foreground="White" Template="{DynamicResource GlassButton}">
                                     <Image Source="/HoMIAdmiN;component/Images/ajouter_32.png" />
                                 </Button> 
