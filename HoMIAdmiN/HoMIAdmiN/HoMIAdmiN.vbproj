@@ -76,6 +76,10 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\RELEASE\Drivers\EPPlus.dll</HintPath>
     </Reference>
+    <Reference Include="HoMIDom, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\RELEASE\HoMIDom.dll</HintPath>
+    </Reference>
     <Reference Include="HoMIOAuth2">
       <HintPath>..\..\RELEASE\HoMIOAuth2.dll</HintPath>
       <Private>False</Private>

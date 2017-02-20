@@ -105,24 +105,44 @@ Driver_Zwave
 	<summary>Fermer le port Z-Wave</summary>
 	<remarks></remarks>
 </member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.ResetControler">
-	<summary>Reset le controleur Z-Wave avec les parametres d'Usine</summary>
+	<summary>Reset le controleur Z-Wave avec les parametres d'Usine, hard reset</summary>
 	<remarks></remarks>
 </member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.SoftReset">
-	<summary>Reset le controleur Z-Wave sans effacer les parametres de configuration </summary>
+	<summary>Reset le controleur Z-Wave sans effacer les parametres de configuration, soft reset </summary>
+	<remarks></remarks>
+</member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.SauverConfigueZwave">
+	<summary>
+ Sauve la config du réseau zwave
+ </summary>
+	<remarks></remarks>
+</member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.CheckStateNode">
+	<summary>
+ Affiche l'état des noeuds
+ </summary>
 	<remarks></remarks>
 </member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.StartInclusionMode">
 	<summary>
- Place le controller en mode "inclusion" *** experimental ***
+ Place le controller en mode "inclusion"
+ </summary>
+	<remarks></remarks>
+</member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.StartSecureInclusionMode">
+	<summary>
+ Place le controller en mode "inclusion securisée"
  </summary>
 	<remarks></remarks>
 </member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.StartExclusionMode">
 	<summary>
- Place le controller en mode "exclusion" *** experimental ***
+ Place le controller en mode "exclusion"
  </summary>
 	<remarks></remarks>
 </member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.StopAssociation">
 	<summary>
  Annule la commande en cours : permet de sortir du mode "inclusion/exclusion" *** experimental ***
+ </summary>
+	<remarks></remarks>
+</member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.RemoveFailedNode(System.Byte)">
+	<summary>
+ Suppresion des noeuds morts
  </summary>
 	<remarks></remarks>
 </member><member name="M:Driver_Zwave.Driver_ZWave.Driver_ZWave.NotificationHandler(OpenZWaveDotNet.ZWNotification)">

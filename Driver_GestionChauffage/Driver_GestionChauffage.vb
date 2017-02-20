@@ -67,7 +67,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 
 #Region "Declaration"
     Dim ModeChauffage As String = ""
-    Dim ModeSemaine As String = ""
+    Dim ModeSemaine As String = "Désactivé"
 
 #End Region
 
@@ -308,10 +308,14 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                         Case "TEMPERATURECONSIGNE"
                             If _Parametres.Item(6).Valeur = False Then        ' Si pas Hors Gele
                                 If _Parametres.Item(9).Valeur = False Then      'Si Pas Mode Confort Forcé
-                                    If _Parametres.Item(5).Valeur = True Then      'Si on ne désire pas lire le fichier (on garde l'ancienne consigne)
-                                        LireFichier(Objet)          'Lire la consigne de température
+                                    If _Parametres.Item(5).Valeur = True Then      'Si on désire lire le fichier
+                                        If (_Parametres.Item(12).Valeur = True And PlageJour()) Then
+                                            Objet.Value = _Parametres.Item(3).Valeur    'Valeur Consigne 1/2 Ecc
+                                            ModeChauffage = "EC"
+                                        Else
+                                            LireFichier(Objet)          'Lire la consigne de température programmée
+                                        End If
                                     End If
-
                                 ElseIf PlageJour() Then     'Si 8h à 22h alors Mode confort                                    
                                     ModeChauffage = "PRE"
                                     Objet.Value = _Parametres.Item(4).Valeur
@@ -391,6 +395,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 
             If TesterFichier() = True Then
                 _IsConnect = True
+                ModeSemaine = "Désactivé"
                 WriteLog("Driver démarré")
             Else
                 _IsConnect = False
@@ -451,27 +456,39 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                         ElseIf Objet.adresse1.toUpper = "ACTIVERCONFORT" Then
                             _Parametres.Item(9).Valeur = True
                             Objet.Value = 100
-                        End If
 
-                        WriteLog("DBG: WriteXX3" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
+                        ElseIf Objet.adresse1.toUpper = "ACTIVERABSENCE" Then
+                            _Parametres.Item(12).Valeur = True
+                            Objet.Value = 100
+
+                        End If
+                       
+
+
+
+                            WriteLog("DBG: WriteXX3" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
                     Case "OFF"
-                        If Objet.adresse1.toUpper = "ACTIVERLECTURE" Then
-                            _Parametres.Item(5).Valeur = False
-                            Objet.Value = 0
-                            ModeSemaine = "Désactivé"
+                            If Objet.adresse1.toUpper = "ACTIVERLECTURE" Then
+                                _Parametres.Item(5).Valeur = False
+                                Objet.Value = 0
+                                ModeSemaine = "Désactivé"
 
-                        ElseIf Objet.adresse1.toUpper = "ACTIVERHORSGELE" Then
-                            _Parametres.Item(6).Valeur = False
+                            ElseIf Objet.adresse1.toUpper = "ACTIVERHORSGELE" Then
+                                _Parametres.Item(6).Valeur = False
+                                Objet.Value = 0
+
+                            ElseIf Objet.adresse1.toUpper = "ACTIVERCONFORT" Then
+                                _Parametres.Item(9).Valeur = False
+                                Objet.Value = 0
+
+                        ElseIf Objet.adresse1.toUpper = "ACTIVERABSENCE" Then
+                            _Parametres.Item(12).Valeur = False
                             Objet.Value = 0
 
-                        ElseIf Objet.adresse1.toUpper = "ACTIVERCONFORT" Then
-                            _Parametres.Item(9).Valeur = False
-                            Objet.Value = 0
-
-                        End If
-                        WriteLog("DBG: WriteXX4" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
+                            End If
+                            WriteLog("DBG: WriteXX4" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
                     Case Else
-                        WriteLog("ERR: Erreur la commande du device n'est pas supporté par ce driver - device: " & Objet.name & " commande:" & Commande)
+                            WriteLog("ERR: Erreur la commande du device n'est pas supporté par ce driver - device: " & Objet.name & " commande:" & Commande)
                 End Select
                 ' Read(Objet)
             Else
@@ -573,7 +590,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 
             'Parametres avancés
             Add_ParamAvance("Debug", "Activer le Debug complet (True/False)", False)
-            Add_ParamAvance("Fichier Excel", "Emplacement du fichier", "C:\Program Files\HoMIDoM\Config\Calendrier.xlsx")
+            Add_ParamAvance("Fichier Excel", "Nom du fichier", "Calendrier.xlsx")
             Add_ParamAvance("Ecconomique", "Température du mode ecconomique : ECC", 18)
             Add_ParamAvance("DemiEcconomique", "Température du mode 1/2 Ecconomique : EC", 19)
             Add_ParamAvance("Confort", "Température du mode Confort : PRE", 20)
@@ -584,6 +601,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             Add_ParamAvance("ActiverConfort", "Activer le mode Confort (True/False)", False)
             Add_ParamAvance("DebutConfort", "Début de l'heure Confort (0 à 24)", 8)
             Add_ParamAvance("FinConfort", "Fin de l'heure Confort (0 à 24)", 22)
+            Add_ParamAvance("ActiverAbsence", "Activer le Mode Absence (True/False)", False)
 
             'ajout des commandes avancées pour les devices          
             'Add_DeviceCommande("COMMANDE", "DESCRIPTION", nbparametre)
@@ -634,9 +652,9 @@ Imports STRGS = Microsoft.VisualBasic.Strings
         WriteLog("DBG: Créer une copie du fichier : Calendrier.xlsx")
         Try
             'Sauver une copie du fichier Excel "Calendrier.bak"
-            newFile = New FileInfo(_Parametres.Item(1).Valeur) 'Ouverture du fichier Excel
+            newFile = New FileInfo(My.Application.Info.DirectoryPath & "\Config\" & _Parametres.Item(1).Valeur) 'Ouverture du fichier Excel
             If newFile.Exists Then
-                NomFichier = _Parametres.Item(1).Valeur
+                NomFichier = My.Application.Info.DirectoryPath & "\config\" & _Parametres.Item(1).Valeur
                 Dim ParaFichier = Split(NomFichier, ".")
                 ParaFichier(1) = "bak"
                 zipFile = New FileInfo(ParaFichier(0) + "." + ParaFichier(1))
@@ -663,7 +681,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             Dim Mode As String
             Dim CellValue As String = ""
 
-            newFile = New FileInfo(_Parametres.Item(1).Valeur)
+            newFile = New FileInfo(My.Application.Info.DirectoryPath & "\Config\" & _Parametres.Item(1).Valeur)
             If newFile.Exists Then
                 pck = New ExcelPackage(newFile)
                 Mode = "Calendrier"
@@ -706,7 +724,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             End If
 
             'Lecture du mode de Chauffage
-            newFile = New FileInfo(_Parametres.Item(1).Valeur)
+            newFile = New FileInfo(My.Application.Info.DirectoryPath & "\Config\" & _Parametres.Item(1).Valeur)
             If newFile.Exists Then
                 pck = New ExcelPackage(newFile)
                 Mode = "Calendrier"

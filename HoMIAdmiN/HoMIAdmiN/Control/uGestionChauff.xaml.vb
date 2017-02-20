@@ -165,7 +165,7 @@ Public Class uGestionChauff
                 _Driver.Parametres.Item(5).Valeur = False
 
                 If _Driver.Parametres.Item(1).Valeur <> "" Then
-                    newFile = New FileInfo(_Driver.Parametres.Item(1).Valeur) 'Ouverture du fichier Excel
+                    newFile = New FileInfo(My.Application.Info.DirectoryPath & "\Config\" & _Driver.Parametres.Item(1).Valeur) 'Ouverture du fichier Excel
                     If newFile.Exists Then
                         FichierOk = True
                         pck = New ExcelPackage(newFile)
@@ -336,7 +336,7 @@ Public Class uGestionChauff
         Dim NomFichier As String
 
         'Sauver une copie du fichier Excel "Calendrier.bak"
-        NomFichier = _Driver.Parametres.Item(1).Valeur       
+        NomFichier = My.Application.Info.DirectoryPath & "\Config\" & _Driver.Parametres.Item(1).Valeur
         Dim ParaFichier = Split(NomFichier, ".")
         ParaFichier(1) = "bak"
         zipFile = New FileInfo(ParaFichier(0) + "." + ParaFichier(1))

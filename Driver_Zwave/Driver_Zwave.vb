@@ -113,7 +113,9 @@ Public Class Driver_ZWave
             COMMAND_CLASS_CONTROLLER_REPLICATION = 33             ' 0x21
             COMMAND_CLASS_APPLICATION_STATUS = 34                 ' 0x22
             COMMAND_CLASS_ZIP_SERVICES = 35                       ' 0x23
+            COMMAND_CLASS_ZIP = 35                                ' 0x23
             COMMAND_CLASS_ZIP_V2 = 35                             ' 0x23
+            COMMAND_CLASS_ZIP_SERVER = 36                         ' 0x24
             COMMAND_CLASS_SECURITY_PANEL_MODE = 36                ' 0x24
             COMMAND_CLASS_SWITCH_BINARY = 37                      ' 0x25
             COMMAND_CLASS_SWITCH_BINARY_V2 = 37                   ' 0x25
@@ -128,7 +130,9 @@ Public Class Driver_ZWave
             COMMAND_CLASS_SCENE_ACTIVATION = 43                   ' 0x2B
             COMMAND_CLASS_SCENE_ACTUATOR_CONF = 44                ' 0x2C
             COMMAND_CLASS_SCENE_CONTROLLER_CONF = 45              ' 0x2D
+            COMMAND_CLASS_ZIP_CLIENT = 46                         ' 0x2E
             COMMAND_CLASS_SECURITY_PANEL_ZONE = 46                ' 0x2E
+            COMMAND_CLASS_ZIP_ADV_SERVICES = 47                   ' 0x2F
             COMMAND_CLASS_SECURITY_PANEL_ZONE_SENSOR = 47         ' 0x2F
             COMMAND_CLASS_SENSOR_BINARY = 48                      ' 0x30
             COMMAND_CLASS_SENSOR_BINARY_V2 = 48                   ' 0x30
@@ -143,8 +147,9 @@ Public Class Driver_ZWave
             COMMAND_CLASS_METER_V2 = 50                           ' 0x32
             COMMAND_CLASS_METER_V3 = 50                           ' 0x32
             COMMAND_CLASS_METER_V4 = 50                           ' 0x32
-            COMMAND_CLASS_ZIP_ADV_SERVER = 51                     ' 0x33
-            COMMAND_CLASS_NETWORK_MANAGEMENT_INCLUSION = 52       ' 0x34
+            COMMAND_CLASS_COLOR = 51                              ' 0x33
+            COMMAND_CLASS_COLOR_CONTROL = 51                      ' 0x33
+            COMMAND_CLASS_ZIP_ADV_CLIENT  = 52                    ' 0x34
             COMMAND_CLASS_METER_PULSE = 53                        ' 0x35
             COMMAND_CLASS_BASIC_TARIFF_INFO = 54                  ' 0x36
             COMMAND_CLASS_HRV_STATUS = 55                         ' 0x37
@@ -239,7 +244,7 @@ Public Class Driver_ZWave
             COMMAND_CLASS_MANUFACTURER_SPECIFIC = 114             ' 0x72
             COMMAND_CLASS_MANUFACTURER_SPECIFIC_V2 = 114          ' 0x72
             COMMAND_CLASS_POWERLEVEL = 115                        ' 0x73
-            COMMAND_CLASS_ = 116                                  ' 0x74
+            '            COMMAND_CLASS_ = 116                                  ' 0x74
             COMMAND_CLASS_PROTECTION = 117                        ' 0x75
             COMMAND_CLASS_PROTECTION_V2 = 117                     ' 0x75
             COMMAND_CLASS_LOCK = 118                              ' 0x76
@@ -630,16 +635,16 @@ Public Class Driver_ZWave
             Dim retour As Boolean = False
             Dim NodeTemp As New Node
             ' Permet de construire le message à afficher dans la console
-            Dim texteCommande As String
+            '            Dim texteCommande As String
 
             Try
-                If _DEBUG Then _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " ExecuteCommandXX1", Command)
+                'WriteLog("DBG: ExecuteCommand" & Command)
                 If MyDevice IsNot Nothing Then
                     'Pas de commande demandée donc erreur
                     If Command = "" Then
                         Return False
                     Else
-                        texteCommande = UCase(Command)
+                        '                        texteCommande = UCase(Command)
                         'permet de gerer la compatibilité du driver avec listbox
                         Dim adr1 As String = ""
                         If InStr(MyDevice.Adresse1, "#") > 0 Then
@@ -647,6 +652,8 @@ Public Class Driver_ZWave
                         Else
                             adr1 = MyDevice.Adresse1
                         End If
+
+                        WriteLog("DBG: ExecuteCommand, Passage de la commande " & UCase(Command) & " Param(0) -> " & Param(0) & " / Param(1) -> " & Param(1))
 
                         ' Traitement de la commande 
                         Select Case UCase(Command)
@@ -662,13 +669,13 @@ Public Class Driver_ZWave
                             Case "SETNAME"
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.SetNodeName(m_homeId, NodeTemp.ID, MyDevice.Name)
-                                WriteLog("DBG: " & "ExecuteCommand, Passage par la commande Set Name avec le nom = " & MyDevice.Name)
+                                WriteLog("ExecuteCommand, Passage par la commande Set Name avec le nom = " & MyDevice.Name)
 
                             Case "GETNAME"
                                 Dim TempName As String
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 TempName = m_manager.GetNodeName(m_homeId, NodeTemp.ID)
-                                WriteLog("DBG: " & "ExecuteCommand, Passage par la commande Get Name avec le nom = " & TempName)
+                                WriteLog("ExecuteCommand, Passage par la commande Get Name avec le nom = " & TempName)
 
                             Case "SETCONFIGPARAM"
                                 Dim RetourSet As Boolean
@@ -684,12 +691,25 @@ Public Class Driver_ZWave
                             Case "GETCONFIGPARAM"
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.RequestConfigParam(m_homeId, NodeTemp.ID, Param(0))
-                                WriteLog("DBG: " & "ExecuteCommand, Passage par la commande SETCONFIGPARAM pour le noeud " & NodeTemp.Name)
+                                WriteLog("DBG: " & "ExecuteCommand, Passage par la commande GETCONFIGPARAM pour le noeud " & NodeTemp.Name)
+
+                            Case "GETALLCONFIGPARAMS"
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                m_manager.RequestAllConfigParams(m_homeId, NodeTemp.ID)
+                                WriteLog("ExecuteCommand, Passage par la commande GETALLCONFIGPARAMS -> le noeud " & NodeTemp.ID)
 
                             Case "REQUESTNODESTATE"
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.RequestNodeState(m_homeId, NodeTemp.ID)
                                 WriteLog("DBG: " & "ExecuteCommand, Passage par la commande REQUESTNODESTATE = " & NodeTemp.Name)
+
+                            Case "REQUESTNODEDYNAMIC"
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                If m_manager.RequestNodeDynamic(m_homeId, NodeTemp.ID) Then
+                                    WriteLog("ExecuteCommand, Passage par la commande REQUESTNODEDYNAMIC -> le noeud " & NodeTemp.ID & " OK")
+                                Else
+                                    WriteLog("ERR: ExecuteCommand, Passage par la commande REQUESTNODEDYNAMIC -> le noeud " & NodeTemp.ID & " Impossible")
+                                End If
 
                             Case "TESTNETWORKNODE"
                                 NodeTemp = GetNode(m_homeId, adr1)
@@ -710,27 +730,103 @@ Public Class Driver_ZWave
                                     WriteLog("ERR: " & "ExecuteCommand, Erreur dans la commande GETNUMGROUPS  pour le noeud " & NodeTemp.ID)
                                 End If
 
-                            Case "PRESSBOUTON"
-                                Dim RetourSet As Boolean
-                                Dim ValueTemp As ZWValueID = Nothing
-                                Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
+                                ' Modifié par JPS
+                            Case "ADD_ASSOCIATION"
+                                NodeTemp = GetNode(m_homeId, adr1)             'Group Idx   NodeId
+                                m_manager.AddAssociation(m_homeId, NodeTemp.ID, Param(0), Param(1))
+                                WriteLog("ExecuteCommand, Passage par la commande ADD_ASSOCIATION -> Groupe Id :" & Param(0) & ", Noeud : " & Param(1) & " sur le noeud " & NodeTemp.ID)
+                                m_manager.RefreshNodeInfo(m_homeId, NodeTemp.ID)
+
+                            Case "REMOVE_ASSOCIATION"
+                                NodeTemp = GetNode(m_homeId, adr1)                'Group Idx   NodeId
+                                m_manager.RemoveAssociation(m_homeId, NodeTemp.ID, Param(0), Param(1))
+                                WriteLog("ExecuteCommand, Passage par la commande REMOVE_ASSOCIATION -> Groupe Id :" & Param(0) & ", Noeud : " & Param(1) & " sur le noeud " & NodeTemp.ID)
+                                m_manager.RefreshNodeInfo(m_homeId, NodeTemp.ID)
+
+                            Case "GET_ASSOCIATION"
+                                Dim NumGroup As Integer
+                                Dim NumAssociation As Integer
+                                Dim Association() As Byte = Nothing
+
                                 NodeTemp = GetNode(m_homeId, adr1)
-                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
-                                If ValueTemp.GetType() = 5 Then        ' Uniquement Type Button
-                                    If Param(0) = 1 Then
-                                        RetourSet = m_manager.PressButton(ValueTemp)
-                                    ElseIf Param(0) = 0 Then
-                                        RetourSet = m_manager.ReleaseButton(ValueTemp)
-                                    End If
-                                    If RetourSet Then
-                                        WriteLog(Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
+                                NumGroup = m_manager.GetNumGroups(m_homeId, NodeTemp.ID)
+                                If (Param(0) >= 1 And Param(0) <= NumGroup) Then                     'Group Idx
+                                    NumAssociation = m_manager.GetAssociations(m_homeId, NodeTemp.ID, Param(0), Association)                                   
+                                    If NumAssociation Then
+                                        WriteLog("ExecuteCommand, GET_ASSOCIATION -> Des groupes ont été trouvés avec : " & NumAssociation.ToString & " Groupe Id :" & Param(0) & " sur le noeud " & NodeTemp.ID)
+                                        For i As Integer = 0 To NumAssociation - 1
+                                            WriteLog("Association -> Node : " & Association(i).ToString)
+                                        Next
                                     Else
-                                        WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
+                                        WriteLog("ERR :ExecuteCommand, GET_ASSOCIATION -> Association non retournée sur le groupe : " & Param(0))
                                     End If
                                 Else
-                                    WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Button " & NodeTemp.ID)
+                                    WriteLog("ExecuteCommand, Passage par la commande GET_ASSOCIATION -> nome, Groupe Id :" & Param(0) & " sur le noeud " & NodeTemp.ID)
                                 End If
-                                WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande PressBouton ")
+                                Association = Nothing
+
+                            Case "GET_GROUPMAX"
+                                    Dim NumGroup As Integer
+                                    Dim Nombre As Integer
+
+                                    NodeTemp = GetNode(m_homeId, adr1)
+                                    NumGroup = m_manager.GetNumGroups(m_homeId, NodeTemp.ID)
+                                    If (Param(0) >= 1 And Param(0) <= NumGroup) Then
+                                        Nombre = m_manager.GetMaxAssociations(m_homeId, NodeTemp.ID, Param(0))
+                                        WriteLog("ExecuteCommand, Passage par la commande GET_GROUPMAX -> " & Nombre & ", Groupe Id :" & Param(0) & " sur le noeud " & NodeTemp.ID)
+                                    Else
+                                        WriteLog("ExecuteCommand, Passage par la commande GET_GROUPMAX -> Nome, Groupe Id :" & Param(0) & " sur le noeud " & NodeTemp.ID)
+                                    End If
+
+                            Case "REFRESHNODEINFO"                               
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                If m_manager.RefreshNodeInfo(m_homeId, adr1) Then                                   
+                                    WriteLog("ExecuteCommand, Passage par la commande REFRESHNODEINFO -> sur le noeud " & NodeTemp.ID)
+                                Else
+                                    WriteLog("ExecuteCommand, Passage par la commande REFRESHNODEINFO -> sur le noeud " & NodeTemp.ID & " Impossible")
+                                End If
+
+                            Case "GET_NODE_SECURITE"
+                                Dim Securite As Byte = 0
+
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                If m_manager.IsNodeSecurityDevice(m_homeId, adr1) Then                                    
+                                    WriteLog("ExecuteCommand, Passage par la commande GET_NODE_SECURITE -> le noeud " & NodeTemp.ID & " prend en charge la sécurité")
+                                Else
+                                    WriteLog("ExecuteCommand, Passage par la commande GET_NODE_SECURITE -> noeud " & NodeTemp.ID & " ne prend pas en charge la sécurité")
+                                End If
+                                Securite = m_manager.GetNodeSecurity(m_homeId, NodeTemp.ID)
+                                WriteLog("ExecuteCommand, Passage par la commande GET_NODE_SECURITE -> Code : " & Securite & " sur le noeud " & NodeTemp.ID)
+
+                            Case "IS_NODE_AWAKE"
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                If m_manager.IsNodeAwake(m_homeId, NodeTemp.ID) Then
+                                    WriteLog("ExecuteCommand, Passage par la commande IS_NODE_AWAKE -> le noeud " & NodeTemp.ID & " est éveillé")
+                                Else
+                                    WriteLog("ExecuteCommand, Passage par la commande IS_NODE_AWAKE -> le noeud " & NodeTemp.ID & " est endormi")
+                                End If
+
+                            Case "PRESSBOUTON"
+                               Dim RetourSet As Boolean
+                               Dim ValueTemp As ZWValueID = Nothing
+                               Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
+                               NodeTemp = GetNode(m_homeId, adr1)
+                               ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                               If ValueTemp.GetType() = ZWValueID.ValueType.Button Then        ' Uniquement Type Button
+                                  If Param(0) = 1 Then
+                                     RetourSet = m_manager.PressButton(ValueTemp)
+                                  ElseIf Param(0) = 0 Then
+                                     RetourSet = m_manager.ReleaseButton(ValueTemp)
+                                 End If
+                                 If RetourSet Then
+                                    WriteLog(Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
+                                 Else
+                                    WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur de la modification sur le noeud " & NodeTemp.ID)
+                                 End If
+                              Else
+                                 WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Button " & NodeTemp.ID)
+                              End If
+                              WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande PressBouton ")
 
                             Case "SETLIST"
                                 Dim RetourSet As Boolean
@@ -738,7 +834,7 @@ Public Class Driver_ZWave
                                 Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
-                                If ValueTemp.GetType() = 4 Then        ' Uniquement Type list
+                                If ValueTemp.GetType() = ZWValueID.ValueType.List Then        ' Uniquement Type list
                                     RetourSet = m_manager.SetValueListSelection(ValueTemp, Param(0))
                                     If RetourSet Then
                                         WriteLog("ExecuteCommand, Parametre " & Param(0) & " modifié avec succès sur le noeud " & NodeTemp.ID)
@@ -750,20 +846,29 @@ Public Class Driver_ZWave
                                 End If
                                 WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande SetList ")
 
-                            Case "SETNEWVAL"
-                                Dim ValueTemp As ZWValueID = Nothing
-                                Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
-                                NodeTemp = GetNode(m_homeId, adr1)
-                                ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
-                                If (ValueTemp.GetType() = 1 Or ValueTemp.GetType() = 2 Or ValueTemp.GetType() = 3) Then        ' Uniquement Type Numérique
-                                    Write(MyDevice, "SETNEWVAL", Param(0), Param(1))
-                                Else
-                                    WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Byte, Integer , Decimal " & NodeTemp.ID)
-                                End If
-                                WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande SetValeur ")
+                            Case "SETPOINT"
+                                Write(MyDevice, "SETPOINT", Param(0))
 
+                                '  Case "SETNEWVAL"
+                                '  '     Dim ValueTemp As ZWValueID = Nothing
+                                '  '     Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
+                                '   '     NodeTemp = GetNode(m_homeId, adr1)
+                                '   '     ValueTemp = GetValeur(NodeTemp, Trim(ParaAdr2(0)), Trim(ParaAdr2(1)))
+                                '   '   If (ValueTemp.GetType() = 1 Or ValueTemp.GetType() = 2 Or ValueTemp.GetType() = 3) Then        ' Uniquement Type Numérique
+                                '    Write(MyDevice, "SETNEWVAL", Param(0))
+                                '    '        Else
+                                '    '        WriteLog("ERR: " & Me.Nom & " ExecuteCommand, Parametre " & Param(0) & " erreur : Uniquement pour type Byte, Integer , Decimal " & NodeTemp.ID)
+                                '    '        End If
+                            Case "RED"
+                                Write(MyDevice, "RED", Param(0))
+                            Case "GREEN"
+                                Write(MyDevice, "GREEN", Param(0))
+                            Case "BLUE"
+                                Write(MyDevice, "BLUE", Param(0))
+
+                                WriteLog("DBG: " & Me.Nom & " ExecuteCommand, commande " & UCase(Command) & "passée")
                             Case Else
-                                WriteLog("ERR: " & "ExecuteCommand, La commande " & texteCommande & " n'existe pas")
+                                WriteLog("ERR: " & "ExecuteCommand, La commande " & UCase(Command) & " n'existe pas")
                         End Select
                         Return True
                     End If
@@ -834,9 +939,10 @@ Public Class Driver_ZWave
 
             'récupération des paramétres avancés
             Try
-                _DEBUG = _Parametres.Item(0).Valeur
+                _DEBUG = Parametres.Item(0).Valeur
                 _AFFICHELOG = Parametres.Item(1).Valeur
-                If (Parametres.Count > 2) Then _STARTIDLETIME = Parametres.Item(2).Valeur
+                _STARTIDLETIME = Parametres.Item(2).Valeur
+
                 'parametrage port serie
                 Dim valuetmp As String
                 valuetmp = Parametres.Item(3).Valeur
@@ -866,8 +972,7 @@ Public Class Driver_ZWave
                 _baudspeed = Left(valuetmp, Len(valuetmp) - 1)
 
                 _networkkey = Parametres.Item(4).Valeur
-                _Getconfig = _Parametres.Item(5).Valeur
-
+                _Getconfig = Parametres.Item(5).Valeur
             Catch ex As Exception
                 _DEBUG = False
                 _AFFICHELOG = False
@@ -924,6 +1029,7 @@ Public Class Driver_ZWave
                         'rajoute des 0 si nécessaire devant l'id du controleur pour avoir une chaine de 8 de long
                         _NomFileConfigZWave = _NomFileConfigZWave.PadLeft(8, "0")
                         _NomFileConfigZWave = My.Application.Info.DirectoryPath & "\drivers\zwave\zwcfg_0x" & _NomFileConfigZWave & ".xml"
+                        WriteLog("DBG: Start,  _NomFileConfigZWave " & _NomFileConfigZWave)
 
                         ' Sauvegarde de la configuration 
                         WriteLog("Start,  Sauvegarde de la config Zwave")
@@ -938,8 +1044,8 @@ Public Class Driver_ZWave
                         End If
                         If _Getconfig Then
                             Get_Config(_NomFileConfigZWave)
-                            'recharge la config toutes les 10 mn
-                            MyTimer.Interval = 600 * 1000
+                            'recharge la config toutes les 15 mn
+                            MyTimer.Interval = 900 * 1000
                             MyTimer.Enabled = True
                             AddHandler MyTimer.Elapsed, AddressOf TimerTick
                         End If
@@ -1036,6 +1142,8 @@ Public Class Driver_ZWave
                 Dim ValueTemp As ZWValueID = Nothing
                 Dim TempVersion As Byte = 0
                 Dim IsMultiLevel As Boolean = False
+                _DEBUG = _Parametres.Item(0).Valeur
+                _AFFICHELOG = Parametres.Item(1).Valeur
 
                 If _Enable = False Then
                     WriteLog("ERR: " & "Write, Erreur: Impossible de traiter la commande car le driver n'est pas activé (Enable)")
@@ -1091,116 +1199,180 @@ Public Class Driver_ZWave
                     Else
                         WriteLog("DBG: " & "Write, Composant Classique")
                     End If
-                    If Objet.Type = "LAMPE" Or Objet.Type = "LAMPERGBW" Or Objet.Type = "APPAREIL" Or Objet.Type = "SWITCH" Then
-                        texteCommande = UCase(Commande)
-                        WriteLog("DBG: " & Me.Nom & " WriteXX8" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString & " et de type " & Objet.Adresse2.ToString)
-                        Select Case UCase(Commande)
 
-                            Case "ON"
-                                If IsMultiLevel Then
-                                    If NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY) Or
-                                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY_V2) Or
-                                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK) Or
-                                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V2) Or
-                                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V3) Then
-                                        m_manager.SetValue(ValueTemp, True)
-                                    Else
-                                        Dim OnValue As Byte = Objet.ValueMax
-                                        m_manager.SetValue(ValueTemp, OnValue)
-                                    End If
+                    WriteLog("Write, Commande à exécuter " & Commande & " sur le noeud " & adr1 & " de type " & Objet.Adresse2 & " avec param1 -> " & Parametre1 & " / param2 -> " & Parametre2)
 
-                                Else
-                                    m_manager.SetNodeOn(m_homeId, NodeTemp.ID)
-                                End If
+                    Select Case True
+                        Case (Objet.Type = "LAMPE" Or Objet.Type = "LAMPERGBW" Or Objet.Type = "APPAREIL" Or Objet.Type = "SWITCH" Or Objet.Type = "VOLET")
+                            texteCommande = UCase(Commande)
 
-                            Case "OFF"
-                                If IsMultiLevel Then
-                                    If NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY) Or
-                                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY_V2) Or
-                                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK) Or
-                                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V2) Or
-                                        NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V3) Then
-                                        m_manager.SetValue(ValueTemp, False)
-                                    Else
-                                        Dim OffValue As Byte = Objet.ValueMin
-                                        m_manager.SetValue(ValueTemp, OffValue)
-                                    End If
-                                Else
-                                    m_manager.SetNodeOff(m_homeId, NodeTemp.ID)
-                                End If
-
-                            Case "DIM"
-                                If Not (IsNothing(Parametre1)) Then
-                                    'Dim ValDimmer As Byte = Math.Round(Parametre1 * 2.55) ' Reformate la valeur entre 0 : OFF  et 255 :ON 
-                                    Dim ValDimmer As Byte = Parametre1
-                                    texteCommande = texteCommande & " avec le % = " & Val(Parametre1) & " - " & ValDimmer
+                            Select Case True
+                                Case UCase(Commande) = "ON"
                                     If IsMultiLevel Then
-                                        m_manager.SetValue(ValueTemp, ValDimmer)
-                                    Else
-                                        m_manager.SetNodeLevel(m_homeId, NodeTemp.ID, ValDimmer)
-                                    End If
-                                End If
-                        End Select
-                        WriteLog("DBG: " & "Write, Passage par la commande " & texteCommande)
-                    ElseIf (Objet.Type = "TEMPERATURECONSIGNE" Or Objet.Type = "GENERIQUEVALUE") Then   '    Or Objet.Type = "TEMPERATURE") Then
-                        texteCommande = UCase(Commande)
-                        WriteLog("DBG: " & " WriteXX10" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString & " et de type " & Objet.Adresse2.ToString)
+                                        If Objet.Type = "VOLET" And InStr(Objet.Adresse2, "Level:") Then
+                                            Dim OnValue As Byte = Objet.ValueMax - 1   ' n'accepte que 99 max
+                                            m_manager.SetValue(ValueTemp, OnValue)
 
-                        Select Case UCase(Commande)
-                            Case "SETNEWVAL"     'Ecrire une valeur vers le device physique Wake Up Interval
-                                If Not (IsNothing(Parametre1)) Then
-                                    Dim ValDimmer As Single = Parametre1    'Integer
-
-                                    If InStr(Objet.Adresse2, "Wake-up Interval:") > 0 Then
-                                        If ValDimmer < 60 Then    'Pour Wake Up Interval
-                                            ValDimmer = 60
-                                        ElseIf ValDimmer > 86400 Then
-                                            ValDimmer = 86400
+                                        ElseIf NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY) Or
+                                            NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY_V2) Or
+                                            NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK) Or
+                                            NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V2) Or
+                                            NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V3) Then
+                                            m_manager.SetValue(ValueTemp, True)
+                                        Else                                           
+                                            Dim OnValue As Byte = Objet.ValueMax
+                                            m_manager.SetValue(ValueTemp, OnValue)
                                         End If
+                                    Else
+                                        m_manager.SetNodeOn(m_homeId, NodeTemp.ID)
                                     End If
-                                    texteCommande = texteCommande & " avec valeur = " & Val(Parametre1) & " - " & ValDimmer
 
+                                Case UCase(Commande) = "OFF"
                                     If IsMultiLevel Then
-                                        If InStr(Objet.Adresse2, "Wake-up Interval:") > 0 Then
-                                            m_manager.SetValue(ValueTemp, CInt(ValDimmer))
+                                        If Objet.Type = "VOLET" And InStr(Objet.Adresse2, "Level:") Then
+                                            Dim OffValue As Byte = Objet.ValueMin
+                                            m_manager.SetValue(ValueTemp, OffValue)
 
-                                        ElseIf InStr(Objet.Adresse2, "Basic:") > 0 Then
-                                            m_manager.SetValue(ValueTemp, CByte(ValDimmer))
-                                            ' m_manager.SetNodeLevel(m_homeId, NodeTemp.ID, CByte(ValDimmer))
+                                        ElseIf NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY) Or
+                                             NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_SWITCH_BINARY_V2) Or
+                                             NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK) Or
+                                             NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V2) Or
+                                             NodeTemp.CommandClass.Contains(CommandClass.COMMAND_CLASS_DOOR_LOCK_V3) Then
+                                            m_manager.SetValue(ValueTemp, False)
                                         Else
-                                            WriteLog("DBG: " & " WriteXX9A" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString & " et de type " & Objet.Adresse2.ToString)
+                                            Dim OffValue As Byte = Objet.ValueMin
+                                            m_manager.SetValue(ValueTemp, OffValue)
+                                        End If
+                                    Else
+                                        m_manager.SetNodeOff(m_homeId, NodeTemp.ID)
+                                    End If
 
+                                Case UCase(Commande) = "DIM", UCase(Commande) = "OUVERTURE"
+                                        If Not (IsNothing(Parametre1)) Then
+                                            Dim ValDimmer As Byte = Parametre1
+                                            texteCommande = texteCommande & " avec le % = " & Val(Parametre1) & " - " & ValDimmer
+                                        If IsMultiLevel Then
+                                            If UCase(Commande) = "OUVERTURE" And ValDimmer = 100 Then   ' n'accepte que 99 max
+                                                ValDimmer = ValDimmer - 1                               ' compatibilité imperihome 
+                                            End If
                                             m_manager.SetValue(ValueTemp, ValDimmer)
-                                        End If
-                                    Else
-                                        WriteLog("DBG: " & " WriteXX9B" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString & " et de type " & Objet.Adresse2.ToString)
-                                        If ValDimmer < 255 Then
-                                            m_manager.SetNodeLevel(m_homeId, NodeTemp.ID, CByte(ValDimmer))
                                         Else
-                                            WriteLog("ERR: " & "Write, Valeur trop élevée (254)")
+                                            m_manager.SetNodeLevel(m_homeId, NodeTemp.ID, ValDimmer)
                                         End If
-
                                     End If
-                                End If
 
-                            Case "SETPOINT"     'Ecrire une valeur vers le device Thermostat (JPS)
-                                If Not (IsNothing(Parametre1)) Then
-                                    Dim ValDimmer As Single = Parametre1
-                                    texteCommande = texteCommande & " avec valeur = " & Val(Parametre1) & " - " & ValDimmer
-                                    If IsMultiLevel Then
-                                        WriteLog("DBG: " & " WriteXX10A" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString & " et de type " & Objet.Adresse2.ToString)
-                                        m_manager.SetValue(ValueTemp, ValDimmer)
-                                    Else
-                                        WriteLog("DBG: " & " WriteXX10B" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString & " et de type " & Objet.Adresse2.ToString)
-                                        m_manager.SetNodeLevel(m_homeId, NodeTemp.ID, CByte(ValDimmer))
-                                    End If
-                                End If
-                        End Select
-                        WriteLog("DBG: " & "Write, Passage par la commande " & texteCommande)
+                                Case (UCase(Commande) = "SETPOINT" Or UCase(Commande) = "RED" Or UCase(Commande) = "GREEN" Or UCase(Commande) = "BLUE")  'Ecrire une valeur vers le device physique
+                                        If Not IsNothing(Parametre1) Then
+                                            Dim ValDimmer As Single
+                                            If IsNumeric(Parametre1) Then ValDimmer = Parametre1
+                                            Select Case True  ' gestion des modes de chauffage
+                                                Case (UCase(Parametre1) = "CONFORT" Or UCase(Parametre1) = "CONF")
+                                                    ValDimmer = 95
+                                                Case (UCase(Parametre1) = "CONFORT-1" Or UCase(Parametre1) = "CONF-1")
+                                                    ValDimmer = 45
+                                                Case (UCase(Parametre1) = "CONFORT-2" Or UCase(Parametre1) = "CONF-2")
+                                                    ValDimmer = 35
+                                                Case (UCase(Parametre1) = "ECO" Or UCase(Parametre1) = "EC")
+                                                    ValDimmer = 25
+                                                Case (UCase(Parametre1) = "HORSGEL" Or UCase(Parametre1) = "HG")
+                                                    ValDimmer = 15
+                                                Case UCase(Parametre1) = "ARRET"
+                                                    ValDimmer = 5
+                                            End Select
 
-                    Else
-                        WriteLog("ERR: " & "Write, Erreur: Le type " & Objet.Type.ToString & " à l'adresse " & Objet.Adresse1 & " n'est pas compatible")
-                    End If
+                                            Select Case True
+                                                Case (InStr(Objet.Adresse2, "Color:") > 0 And InStr(Parametre1, "#") = 0)  'code couleur RGB
+                                                    '                                                ValDimmer = Parametre1
+                                                    Dim HexR, HexB, HexG As String
+                                                    If UCase(Commande) = "RED" Then
+                                                        HexR = Hex(ValDimmer)
+                                                    Else
+                                                        HexR = Hex(Objet.red)
+                                                    End If
+                                                    If Len(HexR) < 2 Then HexR = "0" & HexR
+                                                    If UCase(Commande) = "GREEN" Then
+                                                        HexG = Hex(ValDimmer)
+                                                    Else
+                                                        HexG = Hex(Objet.green)
+                                                    End If
+                                                    If Len(HexG) < 2 Then HexG = "0" & HexG
+                                                    If UCase(Commande) = "BLUE" Then
+                                                        HexB = Hex(ValDimmer)
+                                                    Else
+                                                        HexB = Hex(Objet.blue)
+                                                    End If
+                                                    If Len(HexB) < 2 Then HexB = "0" & HexB
+                                                    Dim color_str As String = "#" & HexR & HexG & HexB
+                                                    m_manager.SetValue(ValueTemp, color_str)                                           
+                                                Case (InStr(Objet.Adresse2, "Color:") > 0 And InStr(Parametre1, "#") > 0)  'code couleur hexadecimal
+                                                    m_manager.SetValue(ValueTemp, Parametre1)
+                                                Case InStr(Objet.Adresse2, "Level:")  'puissance de la lampe, mode chauffage
+                                                      '                                         ValDimmer = Parametre1
+                                                    If IsMultiLevel Then
+                                                        m_manager.SetValue(ValueTemp, CByte(ValDimmer))
+                                                    Else
+                                                       m_manager.SetNodeLevel(m_homeId, NodeTemp.ID, CByte(ValDimmer))
+                                                    End If                                                
+                                                Case Else
+                                                       '                                       ValDimmer = Parametre1
+                                                     m_manager.SetNodeLevel(m_homeId, NodeTemp.ID, CByte(ValDimmer))
+                                                End Select
+                                        End If
+                            End Select
+                        Case (Objet.Type = "TEMPERATURECONSIGNE" Or Objet.Type = "GENERIQUEVALUE")    '    Or Objet.Type = "TEMPERATURE") Then
+                            texteCommande = UCase(Commande)
+
+                            Select Case UCase(Commande)
+                                Case "SETPOINT"     'Ecrire une valeur vers le device physique
+                                    If Not (IsNothing(Parametre1)) Then
+                                        Dim ValDimmer As Single
+                                        If IsNumeric(Parametre1) Then ValDimmer = Parametre1
+                                        Select Case True  ' gestion des modes de chauffage
+                                            Case (UCase(Parametre1) = "CONFORT" Or UCase(Parametre1) = "CONF")
+                                                ValDimmer = 95
+                                            Case (UCase(Parametre1) = "CONFORT-1" Or UCase(Parametre1) = "CONF-1")
+                                                ValDimmer = 45
+                                            Case (UCase(Parametre1) = "CONFORT-2" Or UCase(Parametre1) = "CONF-2")
+                                                ValDimmer = 35
+                                            Case (UCase(Parametre1) = "ECO" Or UCase(Parametre1) = "EC")
+                                                ValDimmer = 25
+                                            Case (UCase(Parametre1) = "HORSGEL" Or UCase(Parametre1) = "HG")
+                                                ValDimmer = 15
+                                            Case UCase(Parametre1) = "ARRET"
+                                                ValDimmer = 5
+                                        End Select
+                                        If InStr(Objet.Adresse2, "Wake-up Interval:") > 0 Then
+                                            If ValDimmer < 0 Then    'Pour Wake Up Interval
+                                                ValDimmer = 0
+                                            ElseIf ValDimmer > 604800 Then
+                                                ValDimmer = 604800
+                                            End If
+                                        End If
+                                        texteCommande = texteCommande & " avec valeur = " & ValDimmer
+
+                                        If IsMultiLevel Then
+                                            Select Case True
+                                                Case InStr(Objet.Adresse2, "Wake-up Interval:") > 0
+                                                    m_manager.SetValue(ValueTemp, CInt(ValDimmer))
+                                                Case InStr(Objet.Adresse2, "Heating 1:") > 0                                                
+                                                    m_manager.SetValue(ValueTemp, ValDimmer)   ' As Single
+                                                Case InStr(Objet.Adresse2, "Basic:") > 0
+                                                    m_manager.SetValue(ValueTemp, CByte(ValDimmer))
+                                                Case InStr(Objet.Adresse2, "Cooling 1:") > 0
+                                                    m_manager.SetValue(ValueTemp, CInt(ValDimmer))
+                                                Case InStr(Objet.Adresse2, "Dry Air:") > 0
+                                                    m_manager.SetValue(ValueTemp, CInt(ValDimmer))
+                                                Case InStr(Objet.Adresse2, "Auto Changeover:") > 0
+                                                    '  m_manager.SetValue(ValueTemp, CInt(ValDimmer))
+                                                Case Else
+                                                    m_manager.SetValue(ValueTemp, ValDimmer)
+                                            End Select
+                                        End If
+                                    End If                             
+                            End Select
+                        Case Else
+                            WriteLog("ERR: " & "Write, Erreur: Le type " & Objet.Type.ToString & " à l'adresse " & Objet.Adresse1 & " n'est pas compatible")
+                    End Select
                 End If
             Catch ex As Exception
                 WriteLog("ERR: " & "Write, Exception : " & ex.Message)
@@ -1322,6 +1494,7 @@ Public Class Driver_ZWave
                 _DeviceSupport.Add(ListeDevices.TELECOMMANDE.ToString)
                 _DeviceSupport.Add(ListeDevices.TEMPERATURE.ToString)
                 _DeviceSupport.Add(ListeDevices.TEMPERATURECONSIGNE.ToString)
+                _DeviceSupport.Add(ListeDevices.VOLET.ToString)
 
                 'Paramétres avancés
                 Add_ParamAvance("Debug", "Activer le Debug complet (True/False)", False)
@@ -1330,21 +1503,36 @@ Public Class Driver_ZWave
                 Add_ParamAvance("BaudRate", "Vitesse,Nbre bits, Parité, Nbre bit stop ( défaut 96008N1 )", "96008N1")
                 Add_ParamAvance("NetworkKey", "Clef pour réseau sécurisé", "0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,0x10")
                 Add_ParamAvance("GetConfig", "Permet d'avoir la configuration du réseau ZWave au paramétrage (True/False)", True)
+                Add_ParamAvance("ActiveSauvegarde", "Active la sauvegarde automatique de la configuration du réseau ZWave (True/False)", True)
+                Add_ParamAvance("AfficheSysteme", "Affiche Eléments Systèmes du résau (True/False)", False)
 
                 'ajout des commandes avancées pour les devices
-                Add_DeviceCommande("SetNewVal", "Nouvelle valeur : Byte, Integer, Decimal : ", 1)
+                Add_DeviceCommande("SetPoint", "Nouvelle consigne", 1)
+                '                Add_DeviceCommande("SetNewVal", "Nouvelle valeur", 1)
                 Add_DeviceCommande("ALL_LIGHT_ON", "", 0)
                 Add_DeviceCommande("ALL_LIGHT_OFF", "", 0)
                 Add_DeviceCommande("SetName", "Nom du composant", 0)
                 Add_DeviceCommande("SetList", "Valeur de la liste : ", 1)
-                Add_DeviceCommande("PressBouton", "Valeur : Byte, Integer, Decimal : ", 1)
+                Add_DeviceCommande("PressBouton", "Valeur : Byte, Integer : ", 1)
                 Add_DeviceCommande("GetName", "Nom du composant", 0)
                 Add_DeviceCommande("SetConfigParam", "paramètre de configuration - Par1 : Index - Par2 : Valeur", 2)
                 Add_DeviceCommande("GetConfigParam", "paramètre de configuration - Par1 : Index", 1)
+                Add_DeviceCommande("GetAllConfigParams", "Retourne paramètres de configuration", 0)
                 Add_DeviceCommande("RequestNodeState", "Nom du composant", 0)
+                Add_DeviceCommande("RequestNodeDynamic", "Nom du composant", 0)
                 Add_DeviceCommande("TestNetworkNode", "Nom du composant", 0)
                 Add_DeviceCommande("RequestNetworkUpdate", "Nom du composant", 0)
                 Add_DeviceCommande("GetNumGroups", "Nom du composant", 0)
+                Add_DeviceCommande("Add_Association", "Parametres de configuration - Par1 : Groupe Idx - Par2 : Cible Noeud Id", 2)
+                Add_DeviceCommande("Remove_Association", "Parametres de configuration - Par1 : Groupe Idx - Par2 : Cible Noeud Id", 2)
+                Add_DeviceCommande("Get_Association", "Parametres de configuration - Par1 : Groupe Idx", 1)
+                Add_DeviceCommande("Get_GroupMax", "Parametres de configuration - Par1 : Groupe Idx", 1)
+                Add_DeviceCommande("Get_Node_Securite", "Lecture code Sécurité", 0)
+                Add_DeviceCommande("RefreshNodeInfo", "Lance le rafraichissement du noeud", 0)
+                Add_DeviceCommande("Is_Node_Awake", "Vérifie si le noeud est éveillé", 0)
+                Add_DeviceCommande("blue", "Imperihome", 1) 'compatibilité imperihome et lampe rgbw
+                Add_DeviceCommande("red", "Imperihome", 1) 'compatibilité imperihome et lampe rgbw
+                Add_DeviceCommande("green", "imperihome", 1) 'compatibilité imperihome et lampe rgbw
 
                 'Libellé Driver
                 Add_LibelleDriver("HELP", "Aide...", "Ce module permet de recuperer les informations delivrées par un contrôleur Z-Wave ")
@@ -1366,12 +1554,14 @@ Public Class Driver_ZWave
             Try
                 'recharge la config
                 If _Getconfig Then
-                    Dim DateModif As String = FileDateTime(_NomFileConfigZWave)
-                    WriteLog("Timer,  Sauvegarde de la config Zwave")
-                    m_manager.WriteConfig(m_homeId)
-                    'boucle tant la date du fichier n'est pas modifiée
-                    While DateModif = FileDateTime(_NomFileConfigZWave)
-                    End While
+                    If Parametres.Item(6).Valeur = True Then    'Si sauvegarde activé
+                        Dim DateModif As String = FileDateTime(_NomFileConfigZWave)
+                        WriteLog("Timer,  Sauvegarde de la config Zwave")
+                        m_manager.WriteConfig(m_homeId)
+                        'boucle tant la date du fichier n'est pas modifiée
+                        While DateModif = FileDateTime(_NomFileConfigZWave)
+                        End While
+                    End If
                     Get_Config(_NomFileConfigZWave)
                 End If
             Catch ex As Exception
@@ -1504,7 +1694,6 @@ Public Class Driver_ZWave
         End Function
 
 
-
         ''' <summary>Reset le controleur Z-Wave avec les parametres d'Usine, hard reset</summary>
         ''' <remarks></remarks>
         Sub ResetControler()
@@ -1527,57 +1716,214 @@ Public Class Driver_ZWave
             End Try
         End Sub
 
+
+        ''' <summary>
+        ''' Sauve la config du réseau zwave
+        ''' </summary>
+        ''' <remarks></remarks>
+        Sub SauverConfigueZwave()
+            Try
+                If _IsConnect Then
+                    Dim DateModif As String = FileDateTime(_NomFileConfigZWave)
+                    WriteLog("Sauvegarde de la config Zwave")
+                    m_manager.WriteConfig(m_homeId)
+                    'boucle tant la date du fichier n'est pas modifiée
+                    While DateModif = FileDateTime(_NomFileConfigZWave)
+                    End While
+                    If _Getconfig Then
+                        WriteLog("SauverConfigue,  Chargement de la config Zwave")
+                        Get_Config(_NomFileConfigZWave)
+                    End If
+                End If
+            Catch ex As Exception
+                WriteLog("ERR: " & "SauverConfigueZwave - " & ex.Message)
+            End Try
+        End Sub
+
+
+        ''' <summary>
+        ''' Affiche l'état des noeuds
+        ''' </summary>
+        ''' <remarks></remarks>
+        Sub CheckStateNode()
+            ' WriteLog("CheckStateNode, Nombre de noeud à analyser : " & m_nodeList.Count)
+            Try
+                Dim node As Node
+                Dim i As Integer
+                If _IsConnect Then
+                    WriteLog("CheckStateNode, Nombre de noeud à analyser : " & m_nodeList.Count)
+                    For i = 0 To m_nodeList.Count - 1
+                        node = GetNode(m_homeId, m_nodeList.ElementAt(i).ID)
+                        If (m_manager.IsNodeFailed(m_homeId, node.ID)) Then
+                            WriteLog("Noeud Mort : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
+                        Else
+                            WriteLog("Noeud Actif : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
+                        End If
+                    Next
+                End If
+            Catch ex As Exception
+                WriteLog("ERR: AffichedNode, Probleme lors de la suppression des noeuds")
+            End Try
+        End Sub
+
+
+        ''' <summary>
+        ''' Place le controller en mode "inclusion"
+        ''' </summary>
+        ''' <remarks></remarks>
+        Sub ReplaceFailNode(Optional ByVal NumNode As Byte = Nothing, Optional ByVal Securite As Boolean = False)
+            Try
+                Dim node As Node
+                Dim i As Integer
+                Dim Trouve As Boolean = False
+
+                If _IsConnect Then
+                    If NumNode = Nothing Then NumNode = 0
+                    If Securite = Nothing Then Securite = False
+                    If NumNode > 1 Then
+                        For i = 0 To m_nodeList.Count - 1
+                            node = GetNode(m_homeId, m_nodeList.ElementAt(i).ID)
+                            If NumNode = node.ID Then
+                                Trouve = True
+                                If m_manager.HasNodeFailed(m_homeId, NumNode) Then
+                                    If m_manager.ReplaceFailedNode(m_homeId, node.ID) Then
+                                        WriteLog("ReplaceFailedNode réussi sur Noeud : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Product)
+                                        If m_manager.AddNode(m_homeId, Securite) Then
+                                            WriteLog("Début de la séquence d'inclusion.")
+                                        Else
+                                            WriteLog("ERR: Impossible d'exécuter la séquence d'inclusion.")
+                                        End If
+                                    Else
+                                        WriteLog("ERR: ReplaceFailedNode échoué : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
+                                    End If
+                                    Exit For
+                                Else
+                                    WriteLog("ERR: ReplaceFailedNode, impossible sur un Noeud actif  : " & NumNode.ToString)
+                                End If
+                            End If
+                        Next
+                        If Trouve = False Then
+                            WriteLog("ERR: ReplaceFailedNode, Numéro du noeud incorrect : " & NumNode.ToString)
+                        End If
+                    Else
+                        WriteLog("ReplaceFailedNode, Le numéro de noeud n'est pas correct")
+                    End If
+                End If
+            Catch ex As Exception
+                WriteLog("ERR: ReplaceFailedNode, Probleme lors du replacement du noeud")
+            End Try
+        End Sub
+
+
         ''' <summary>
         ''' Place le controller en mode "inclusion"
         ''' </summary>
         ''' <remarks></remarks>
         Sub StartInclusionMode()
-            WriteLog("Début de la séquence d'association.")
-            m_manager.AddNode(m_homeId, False)
+            ' WriteLog("Début de la séquence d'association.")
+            If m_manager.AddNode(m_homeId, False) Then
+                WriteLog("Début de la séquence d'Inclusion.")
+            Else
+                WriteLog("ERR: Impossible d'envoyer une séquence d'Inclusion.")
+            End If
         End Sub
+
         ''' <summary>
         ''' Place le controller en mode "inclusion securisée"
         ''' </summary>
         ''' <remarks></remarks>
         Sub StartSecureInclusionMode()
-            WriteLog("Début de la séquence d'association sécurisée.")
-            RemoveFailedNode()  'preferable avant une inclusion sécurisée
-            m_manager.AddNode(m_homeId, True)
+            'WriteLog("Début de la séquence d'association sécurisée.")
+            RemoveFailedNode(0)  'preferable avant une inclusion sécurisée
+            If m_manager.AddNode(m_homeId, True) Then
+                WriteLog("Début de la séquence d'Inclusion sécurisée.")
+            Else
+                WriteLog("ERR: Impossible d'envoyer une séquence d'Inclusion.")
+            End If
         End Sub
+
         ''' <summary>
         ''' Place le controller en mode "exclusion"
         ''' </summary>
         ''' <remarks></remarks>
         Sub StartExclusionMode()
-            WriteLog("Début de la séquence désassociation.")
-            m_manager.RemoveNode(m_homeId)
+            ' WriteLog("Début de la séquence désassociation.")
+            If m_manager.RemoveNode(m_homeId) Then
+                WriteLog("Début de la séquence d'Exclusion.")
+            Else
+                WriteLog("ERR: Impossible d'envoyer une séquence de d'Exclusion.")
+            End If          
         End Sub
-        ''' <summary>
-        ''' Suppresion des noeuds morts
-        ''' </summary>
-        ''' <remarks></remarks>
-        Sub RemoveFailedNode()
-            WriteLog("RemoveFailedNode, Nombre de noeud à analyser : " & m_nodeList.Count)
-            Try
-                Dim node As Node
-                Dim i As Integer
-                For i = 0 To m_nodeList.Count - 1
-                    WriteLog("DBG: " & "Suppression, noeud " & m_nodeList.ElementAt(m_nodeList.Count - 1).ID & " / " & m_nodeList.ElementAt(m_nodeList.Count - 1).Label & "?")
-                    node = GetNode(m_homeId, m_nodeList.ElementAt(m_nodeList.Count - 1).ID)
-                    m_manager.RemoveFailedNode(m_homeId, node.ID)
-                Next
-                WriteLog("RemoveFailedNode, Nombre de noeud présent aprés analyse :" & m_nodeList.Count)
-            Catch ex As Exception
-                WriteLog("ERR: RemoveFailedNode, Probleme lors de la suppression des noeuds")
-            End Try
-        End Sub
+
         ''' <summary>
         ''' Annule la commande en cours : permet de sortir du mode "inclusion/exclusion" *** experimental ***
         ''' </summary>
         ''' <remarks></remarks>
-        Sub StopAssociation()
-            WriteLog("Annule la commande en cours.")
-            m_manager.CancelControllerCommand(m_homeId)
+        Sub StoplControllerCommand()
+            ' WriteLog("Annule la commande en cours.")
+            If m_manager.CancelControllerCommand(m_homeId) Then
+                WriteLog("Annule la commande en cours.")
+            Else
+                WriteLog("ERR: Impossible d'annuler la commande en cours..")
+            End If
+
+        End Sub
+
+        ''' <summary>
+        ''' Suppresion des noeuds morts
+        ''' </summary>
+        ''' <remarks></remarks>
+        Sub RemoveFailedNode(Optional ByVal NumNode As Byte = Nothing)
+            ' WriteLog("RemoveFailedNode, Nombre de noeud à analyser : " & m_nodeList.Count)
+            Try
+                Dim node As Node
+                Dim i As Integer
+                Dim Trouve As Boolean = False
+
+                If _IsConnect Then
+                    If NumNode = Nothing Then NumNode = 0
+                    'Supprime tous les noeuds Morts
+                    If NumNode = 0 Then
+                        WriteLog("RemoveFailedNode, Nombre de noeud à analyser : " & m_nodeList.Count)
+                        For i = 0 To m_nodeList.Count - 1
+                            node = GetNode(m_homeId, m_nodeList.ElementAt(i).ID)
+                            If (m_manager.IsNodeFailed(m_homeId, node.ID)) Then
+                                WriteLog("Noeud Mort : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
+                                If m_manager.RemoveFailedNode(m_homeId, node.ID) Then
+                                    WriteLog("Noeud Supprimé : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product)
+                                Else
+                                    WriteLog("ERR: Probleme lors de la suppression du noeud : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
+                                End If
+                            Else
+                                WriteLog("Noeud actif : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
+                            End If
+                        Next
+                    End If
+
+                    'Supprime le noeud passé en paramètre
+                    If NumNode > 1 Then
+                        For i = 0 To m_nodeList.Count - 1
+                            node = GetNode(m_homeId, m_nodeList.ElementAt(i).ID)
+                            If NumNode = node.ID Then
+                                Trouve = True
+                                If m_manager.RemoveFailedNode(m_homeId, node.ID) Then
+                                    WriteLog("Noeud Supprimé : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Product)
+                                Else
+                                    WriteLog("ERR: Probleme lors de la suppression du noeud : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
+                                End If
+                                Exit For
+                            End If
+                        Next
+                        If Trouve = False Then
+                            WriteLog("ERR: RemoveFailedNode, Numéro du noeud incorrect : " & NumNode.ToString)
+                        End If
+                    Else
+                        WriteLog("RemoveFailedNode, Le numéro de noeud n'est pas correct")
+                    End If
+                End If
+            Catch ex As Exception
+                WriteLog("ERR: RemoveFailedNode, Probleme lors de la suppression des noeuds")
+            End Try
         End Sub
 
         Sub ManagedControllerStateChangedHandler(ByVal m_controllerState As ZWControllerState)
@@ -1658,7 +2004,6 @@ Public Class Driver_ZWave
                             m_nodeList.Add(node)
                         End If
 
-
                     Case ZWNotification.Type.NodeRemoved
                         If m_notification.GetNodeId() <> m_manager.GetControllerNodeId(m_homeId) Then
                             WriteLog("NotificationHandler - Suppression du noeud " & m_notification.GetNodeId())
@@ -1668,6 +2013,7 @@ Public Class Driver_ZWave
                                     Exit For
                                 End If
                             Next
+                            If _Getconfig Then Get_Config(_NomFileConfigZWave)
                         End If
 
                     Case ZWNotification.Type.NodeProtocolInfo
@@ -1694,10 +2040,10 @@ Public Class Driver_ZWave
                                 WriteLog("DBG: " & "NotificationHandler - ID: " & node.ID & ", Nom: " & node.Name & ", Manufacturer: " & node.Manufacturer)
                                 WriteLog("DBG: " & "NotificationHandler - Produit: " & node.Product & ", Label : " & node.Label)
                                 WriteLog("DBG: " & "NotificationHandler - Nb noeuds: " & m_nodeList.Count & ", Location: " & node.Location & ", Nb values: " & node.Values.Count)
-                           Else
-                            ' Message si le noeud n'est pas le controleur
-                            WriteLog("ERR: " & "NotificationHandler - Erreur dans NodeNaming  : node " & m_notification.GetNodeId() & " non trouvé")
-                        End If
+                            Else
+                                ' Message si le noeud n'est pas le controleur
+                                WriteLog("ERR: " & "NotificationHandler - Erreur dans NodeNaming  : node " & m_notification.GetNodeId() & " non trouvé")
+                            End If
                         End If
 
 
@@ -1712,39 +2058,74 @@ Public Class Driver_ZWave
                     Case ZWNotification.Type.PollingEnabled
                         WriteLog("DBG: " & "NotificationHandler - PollingEnabled sur node " & m_notification.GetNodeId())
 
+                    Case ZWNotification.Type.SceneEvent
+                            WriteLog("DBG: " & "NotificationHandler - SceneEvent " & m_notification.GetNodeId())
+
+                    Case ZWNotification.Type.CreateButton
+                            WriteLog("DBG: " & "NotificationHandler - CreateButton " & m_notification.GetNodeId())
+
+                    Case ZWNotification.Type.DeleteButton
+                            WriteLog("DBG: " & "NotificationHandler - DeleteButton " & m_notification.GetNodeId())
+
+                    Case ZWNotification.Type.ButtonOn
+                            WriteLog("DBG: " & "NotificationHandler - ButtonOn " & m_notification.GetNodeId())
+
+                    Case ZWNotification.Type.ButtonOff
+                            WriteLog("DBG: " & "NotificationHandler - ButtonOff " & m_notification.GetNodeId())
+
                     Case ZWNotification.Type.DriverReady
-                        m_homeId = m_notification.GetHomeId()
-                        WriteLog("DBG: " & "NotificationHandler - DriverReady")
+                            m_homeId = m_notification.GetHomeId()
+                            WriteLog("DBG: " & "NotificationHandler - DriverReady : " & m_notification.GetNodeId())
 
                     Case ZWNotification.Type.DriverReset
-                        m_homeId = m_notification.GetHomeId()
-                        WriteLog("DBG: " & "NotificationHandler - DriverReset")
+                            m_homeId = m_notification.GetHomeId()
+                            WriteLog("DBG: " & "NotificationHandler - DriverReset : " & m_notification.GetNodeId())
 
                     Case ZWNotification.Type.EssentialNodeQueriesComplete
-                        WriteLog("DBG: " & "NotificationHandler - EssentialNodeQueriesComplete")
+                            WriteLog("DBG: " & "NotificationHandler - EssentialNodeQueriesComplete : " & m_notification.GetNodeId())
 
                     Case ZWNotification.Type.NodeQueriesComplete
-                        WriteLog("DBG: " & "NotificationHandler - NodeQueriesComplete")
+                            WriteLog("DBG: " & "NotificationHandler - NodeQueriesComplete : " & m_notification.GetNodeId())
 
 
                     Case ZWNotification.Type.AllNodesQueried
-                        WriteLog("DBG: " & "NotificationHandler - AllNodesQueried")
-                        m_nodesReady = True
-                        ' Simulation de noeuds 
-                        ' SimulNode()
+                            WriteLog("DBG: " & "NotificationHandler - AllNodesQueried : " & m_notification.GetNodeId())
+                            m_nodesReady = True
+                            ' Simulation de noeuds 
+                            ' SimulNode()
 
                     Case ZWNotification.Type.AwakeNodesQueried
-                        WriteLog("DBG: " & "NotificationHandler - AwakeNodesQueried")
+                            WriteLog("DBG: " & "NotificationHandler - AwakeNodesQueried : " & m_notification.GetNodeId())
 
                     Case ZWNotification.Type.AllNodesQueriedSomeDead
-                        WriteLog("DBG: " & Me.Nom & " NotificationHandler - AllNodesQueriedSomeDead")
+                            WriteLog("DBG: " & Me.Nom & " NotificationHandler - AllNodesQueriedSomeDead : " & m_notification.GetNodeId())
+
+                    Case ZWNotification.Type.ControllerCommand
+                            WriteLog("DBG: " & "NotificationHandler - ControllerCommand sur le noeud : " & m_notification.GetNodeId())
+
+                    Case ZWNotification.Type.NodeReset
+                            WriteLog("DBG: " & "NotificationHandler - NodeReset : " & m_notification.GetNodeId())
+
                     Case Else
-                        WriteLog("DBG: " & "NotificationHandler - Une notification a été reçue : " & m_notification.[GetType]())
+                            WriteLog("DBG: " & "NotificationHandler - Une notification a été reçue : " & m_notification.[GetType]() & ",Noeud: " & m_notification.GetNodeId())
+
+                            '  Dim node As Node = GetNode(m_notification.GetHomeId(), m_notification.GetNodeId())
+                            '  If Not IsNothing(node) Then
+                            'Node.Manufacturer = m_manager.GetNodeManufacturerName(m_homeId, Node.ID)
+                            '   Node.Product = m_manager.GetNodeProductName(m_homeId, Node.ID)
+                            '   Node.Location = m_manager.GetNodeLocation(m_homeId, Node.ID)
+                            '   Node.Name = m_manager.GetNodeName(m_homeId, Node.ID)
+                            '   WriteLog("DBG: " & "NotificationHandler - ID: " & Node.ID & ", Nom: " & Node.Name & ", Manufacturer: " & Node.Manufacturer)
+                            '   WriteLog("DBG: " & "NotificationHandler - Produit: " & Node.Product & ", Label : " & Node.Label)
+                            '  WriteLog("DBG: " & "NotificationHandler - Nb noeuds: " & m_nodeList.Count & ", Location: " & Node.Location & ", Nb values: " & Node.Values.Count)                    
+                            '   End If
+
                 End Select
             Catch ex As Exception
                 WriteLog("ERR: " & "NotificationHandler Exception: " & ex.Message)
             End Try
         End Sub
+
 
         ''' <summary>Gets a node based on the homeId and the nodeId</summary>
         ''' <param name="homeId"></param>
@@ -1799,6 +2180,9 @@ Public Class Driver_ZWave
         ''' <summary>processing the received value</summary>
         ''' <param name="m_notification"></param>
         Private Sub traiteValeur(ByVal m_notification As ZWNotification) ', Optional ByVal FromEvent As Boolean = False)
+
+
+            _DEBUG = _Parametres.Item(0).Valeur
 
             Dim m_valueLabel As String = ""
             Dim m_instance As Integer = 0
@@ -1864,7 +2248,7 @@ Public Class Driver_ZWave
                     Dim m_productName As String = m_manager.GetNodeProductName(m_notification.GetHomeId(), m_nodeId)
 
                     If (String.IsNullOrEmpty(m_manufacturerName) And String.IsNullOrEmpty(m_productName)) Then
-                        WriteLog("ERR: " & "Impossible de déterminer le nom et le fabriquant de l'équipement !")
+                        WriteLog("ERR: TraiteValeur " & "Impossible de déterminer le nom et le fabriquant de l'équipement !")
                     End If
                     If (String.IsNullOrEmpty(m_manufacturerName)) Then m_manufacturerName = "Unknown"
                     If (String.IsNullOrEmpty(m_productName)) Then m_productName = "Unknown"
@@ -1904,7 +2288,7 @@ Public Class Driver_ZWave
                         m_device.Value = m_valueString
                         m_device.Name = m_deviceName
 
-                        WriteLog("DBG: " & Me.Nom & " traiteValeurYY2 Recherche composant a l'adresse : " & m_nodeId & ":" & m_instance & ":" & m_index & " -> " & m_valueLabel & "=" & m_valueString)
+                        WriteLog("DBG: " & Me.Nom & " traiteValeur Recherche composant a l'adresse : " & m_nodeId & ":" & m_instance & ":" & m_index & " -> " & m_valueLabel & "=" & m_valueString)
                         Select Case m_device.Adresse2.ToLower().Trim()
                             Case "Battery Level".ToLower()
                                 m_device.Type = ListeDevices.BATTERIE.ToString()
@@ -1927,6 +2311,8 @@ Public Class Driver_ZWave
                             Case "Auto Changeover".ToLower()
                                 m_device.Type = ListeDevices.TEMPERATURECONSIGNE.ToString()
                             Case "Heating 1".ToLower()
+                                m_device.Type = ListeDevices.TEMPERATURECONSIGNE.ToString()
+                            Case "Dry Air".ToLower()
                                 m_device.Type = ListeDevices.TEMPERATURECONSIGNE.ToString()
                         End Select
 
@@ -1987,7 +2373,7 @@ Public Class Driver_ZWave
                                     Case 7 : m_manager.GetValueAsString(m_valueID, ValeurRecue) ' m_manager.GetValueAsString(TempValeur, LocalDevice.value)
 
                                     Case Else
-                                        WriteLog("ERR: " & " traiteValeurXX6" & " Type non traité Exception : " & CStr(m_valueID.GetType()))
+                                        WriteLog("ERR: " & " traiteValeur" & " Type non traité Exception : " & CStr(m_valueID.GetType()))
                                 End Select
 
                                 ' Traitement particulier pour les temperatures
@@ -2004,31 +2390,40 @@ Public Class Driver_ZWave
                                                 ValeurRecue = myValue.ToString
                                             End If
                                         Case Else
-                                            WriteLog("ERR: " & "Exception : Unité non traitée " & m_manager.GetValueUnits(m_valueID))
+                                            If m_manager.GetValueUnits(m_valueID) <> "" Then WriteLog("ERR: " & "traiteValeur, " & UCase(LocalDevice.type) & " Unité non traitée " & m_manager.GetValueUnits(m_valueID))
                                     End Select
-                                    ' Traitement particulier pour les Appareils
-                                    'ElseIf LocalDevice.type = "APPAREIL" Then
-                                    ' Dim myValue As String = Nothing
-                                    '   Select ValeurRecue
-                                    '      Case True
-                                    '  myValue = "ON"
-                                    '      Case False
-                                    '   myValue = "OFF"
-                                    '   End Select
-                                    ' ValeurRecue = myValue
-                                    'Else
                                 End If
+
+                                If UCase(m_valueLabel) = "COLOR" Then
+                                    'transforme code couleur hexa en numerique
+                                    If InStr(ValeurRecue, "#") > 0 Then
+                                        ValeurRecue = Mid(ValeurRecue, InStr(ValeurRecue, "#") + 1, Len(ValeurRecue))
+                                        ValeurRecue = RGB(CLng("&H" & Mid(ValeurRecue, 1, 2)), CLng("&H" & Mid(ValeurRecue, 3, 2)), CLng("&H" & Mid(ValeurRecue, 5, 2)))
+                                    End If
+                                End If
+
                                 LocalDevice.value = ValeurRecue
 
-                                'gestion de l'information de Batterie "Attention Erreur si valeur = 0"
-                                If UCase(m_valueLabel) = "BATTERY LEVEL" Then
-                                    If m_valueString <= 10 Then WriteLog("ERR: " & LocalDevice.nom & " : Battery vide")
-                                End If
+                                ' Traitement particulier pour les Appareils
+                                'ElseIf LocalDevice.type = "APPAREIL" Then
+                                ' Dim myValue As String = Nothing
+                                '   Select ValeurRecue
+                                '      Case True
+                                '  myValue = "ON"
+                                '      Case False
+                                '   myValue = "OFF"
+                                '   End Select
+                                ' ValeurRecue = myValue
+                                'Else
 
+                                'gestion de l'information de Batterie
+                                If UCase(m_valueLabel) = "BATTERY LEVEL" Then
+                                    If m_valueString <= 10 Then WriteLog("ERR: " & LocalDevice.Name & " : Id : " & LocalDevice.ID & " : Battery vide")
+                                End If
                                 WriteLog("DBG: " & "Z-Wave NodeID: " & m_nodeId)
                                 WriteLog("DBG: " & "Z-Wave Label: " & m_valueLabel)
-                                WriteLog("DBG: " & "Z-Wave productName: " & m_productName)
                                 WriteLog("DBG: " & "Z-Wave ValueUnit: " & m_manager.GetValueUnits(m_notification.GetValueID()))
+                                WriteLog("DBG: " & "Z-Wave productName: " & m_productName)
                                 WriteLog("DBG: " & "Valeur Homidom relevée: " & LocalDevice.value & " de type " & LocalDevice.GetType.Name)
                             Else
                                 WriteLog("DBG: " & "Reception < 1.5s de deux valeurs pour le meme composant : " & m_nodeId & ":" & m_instance & " -> " & m_valueLabel & "=" & m_valueString)
@@ -2045,10 +2440,10 @@ Public Class Driver_ZWave
 
                 m_devices = Nothing
             Catch ex As Exception
-                WriteLog("ERR: " & " Exception : " & ex.Message)
+                WriteLog("ERR: " & "traiteValeur, Exception : " & ex.Message)
             End Try
         End Sub
-		
+
         Function Get_Config(nomfileconfig As String) As Boolean
             ' recupere les configurations des equipements 
 
@@ -2057,17 +2452,16 @@ Public Class Driver_ZWave
                 If m_nodeList.Count Then
                     If Not My.Computer.FileSystem.FileExists(nomfileconfig) Then
                         Return False
+                        WriteLog("ERR: " & "GET_Config, fichier" & nomfileconfig & " inexistant")
                         Exit Function
                     End If
 
                     _Adr1Txt.Clear()
                     Dim _libelleadr1 As String = ""
                     Dim _libelleadr2 As String = ""
-                    Dim NodeTempID As Byte
                     Dim response As String = ""
 
                     For Each NodeTemp As Node In m_nodeList
-                        NodeTempID = NodeTemp.ID
                         _libelleadr1 += NodeTemp.ID & " # " & NodeTemp.Product & "|"
                         _Adr1Txt.Add(NodeTemp.ID & " # " & NodeTemp.Product)
                         WriteLog("DBG: _libelleadr1, " & _libelleadr1)
@@ -2080,11 +2474,25 @@ Public Class Driver_ZWave
                             WriteLog("DBG: _libelleadr2, " & response)
                         End If
                     Next
-                    _libelleadr1 = Mid(_libelleadr1, 1, Len(_libelleadr1) - 1) 'enleve le dernier | pour eviter davoir une ligne vide a la fin
-                    Add_LibelleDevice("ADRESSE1", "Nom de l'équipement", "Nom de l'équipement", _libelleadr1)
 
-                    _libelleadr2 = Mid(_libelleadr2, 1, Len(_libelleadr2) - 1) 'enleve le dernier | pour eviter davoir une ligne vide a la fin
-                    Add_LibelleDevice("ADRESSE2", "Param de l'équipement", "Param de l'équipement", _libelleadr2)
+
+                    ' evite les doublons 
+                    Dim ld0 As New HoMIDom.HoMIDom.Driver.cLabels
+                    For i As Integer = 0 To _LabelsDevice.Count - 1
+                        ld0 = _LabelsDevice(i)
+                        Select Case ld0.NomChamp
+                            Case "ADRESSE1"
+                                _libelleadr1 = Mid(_libelleadr1, 1, Len(_libelleadr1) - 1) 'enleve le dernier | pour eviter davoir une ligne vide a la fin
+                                ld0.Parametre = _libelleadr1
+                                _LabelsDevice(i) = ld0
+                            Case "ADRESSE2"
+                                _libelleadr2 = Mid(_libelleadr2, 1, Len(_libelleadr2) - 1) 'enleve le dernier | pour eviter davoir une ligne vide a la fin
+                                ld0.Parametre = _libelleadr2
+                                _LabelsDevice(i) = ld0
+                        End Select
+                    Next
+
+
                 End If
                 Return True
             Catch ex As Exception
@@ -2121,7 +2529,7 @@ Public Class Driver_ZWave
                                     Case XmlNodeType.Element
                                         valnode = reader.ReadOuterXml
                                         'recherche des value user                  Modifié pas jps
-                                        If (InStr(valnode, "genre=""user""") > 0) Or (InStr(valnode, "genre=""system""") > 0) Then
+                                        If (InStr(valnode, "genre=""user""") > 0) Or ((Parametres.Item(7).Valeur = True) And (InStr(valnode, "genre=""system""") > 0)) Then
                                             readertmp = XmlReader.Create(New StringReader(valnode))
                                             While readertmp.Read()
                                                 Select Case readertmp.NodeType
@@ -2131,17 +2539,22 @@ Public Class Driver_ZWave
                                                             ' ne rajoute que si existe pas. Evite les doublons
                                                             If InStr(1, str, strtmp) = 0 Then
                                                                 str += nodeid & " #; " & strtmp & "|"
-                                                                WriteLog("DBG: Str : " & strtmp)
+                                                                WriteLog("DBG: Str : " & str)
                                                             End If
                                                         End If
                                                 End Select
                                             End While
+                                            readertmp = Nothing
                                         End If
                                 End Select
                             End While
                             Exit While
+                            reader = Nothing
                         End If
                     End While
+                    Nodes = Nothing
+                    nav = Nothing
+                    xmldoc = Nothing
                     Return str
                 Else
                     WriteLog("ERR: " & "LectureNoeudConfigXml, fichier " & fichierxml & " introuvable")

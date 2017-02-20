@@ -64,9 +64,9 @@
     <OptionInfer>Off</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenZWaveDotNet, Version=1.0.5763.36664, Culture=neutral, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\RELEASE\OpenZWaveDotNet.dll</HintPath>
+    <Reference Include="OpenZWaveDotNet">
+      <HintPath>..\..\RELEASE\Drivers\OpenZWaveDotNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

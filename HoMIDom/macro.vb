@@ -529,6 +529,13 @@ Namespace HoMIDom
             ''' </summary>
             ''' <remarks></remarks>
             Parenthese = 2
+
+            Variable = 3
+            ''' <summary>
+            ''' Parenthèse (non utilisé)
+            ''' </summary>
+            ''' <remarks></remarks>
+
         End Enum
 
         ''' <summary>

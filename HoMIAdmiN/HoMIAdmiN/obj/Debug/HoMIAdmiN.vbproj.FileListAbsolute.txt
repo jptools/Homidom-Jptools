@@ -77,3 +77,9 @@ D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\HoMIAdmiN.vbproj.GenerateResource.Cache
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\HoMIAdmiN.exe
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\HoMIAdmiN.xml
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\HoMIAdmiN.pdb
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\Control\uSelectExp.baml
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\Control\uGestionChauff.g.vb
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\Control\uSelectExp.g.vb
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\Control\WParam.g.vb
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\Control\uGestionChauff.baml
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Debug\Control\WParam.baml

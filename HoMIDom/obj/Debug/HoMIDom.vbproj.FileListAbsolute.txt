@@ -1,0 +1,9 @@
+D:\Homidom\DEBUG\HoMIDom.dll
+D:\Homidom\DEBUG\HoMIDom.pdb
+D:\Homidom\DEBUG\HoMIDom.xml
+D:\Homidom\HoMIDom\obj\Debug\HoMIDom.vbprojResolveAssemblyReference.cache
+D:\Homidom\HoMIDom\obj\Debug\HoMIDom.Resources.resources
+D:\Homidom\HoMIDom\obj\Debug\HoMIDom.vbproj.GenerateResource.Cache
+D:\Homidom\HoMIDom\obj\Debug\HoMIDom.dll
+D:\Homidom\HoMIDom\obj\Debug\HoMIDom.xml
+D:\Homidom\HoMIDom\obj\Debug\HoMIDom.pdb

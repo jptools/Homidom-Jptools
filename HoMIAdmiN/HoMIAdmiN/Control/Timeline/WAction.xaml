@@ -3,21 +3,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="Paramétrer Action" ShowInTaskbar="True" WindowStyle="ToolWindow" Name="WActionDevice" WindowStartupLocation="CenterOwner" xmlns:my="clr-namespace:WpfApplication1" Topmost="False" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
 
-        <Grid Background="#636060" >
-            
+    <Grid Background="#636060" >
+
         <StackPanel Margin="2">
             <StackPanel Orientation="Horizontal" >
-            <StackPanel Margin="5" Name="StkProperty" >
-                
+                <StackPanel Margin="5" Name="StkProperty" >
+
                     <Label Height="25" Content="###:" HorizontalAlignment="Left"  Name="Lbl1" VerticalAlignment="Top" Foreground="Orange" FontSize="14" />
                     <ComboBox Height="25" HorizontalAlignment="Left" Name="Cb1" VerticalAlignment="Top" Width="200" BorderBrush="Black" Background="DarkGray" Foreground="#FF474646" BorderThickness="2"/>
                     <Label Height="25" Content="###:" Foreground="Orange" HorizontalAlignment="Left" Name="Lbl2" VerticalAlignment="Top" FontSize="14" FontFamily="Tahoma" />
                     <ComboBox Height="25" HorizontalAlignment="Left" Name="Cb2" VerticalAlignment="Top" Width="200" BorderBrush="Black" Background="DarkGray" Foreground="#FF474646" BorderThickness="2"/>
                     <TextBox Height="25" HorizontalAlignment="Left" Name="Txt2" VerticalAlignment="Top" Width="199" BorderBrush="Black" Foreground="White" Background="DarkGray" Visibility="Collapsed" />
                     <Label Height="25" Content="Parametre:" FontFamily="Tahoma" FontSize="14" Foreground="Orange" HorizontalAlignment="Left" Name="LblValue" VerticalAlignment="Top" />
-                        <TextBox Height="25" HorizontalAlignment="Left"  Name="TxtValue" VerticalAlignment="Top" Width="199" Background="DarkGray" BorderBrush="Black" Foreground="White" AcceptsReturn="True" />
+                    <TextBox Height="25" HorizontalAlignment="Left"  Name="TxtValue" VerticalAlignment="Top" Width="199" Background="DarkGray" BorderBrush="Black" Foreground="White" AcceptsReturn="True" />
                 </StackPanel>
-            <StackPanel Margin="5">
+                <StackPanel Margin="5">
                     <Label Content="Delai:" FontSize="14" Foreground="Orange" />
                     <StackPanel Orientation="Horizontal" >
                         <StackPanel >
@@ -53,26 +53,27 @@
 
                         </StackPanel>
                     </StackPanel>
-                        </StackPanel>
-            <Button Content="Ok" Height="28" HorizontalAlignment="Left" Margin="15" Name="BtnOk" VerticalAlignment="Top" Width="72" Template="{DynamicResource GlassButton}" Foreground="White" />
-        </StackPanel>
-            
+                </StackPanel>
+                <Button Content="Ok" Height="28" HorizontalAlignment="Left" Margin="15" Name="BtnOk" VerticalAlignment="Top" Width="72" Template="{DynamicResource GlassButton}" Foreground="White" />
+            </StackPanel>
+
             <TabControl HorizontalAlignment="Left" Margin="5" Name="TabControl1" VerticalAlignment="Center" Width="611">
                 <TabItem Header="Condition" Name="TabItem1">
                     <Grid Background="Black" Height="420">
-                            <StackPanel HorizontalAlignment="Left"  Name="StackPanel1" VerticalAlignment="Top" Orientation="Vertical">
-                                <StackPanel Orientation="Horizontal" >
-                                    <Image Name="BtnCondiTime" Source="/HoMIAdmiN;component/Images/horloge_128.png" Height="24" Width="24" Margin="3" />
-                                    <Image Name="BtnCondiDevice" Source="/HoMIAdmiN;component/Images/Composant_128.png" Width="24" Height="24" Margin="3" />
-                                </StackPanel>
-                            <ScrollViewer Margin="5,0,0,0" Name="ScrollViewer1" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" CanContentScroll="True" Width="590" AllowDrop="True" Height="360">
-                                    <StackPanel Name="StkCondition" Orientation="Vertical"  Background="DarkGray" VerticalAlignment="Top" HorizontalAlignment="Left" />
-                                </ScrollViewer>
+                        <StackPanel HorizontalAlignment="Left"  Name="StackPanel1" VerticalAlignment="Top" Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal" >
+                                <Image Name="BtnCondiTime" Source="/HoMIAdmiN;component/Images/horloge_128.png" Height="24" Width="24" Margin="3" />
+                                <Image Name="BtnCondiDevice" Source="/HoMIAdmiN;component/Images/Composant_128.png" Width="24" Height="24" Margin="3" />
+                                <Image Name="BtnCondiVariable" Source="/HoMIAdmiN;component/Images/Debug-Variable-icon.png" Height="24" Width="24" Margin="3" />
                             </StackPanel>
+                            <ScrollViewer Margin="5,0,0,0" Name="ScrollViewer1" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" CanContentScroll="True" Width="590" AllowDrop="True" Height="360">
+                                <StackPanel Name="StkCondition" Orientation="Vertical"  Background="DarkGray" VerticalAlignment="Top" HorizontalAlignment="Left" />
+                            </ScrollViewer>
+                        </StackPanel>
                     </Grid>
                 </TabItem>
                 <TabItem Header="Then">
-                    <my:uScenario Height="417" x:Name="UScenario1" Width="593" />
+                    <my:uScenario Height="382" x:Name="UScenario1" Width="593" Margin="6,0" />
                 </TabItem>
                 <TabItem Header="Else">
                     <my:uScenario Height="417" x:Name="UScenario2" Width="593" />

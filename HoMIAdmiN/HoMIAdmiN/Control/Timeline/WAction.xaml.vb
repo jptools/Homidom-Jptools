@@ -7,6 +7,7 @@ Public Class WActionParametrage
     Dim mycontextmnu As New ContextMenu
     Dim mycontextmnu2 As New ContextMenu
     Dim ListeDevices As List(Of TemplateDevice)
+    Dim ListeVariables As List(Of Variable)
 
     Public Property ObjAction As Object
         Get
@@ -188,12 +189,15 @@ Public Class WActionParametrage
                                 If _condi.Value.ToString.ToUpper = "ON" Then _condi.Value = True
                                 If _condi.Value.ToString.ToUpper = "OFF" Then _condi.Value = False
                             End If
+                            If _condi.Type = Action.TypeCondition.Variable Then
+                                _condi.Value = _ListuConditions.Item(j).TxtValueVar.Text
+                                MsgBox("bt_ok " & _condi.Value)
+                            End If
                             obj.Conditions.Add(_condi)
                         Next
                         obj.ListTrue = UScenario1.Items
                         obj.ListFalse = UScenario2.Items
                         _ObjAction = obj
-
                 End Select
                 _ObjAction.Timing = New System.DateTime(Now.Year, Now.Month, Now.Day, TxtHr.Text, TxtMn.Text, TxtSc.Text)
             End If
@@ -851,6 +855,20 @@ Public Class WActionParametrage
                                 x.PropertyDevice = obj.Conditions.Item(i).PropertyDevice
                                 x.Value = obj.Conditions.Item(i).Value
                             End If
+                            If x.TypeCondition = Action.TypeCondition.Variable Then
+                                Cb1.ItemsSource = myService.GetAllVariables(IdSrv)
+
+                                If String.IsNullOrEmpty(x.CbVariable.Text) = False Then
+                                    For j As Integer = 0 To Cb1.Items.Count - 1
+                                        If obj.Conditions.Item(j).IdDevice = Cb1.Items(j).Nom Then
+                                            Cb1.SelectedIndex = j
+                                            Exit For
+                                        End If
+                                    Next
+                                End If
+                                x.TxtValueVar.Text = obj.Conditions.Item(i).Value
+                                MsgBox("new " & x.TxtValueVar.Text)
+                            End If
                             AddHandler x.UpCondition, AddressOf UpCondition
                             AddHandler x.DeleteCondition, AddressOf DeleteCondition
                             _ListuConditions.Add(x)
@@ -1084,6 +1102,25 @@ Public Class WActionParametrage
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur WAction BtnCondiDevice_MouseLeftButtonDown: " & ex.ToString, "ERREUR", "")
         End Try
+    End Sub
+    Private Sub BtnCondiVariable_MouseLeftButtonDown(sender As Object, e As MouseButtonEventArgs) Handles BtnCondiVariable.MouseLeftButtonDown
+        Try
+            Dim x As New uCondition
+            x.TypeCondition = Action.TypeCondition.Variable
+            x.Uid = HoMIDom.HoMIDom.Api.GenerateGUID
+            AddHandler x.DeleteCondition, AddressOf DeleteCondition
+            AddHandler x.UpCondition, AddressOf UpCondition
+            If StkCondition.Children.Count = 0 Then
+                x.IsFirst = True
+            Else
+                x.IsFirst = False
+            End If
+            StkCondition.Children.Add(x)
+            _ListuConditions.Add(x)
+        Catch ex As Exception
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur WAction BtnCondiVariable_MouseLeftButtonDown: " & ex.ToString, "ERREUR", "")
+        End Try
+
     End Sub
 
     Private Sub DeleteCondition(ByVal uid As String)
