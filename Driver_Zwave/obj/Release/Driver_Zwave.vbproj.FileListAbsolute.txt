@@ -15,4 +15,5 @@ D:\Homidom\trunk\Drivers\Driver_Zwave\obj\Release\Driver_Zwave.vbproj.GenerateRe
 D:\Homidom\trunk\Drivers\Driver_Zwave\obj\Release\Driver_Zwave.dll
 D:\Homidom\trunk\Drivers\Driver_Zwave\obj\Release\Driver_Zwave.xml
 D:\Homidom\trunk\Drivers\Driver_Zwave\obj\Release\Driver_Zwave.pdb
+D:\Homidom\Drivers\Driver_Zwave\obj\Release\Driver_Zwave.vbproj.CoreCompileInputs.cache
 D:\Homidom\Drivers\Driver_Zwave\obj\Release\Driver_Zwave.vbprojResolveAssemblyReference.cache

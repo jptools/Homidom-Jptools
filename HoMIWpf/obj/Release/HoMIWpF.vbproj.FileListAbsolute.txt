@@ -79,11 +79,12 @@ D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.Resources.resources
 D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbproj.GenerateResource.Cache
 D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.exe
 D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.xml
-D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbproj.HoMIWpF.exe.config
 D:\Homidom\HoMIWpf\obj\Release\UserControls\uGauge.baml
 D:\Homidom\HoMIWpf\obj\Release\UserControls\uGauge.g.vb
 D:\Homidom\HoMIWpf\obj\Release\UserControls\uThermostat.baml
 D:\Homidom\HoMIWpf\obj\Release\UserControls\uThermostat.g.vb
-D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbprojResolveAssemblyReference.cache
 D:\Homidom\HoMIWpf\obj\Release\UserControls\uChart.baml
 D:\Homidom\HoMIWpf\obj\Release\UserControls\uChart.g.vb
+D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.exe.config
+D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbproj.CoreCompileInputs.cache
+D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbprojResolveAssemblyReference.cache

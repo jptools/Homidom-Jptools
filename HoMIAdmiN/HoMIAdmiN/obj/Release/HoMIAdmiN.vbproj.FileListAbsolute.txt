@@ -1,7 +1,6 @@
 D:\Homidom\RELEASE\HoMIAdmiN.exe.config
 D:\Homidom\RELEASE\HoMIAdmiN.exe
 D:\Homidom\RELEASE\HoMIAdmiN.xml
-D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.vbprojResolveAssemblyReference.cache
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\Condition\uCondition.baml
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\uHelp.baml
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\Timeline\uAction.baml
@@ -81,3 +80,5 @@ D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\uSelectExp.baml
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\uSelectExp.g.vb
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\WParam.g.vb
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\WParam.baml
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.vbproj.CoreCompileInputs.cache
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.vbprojResolveAssemblyReference.cache

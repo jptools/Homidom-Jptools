@@ -2934,22 +2934,19 @@ Namespace HoMIDom
                 AddHandler MyTimer.Elapsed, AddressOf Read
             End Sub
 
-
             ' SetPoint Thermostat  *****************************************************
             Public Sub [SetPoint](ByVal Variation As Single)
                 If _Enable = False Then Exit Sub
 
                 If Variation < 5 Then
                     Variation = 5
-                ElseIf Variation > 30 Then
-                    Variation = 30
+                ElseIf Variation > 40 Then
+                    Variation = 40
                 End If
                 Driver.Write(Me, "SETPOINT", Variation)
             End Sub
 
         End Class
-
-      
 
         <Serializable()> Class UV
             Inherits DeviceGenerique_ValueDouble

@@ -3,6 +3,7 @@ D:\Homidom\RELEASE\HoMIDom.pdb
 D:\Homidom\RELEASE\HoMIDom.xml
 D:\Homidom\HoMIDom\obj\Release\HoMIDom.Resources.resources
 D:\Homidom\HoMIDom\obj\Release\HoMIDom.vbproj.GenerateResource.Cache
+D:\Homidom\HoMIDom\obj\Release\HoMIDom.vbproj.CoreCompileInputs.cache
 D:\Homidom\HoMIDom\obj\Release\HoMIDom.dll
 D:\Homidom\HoMIDom\obj\Release\HoMIDom.xml
 D:\Homidom\HoMIDom\obj\Release\HoMIDom.pdb

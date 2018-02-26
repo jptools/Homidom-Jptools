@@ -6,7 +6,7 @@
              mc:Ignorable="d" Width="131" Height="198">
     <Grid>
         <StackPanel Orientation="Horizontal" Margin="0,0,1,0" >
-            <ProgressBar x:Name="ProgressBar1" Orientation="Vertical" Width="22" Foreground="Red" SmallChange="10" Margin="22,21,0,0" Height="123" VerticalAlignment="Top"  Background="#FF636060" BorderBrush="#FF636060" />
+            <ProgressBar x:Name="ProgressBar1" Orientation="Vertical" Width="22" Foreground="Red" SmallChange="10" Margin="22,21,0,0" Height="123" VerticalAlignment="Top"  Background="#FF636060" BorderBrush="#FF636060" Value="60" />
             <StackPanel Width="60" RenderTransformOrigin="0.842,0.446" Margin="25,21,0,0" >
                 <Button Template="{DynamicResource GlassButton}" x:Name="BtnUp" Height="67" Margin="12,0,7,0">
                     <Image Source="/HoMIWpF;component/Images/bullet-fleche-vers-le-haut-32.png" />

@@ -269,13 +269,16 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 
                         Case "NUMEROSEMAINE"
                             Objet.Value = LireNumSemaine(Now)          ' Rechercher le numero de la semaine
+                            WriteLog("DBG:  NumeroSemaine : " & Objet.Value.ToString)
 
                         Case "NUMEROJOUR"
                             ' Objet.Value = Weekday(Now, vbMonday)     'déterminer le num du jour 
                             Objet.Value = DatePart(DateInterval.DayOfYear, Now, FirstDayOfWeek.Monday)  'déterminer le num du jour de l'année
+                            WriteLog("DBG:  NumeroJour : " & Objet.Value.ToString)
 
                         Case "MODESEMAINE"
                             Objet.Value = ModeSemaine        'Affiche le type de semaine
+                            WriteLog("DBG:  ModeSemaine : " & Objet.Value.ToString)
 
                         Case "MODECHAUFFAGE"               'Affiche le mode de chauffage en cours                            
                             If ModeChauffage = "ECC" Then
@@ -289,7 +292,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                             ElseIf ModeChauffage = "HGE" Then
                                 Objet.Value = "Hors Gèle"
                             End If
-
+                            WriteLog("DBG:  ModeChauffage : " & Objet.Value.ToString)
                         Case Else
                             WriteLog("ERR: Nom Valeur n'existe pas")
                     End Select
@@ -301,6 +304,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                     Select Case Objet.adresse1.toUpper
                         Case "SEMAINEPAIRE"
                             Objet.Value = LireIsSemainePaire(Now)          ' Rechercher le numero de la semaine
+                            WriteLog("DBG:  SemainePaire : " & Objet.Value.ToString)
                     End Select
 
                 Case "GENERIQUEVALUE"
@@ -313,24 +317,25 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                                             Objet.Value = _Parametres.Item(3).Valeur    'Valeur Consigne 1/2 Ecc
                                             ModeChauffage = "EC"
                                         Else
-                                            LireFichier(Objet)          'Lire la consigne de température programmée
+                                            LireModeChauffage(Objet)          'Lire la consigne de température programmée
                                         End If
                                     End If
                                 ElseIf PlageJour() Then     'Si 8h à 22h alors Mode confort                                    
                                     ModeChauffage = "PRE"
                                     Objet.Value = _Parametres.Item(4).Valeur
                                 Else
-                                    LireFichier(Objet) 'Si hors 8h à 22h revenir à la lecture
+                                    LireModeChauffage(Objet) 'Si hors 8h à 22h revenir à la lecture
                                 End If
                             Else
                                 Objet.Value = _Parametres.Item(7).Valeur    'Valeur Consigne Hors Gele
                                 ModeChauffage = "HGE"
                             End If
                     End Select
+                    WriteLog("DBG:  TemperatureConsigne : " & ModeChauffage)
                 Case Else
                     WriteLog("ERR: Type non conforme")
             End Select
-            WriteLog("Lecture effectuée sur : " & Objet.adresse1.toUpper)
+            WriteLog("Lecture effectuée sur : " & Objet.adresse1.toUpper & " : " & Objet.Value.ToString)
         Catch ex As Exception
             WriteLog("ERR: Lecture des données" & ex.ToString)
         End Try
@@ -396,7 +401,16 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             If TesterFichier() = True Then
                 _IsConnect = True
                 ModeSemaine = "Désactivé"
+                LireFichier()
                 WriteLog("Driver démarré")
+                If _Refresh > 0 Then
+                    If _Refresh < 60 Then
+                        Refresh = 60
+                    End If
+                    MyTimer.Interval = _Refresh * 1000
+                    MyTimer.Enabled = True
+                    AddHandler MyTimer.Elapsed, AddressOf TimerTick
+                End If
             Else
                 _IsConnect = False
                 WriteLog("ERR: Driver non démarré car le fichier n'est pas trouvé")
@@ -420,6 +434,8 @@ Imports STRGS = Microsoft.VisualBasic.Strings
         Try
             _IsConnect = False
             WriteLog("Driver arrêté")
+            MyTimer.Enabled = False
+            RemoveHandler Me.MyTimer.Elapsed, AddressOf Me.TimerTick
         Catch ex As Exception
             WriteLog("ERR: Erreur lors de l'arrêt du Driver: " & ex.Message)
         End Try
@@ -461,32 +477,29 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                             _Parametres.Item(12).Valeur = True
                             Objet.Value = 100
 
-                        End If
-                       
-
-
-
+                        End If                       
                             WriteLog("DBG: WriteXX3" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
+
                     Case "OFF"
-                            If Objet.adresse1.toUpper = "ACTIVERLECTURE" Then
-                                _Parametres.Item(5).Valeur = False
-                                Objet.Value = 0
-                                ModeSemaine = "Désactivé"
+                        If Objet.adresse1.toUpper = "ACTIVERLECTURE" Then
+                            _Parametres.Item(5).Valeur = False
+                            Objet.Value = 0
+                            ModeSemaine = "Désactivé"
 
-                            ElseIf Objet.adresse1.toUpper = "ACTIVERHORSGELE" Then
-                                _Parametres.Item(6).Valeur = False
-                                Objet.Value = 0
+                        ElseIf Objet.adresse1.toUpper = "ACTIVERHORSGELE" Then
+                            _Parametres.Item(6).Valeur = False
+                            Objet.Value = 0
 
-                            ElseIf Objet.adresse1.toUpper = "ACTIVERCONFORT" Then
-                                _Parametres.Item(9).Valeur = False
-                                Objet.Value = 0
+                        ElseIf Objet.adresse1.toUpper = "ACTIVERCONFORT" Then
+                            _Parametres.Item(9).Valeur = False
+                            Objet.Value = 0
 
                         ElseIf Objet.adresse1.toUpper = "ACTIVERABSENCE" Then
                             _Parametres.Item(12).Valeur = False
                             Objet.Value = 0
 
-                            End If
-                            WriteLog("DBG: WriteXX4" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
+                        End If
+                        WriteLog("DBG: WriteXX4" & Objet.Type & " : " & Commande & " sur le noeud : " & Objet.Adresse1.ToString)
                     Case Else
                             WriteLog("ERR: Erreur la commande du device n'est pas supporté par ce driver - device: " & Objet.name & " commande:" & Commande)
                 End Select
@@ -604,8 +617,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             Add_ParamAvance("ActiverAbsence", "Activer le Mode Absence (True/False)", False)
 
             'ajout des commandes avancées pour les devices          
-            'Add_DeviceCommande("COMMANDE", "DESCRIPTION", nbparametre)
-            'Add_DeviceCommande("Tester fichier", "Teste la présence du fichier", 0)
+            'Add_DeviceCommande("COMMANDE", "DESCRIPTION", nbparametre)        
             'Add_DeviceCommande("RECEIVE", "Recevoir un Message", 1)
 
             'Libellé Driver
@@ -622,6 +634,17 @@ Imports STRGS = Microsoft.VisualBasic.Strings
             WriteLog("ERR: New : " & ex.Message)
         End Try
     End Sub
+
+    ''' <summary>Si refresh >0 gestion du timer</summary>
+    ''' <remarks>PAS UTILISE CAR IL FAUT LANCER UN TIMER QUI LANCE/ARRETE CETTE FONCTION dans Start/Stop</remarks>
+    Private Sub TimerTick(ByVal source As Object, ByVal e As System.Timers.ElapsedEventArgs)
+        Try            
+            LireFichier()
+        Catch ex As Exception
+            WriteLog("ERR: " & "TimerTick - " & ex.Message)
+        End Try
+    End Sub
+
 #End Region
 
 
@@ -629,6 +652,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 #Region "Fonctions internes"
 
     'Insérer ci-dessous les fonctions propres au driver et nom communes (ex: start)
+
     'Ajout d'une fonction spéciale
     Public Sub TesterPresenceFichier()
         WriteLog("DBG: Tester la présence du fichier : Calendrier.xlsx")
@@ -705,7 +729,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 
 
     'Permet de lire le fichier 
-    Public Function LireFichier(ByVal Objet As Object) As Boolean
+    Public Sub LireFichier()
 
         Try
 
@@ -719,8 +743,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 
             NumSemaine = LireNumSemaine(Now)          ' Rechercher le numero de la semaine
             If NumSemaine = 0 Then
-                WriteLog("ERR: Numéro de semaine erroné")
-                Return 0             'Erreur du numero de semaine
+                WriteLog("ERR: Numéro de semaine erroné")                    
             End If
 
             'Lecture du mode de Chauffage
@@ -739,71 +762,113 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                     worksheet = pck.Workbook.Worksheets.Item(ModeSemaine)
                     ModeChauffage = worksheet.Cells(Ligne + 1, NumJour + 1).Value
                     WriteLog(" Mode : " & ModeChauffage & " N° Jour: " & CStr(NumJour) & " N° Sem: " & CStr(NumSemaine))
-
-                    Select Case ModeChauffage
-                        Case "ECC"
-                            Objet.Value = _Parametres.Item(2).Valeur
-                        Case "EC"
-                            Objet.Value = _Parametres.Item(3).Valeur
-                        Case "PRE"
-                            Objet.Value = _Parametres.Item(4).Valeur
-                        Case "PRE+"
-                            Objet.Value = _Parametres.Item(8).Valeur
-                        Case "HGE"
-                            Objet.Value = _Parametres.Item(7).Valeur
-                        Case Else
-                            WriteLog("ERR: Erreur Mode Chauffage")
-                            Objet.Value = 18
-                    End Select
                 ElseIf ModeSemaine = "Désactivé" Then
                     WriteLog("Mode Chauffage : Désactivé")
                 Else
                     WriteLog("ERR: Erreur Mode Chauffage")
-                    Objet.Value = 18
+                    ModeChauffage = "ECC"
                 End If
-                Return 1
             Else
                 WriteLog("ERR: Fichier non trouvé")
-                Return 0
             End If
         Catch ex As Exception
             WriteLog("ERR: Lecture Fichier" & ex.ToString)
-            Return 0
+        End Try
+    End Sub
+
+   
+    'Calcul le numero de la semaine
+    Private Function LireNumSemaine(ByVal dat As Date) As Integer
+        Try
+            If IsDate(dat) Then
+                Dim semaine As Integer
+                Dim semain As Integer
+
+                semain = Weekday(dat)
+                If semain = 2 Then
+                    dat = dat.AddDays(6)
+                End If
+                If semain = 3 Then
+                    dat = dat.AddDays(5)
+                End If
+                If semain = 4 Then
+                    dat = dat.AddDays(4)
+                End If
+                If semain = 5 Then
+                    dat = dat.AddDays(3)
+                End If
+                If semain = 6 Then
+                    dat = dat.AddDays(2)
+                End If
+                If semain = 7 Then
+                    dat = dat.AddDays(1)
+                End If
+                semaine = DatePart("ww", dat, vbMonday, vbFirstFourDays)
+                Return semaine
+            End If
+            Return Nothing
+        Catch ex As Exception
+            WriteLog("ERR:  LireNumSemaine" & ex.ToString)
         End Try
     End Function
 
 
-    'Calcul le numero de la semaine
-    Public Function LireNumSemaine(ByVal dat As Date) As Integer
-        If IsDate(dat) Then
-            Dim semaine As Integer
-            Dim semain As Integer
+    'Retourne si la plage est compriss entre 8h et 22h
+    Private Function PlageJour() As Boolean
+        Try
+            Dim Debut As Integer = (_Parametres.Item(10).Valeur()) * 3600
+            Dim Fin As Integer = (_Parametres.Item(11).Valeur()) * 3600
 
-            semain = Weekday(dat)
-            If semain = 2 Then
-                dat = dat.AddDays(6)
+            If (Timer >= Debut And Timer < Fin) Then
+                Return True
+            Else
+                Return False
             End If
-            If semain = 3 Then
-                dat = dat.AddDays(5)
-            End If
-            If semain = 4 Then
-                dat = dat.AddDays(4)
-            End If
-            If semain = 5 Then
-                dat = dat.AddDays(3)
-            End If
-            If semain = 6 Then
-                dat = dat.AddDays(2)
-            End If
-            If semain = 7 Then
-                dat = dat.AddDays(1)
-            End If
-            semaine = DatePart("ww", dat, vbMonday, vbFirstFourDays)
-
-            Return semaine
-        End If
-        Return Nothing
+        Catch ex As Exception
+            WriteLog("ERR: Plage Jour" & ex.ToString)
+        End Try
     End Function
+
+    Private Function LireIsSemainePaire(ByVal dat As Date) As Boolean
+        Try
+            Dim Temp As Integer
+            Dim NumSem As Integer = LireNumSemaine(Now)
+            Temp = NumSem Mod 2
+            WriteLog("DBG: " & "Num : " & NumSem.ToString & " Paire : " & Temp.ToString)
+            If Temp = 0 Then
+                Return True
+            Else
+                Return False
+            End If
+        Catch ex As Exception
+            WriteLog("ERR: LireIsSemainePaire" & ex.ToString)
+        End Try
+
+    End Function
+
+    'Permet de lire le Mode Chauffage 
+    Private Sub LireModeChauffage(ByVal Objet As Object)
+        Try
+            Select Case ModeChauffage
+                Case "ECC"
+                    Objet.Value = _Parametres.Item(2).Valeur
+                Case "EC"
+                    Objet.Value = _Parametres.Item(3).Valeur
+                Case "PRE"
+                    Objet.Value = _Parametres.Item(4).Valeur
+                Case "PRE+"
+                    Objet.Value = _Parametres.Item(8).Valeur
+                Case "HGE"
+                    Objet.Value = _Parametres.Item(7).Valeur
+                Case Else
+                    WriteLog("ERR: Erreur Mode Chauffage")
+                    ModeChauffage = "ECC"
+                    Objet.Value = 18
+            End Select
+        Catch ex As Exception
+            WriteLog("ERR: LireModeChauffage" & ex.ToString)
+        End Try
+    End Sub
 
     Private Sub WriteLog(ByVal message As String)
         Try
@@ -822,42 +887,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
         End Try
     End Sub
 
-    'Retourne si la plage est compriss entre 8h et 22h
-    Public Function PlageJour() As Boolean
-        Try
-            Dim Debut As Integer = (_Parametres.Item(10).Valeur()) * 3600
-            Dim Fin As Integer = (_Parametres.Item(11).Valeur()) * 3600
-
-            If (Timer >= Debut And Timer < Fin) Then
-                Return True
-            Else
-                Return False
-            End If
-        Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteLog", ex.Message)
-        End Try
-    End Function
-
-    Private Function LireIsSemainePaire(ByVal dat As Date) As Boolean
-        Try
-            Dim Temp As Integer
-            Dim NumSem As Integer = LireNumSemaine(Now)           
-            Temp = NumSem Mod 2
-            WriteLog("DBG: " & "Num : " & NumSem.ToString & " Paire : " & Temp.ToString)
-            If Temp = 0 Then
-                Return True
-            Else
-                Return False
-            End If
-        Catch ex As Exception
-            _Server.Log(TypeLog.ERREUR, TypeSource.DRIVER, Me.Nom & " WriteLog", ex.Message)
-        End Try
-
-    End Function
-
 #End Region
-
-   
 
 
 End Class

@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
+             d:DesignHeight="300" Width="460">
+    <Grid Margin="0,0,-39,0">
         <StackPanel >
             <StackPanel Orientation="Horizontal" >
                 <Button Height="40" Margin="2,2,5,2" x:Name="BtnJour"  Width="40"  VerticalAlignment="Top"  Foreground="#FFFFFFFF" Template="{DynamicResource GlassButton}" HorizontalAlignment="Right" ToolTip="Affichage par Jour" >
@@ -29,8 +29,13 @@
                 </Button>
             </StackPanel>
             <StackPanel Name="StkChart">
-                
+
             </StackPanel>
-        </StackPanel>  
+        </StackPanel>
+        <Label Content="Moyenne : " Foreground="Black" VerticalAlignment="Center" Margin="308,8,115,266" />
+        <ComboBox VerticalAlignment="Center" BorderBrush="White" BorderThickness="2" x:Name="ComboBoxMoyenne" SelectedIndex="1" Margin="370,10,10,268" IsReadOnly="True" Width="82">
+            <ComboBoxItem Content="Heure" />
+            <ComboBoxItem Content="Jour" />
+        </ComboBox>
     </Grid>
 </UserControl>

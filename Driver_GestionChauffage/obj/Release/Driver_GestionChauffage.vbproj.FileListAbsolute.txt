@@ -1,4 +1,3 @@
-D:\Homidom\Drivers\Driver_GestionChauffage\obj\Release\Driver_GestionChauffage.vbprojResolveAssemblyReference.cache
 D:\Homidom\Drivers\Driver_GestionChauffage\obj\Release\Driver_GestionChauffage.Resources.resources
 D:\Homidom\Drivers\Driver_GestionChauffage\obj\Release\Driver_GestionChauffage.vbproj.GenerateResource.Cache
 D:\Homidom\RELEASE\Drivers\Driver_GestionChauffage.dll
@@ -7,3 +6,5 @@ D:\Homidom\RELEASE\Drivers\Driver_GestionChauffage.xml
 D:\Homidom\Drivers\Driver_GestionChauffage\obj\Release\Driver_GestionChauffage.dll
 D:\Homidom\Drivers\Driver_GestionChauffage\obj\Release\Driver_GestionChauffage.xml
 D:\Homidom\Drivers\Driver_GestionChauffage\obj\Release\Driver_GestionChauffage.pdb
+D:\Homidom\Drivers\Driver_GestionChauffage\obj\Release\Driver_GestionChauffage.vbproj.CoreCompileInputs.cache
+D:\Homidom\Drivers\Driver_GestionChauffage\obj\Release\Driver_GestionChauffage.vbprojResolveAssemblyReference.cache

@@ -631,6 +631,7 @@ Public Class uWidgetEmpty
                 _EtiquetteAlignement = value
                 Lbl.HorizontalContentAlignment = _EtiquetteAlignement
             Catch ex As Exception
+                AfficheMessageAndLog(FctLog.TypeLog.ERREUR, "Erreur uWidgetEmpty.EtiquetteAlignement Set: " & ex.Message, "Erreur", " uWidgetEmpty.EtiquetteAlignement Set")
                 _EtiquetteAlignement = Windows.HorizontalAlignment.Center
                 Lbl.HorizontalContentAlignment = _EtiquetteAlignement
             End Try
@@ -1434,6 +1435,7 @@ Public Class uWidgetEmpty
             End If
 
             Me.UpdateLayout()
+
         Catch ex As Exception
             AfficheMessageAndLog(FctLog.TypeLog.ERREUR, "Erreur uWidgetEmpty.TraiteRefresh: " & ex.Message, "Erreur", " uWidgetEmpty.TraiteRefresh")
             _dt.Stop()
@@ -1442,7 +1444,7 @@ Public Class uWidgetEmpty
 
     Public Sub dispatcherTimer_Tick(ByVal sender As Object, ByVal e As EventArgs)
         Try
-            If _FlagBlock = False Then TraiteRefresh()
+            If (_FlagBlock = False) And (IsConnect) Then TraiteRefresh()
         Catch ex As Exception
             AfficheMessageAndLog(FctLog.TypeLog.ERREUR, "Erreur dispatcherTimer_Tick: " & ex.Message, "Erreur", " dispatcherTimer_Tick")
         End Try

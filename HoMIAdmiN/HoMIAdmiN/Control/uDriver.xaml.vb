@@ -128,7 +128,7 @@ Partial Public Class uDriver
                 'End If
 
                 'Fonctions avancées
-                If x.DeviceAction.Count = 0 Then
+                If (x.DeviceAction.Count = 0) Or (x.IsConnect = False) Then  'Modifier par JPS
                     Label12.Visibility = Windows.Visibility.Collapsed
                     BtnAv.Visibility = Windows.Visibility.Collapsed
                     GroupBox1.Visibility = Windows.Visibility.Collapsed
@@ -403,7 +403,7 @@ Partial Public Class uDriver
             End If
 
             'create our match pattern
-            Dim pattern As String = "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\." & _
+            Dim pattern As String = "^([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\." &
             "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}$"
             'create our Regular Expression object
             Dim check As New Text.RegularExpressions.Regex(pattern)
@@ -460,5 +460,5 @@ Partial Public Class uDriver
         MyBase.Finalize()
     End Sub
 
-    
+
 End Class
