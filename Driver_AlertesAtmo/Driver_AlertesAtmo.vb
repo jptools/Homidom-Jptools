@@ -338,7 +338,7 @@ Imports System.Web
         Try
             ListeRegionFR.Clear()
 
-            ListeRegionFR.Add("Région FR Inconnu", 0)
+            ListeRegionFR.Add("", 0)
             ListeRegionFR.Add("Auvergne Rhone Alpes", 1)
             ListeRegionFR.Add("Hauts de France", 2)
             ListeRegionFR.Add("Auvergne Rhone Alpes", 3)
@@ -770,9 +770,11 @@ Imports System.Web
 
             Select Case UCase(typealerte)
                 Case "NIVPOLLEN"
-                    Objet.Value = GetPollensWarns()
+                    Dim alrt As String = GetPollensWarns()
+                    If alrt <> "" Then Objet.Value = alrt
                 Case "POLLUANT"
-                    Objet.Value = GetPolluant()
+                    Dim alrt As String = GetPolluant()
+                    If alrt <> "" Then Objet.Value = alrt
                 Case "POLLUTION"
                     Dim alrt As String = GetPollution(UCase(ville))
                     If alrt <> "" Then Objet.Value = alrt
@@ -785,6 +787,9 @@ Imports System.Web
                     If alrt <> "" Then Objet.Value = alrt
                 Case "SANTE"
                     Dim alrt As String = Getsentinelle(departement, Objet.Adresse2)
+                    If alrt <> "" Then Objet.Value = alrt
+                Case "EUROPOLLUANT"
+                    Dim alrt As String = GetEuroPolluant(UCase(ville))
                     If alrt <> "" Then Objet.Value = alrt
             End Select
 
@@ -950,6 +955,7 @@ Imports System.Web
             Dim IndicePM10 As String = ""
             Dim IndiceSO2 As String = ""
             Dim Temp As String = ""
+            Dim IsVilleTrouve As Boolean = False
 
             WriteLog("DBG: Recherche indice de pollution pour la ville => " & ville)
 
@@ -985,16 +991,22 @@ Imports System.Web
                     End Select
                 Next
                 If (agglomeration = ville) Then
+                    IsVilleTrouve = True
                     Exit For
                 Else
                     indice = "0"
                 End If
             Next
-            If _DETAILS Then
-                Temp = "Ind : " & indice & vbCrLf & "O3 : " & IndiceO3 & vbCrLf & "NO2 : " & IndiceNO2 & vbCrLf &
+            If IsVilleTrouve Then
+                If _DETAILS Then
+                    Temp = "Ind : " & indice & vbCrLf & "O3 : " & IndiceO3 & vbCrLf & "NO2 : " & IndiceNO2 & vbCrLf &
                    "PM10 : " & IndicePM10 & vbCrLf & "SO2 : " & IndiceSO2
+                Else
+                    Temp = indice
+                End If
             Else
-                Temp = indice
+                Temp = ""
+                WriteLog("ERR: GetPollution : Erreur, Ville non trouvée")
             End If
             WriteLog("DBG: GetPollution => " & Temp)
             Return Temp
@@ -1103,7 +1115,6 @@ Imports System.Web
                     nivAlert = "Pas de donnée"
                 End If
             Next
-
             nivAlert = ""
             For i As Integer = 0 To listalert.Count - 1
                 If (typeevent <> "") And (InStr(UCase(listalert.Item(i)), UCase(typeevent))) Then
@@ -1116,7 +1127,6 @@ Imports System.Web
             Next
             If nivAlert = "" Then WriteLog("ERR: GetMeteo, Pas de donnée")
             Return nivAlert
-
         Catch ex As Exception
             WriteLog("ERR: GetMeteo, Exception : " & ex.Message)
             Return "Donnée inconnue"
@@ -1267,7 +1277,10 @@ Imports System.Web
             doc = New XmlDocument()
             regionstr = ListeRegionFR.Item(UCase(departement))
 
-            If regionstr = "" Then regionstr = "FRANCE"
+            If regionstr = "" Then
+                regionstr = "FRANCE"
+                WriteLog("ERR: GetSentinelle, Erreur : Région non trouvée, remplacée par : " & regionstr)
+            End If
             codregion = ListeCodeRegion.Item(UCase(regionstr))
 
             ' "https://websenti.u707.jussieu.fr/sentiweb/rss.php?site=ac&lang=fr"
@@ -1316,6 +1329,88 @@ Imports System.Web
 
     End Function
 
+    Private Function GetEuroPolluant(ville As String)
+        Try
+            Dim doc As New XmlDocument
+            Dim nodes As XmlNodeList
+            Dim nivAlert As String = ""
+            Dim stringurl As String = ""
+            Dim lieu As String = ""
+            Dim polluant As String = ""
+            Dim VilleTrouve As Boolean = False
+
+            doc = New XmlDocument()
+            stringurl = " https://www.airqualitynow.eu/fr/rss.php"
+            WriteLog("DBG: Getsentinelle, Chargement de " & stringurl)
+            Dim url As New Uri(stringurl)
+            Dim Request As HttpWebRequest = CType(HttpWebRequest.Create(url), System.Net.HttpWebRequest)
+            Dim response As Net.HttpWebResponse = CType(Request.GetResponse(), Net.HttpWebResponse)
+
+            doc.Load(response.GetResponseStream)
+            nodes = doc.SelectNodes("/rss/channel/item")
+            For Each node As XmlNode In nodes
+                For Each _child As XmlNode In node
+                    Select Case _child.Name
+                        Case "description" : polluant = _child.FirstChild.Value
+                      '  Case "guid" : desc = _child.FirstChild.Value
+                      '  Case "pubDate" : desc = _child.FirstChild.Value
+                     '   Case "category" : desc = _child.FirstChild.Value
+                     '   Case "link" : desc = _child.FirstChild.Value
+
+                        Case "title" : lieu = UCase(_child.FirstChild.Value)
+                            WriteLog("DBG: Ville => " & _child.FirstChild.Value)
+                            If lieu <> ville Then
+                                Exit For
+                            Else
+                                VilleTrouve = True
+                            End If
+                    End Select
+                Next
+            Next
+
+            Dim Temp As String = ""
+            Dim Temp1 As String = ""
+            Dim debut As Integer = 0
+            Dim fin As Integer = 0
+            ' La ville de Rotterdam a un indice de trafic de 76 (pollutant responsable PM2.5) et de fond de 79 (pollutant responsable PM2.5)
+            If VilleTrouve Then
+                'Trafic
+                If InStr(polluant, "trafic") Then
+                    debut = InStr(polluant, "trafic") + 10
+                    fin = InStr(polluant, "(") - 1
+                    Temp = Mid(polluant, debut, fin - debut)
+                    debut = InStr(polluant, "responsable") + 12
+                    fin = InStr(polluant, ")")
+                    Temp1 = Mid(polluant, debut, fin - debut)
+                    nivAlert = "Trafic : " & Temp1 & " : " & Temp & vbCrLf
+                End If
+
+                'Fond
+                If InStr(polluant, "fond") Then
+                    polluant = Mid(polluant, InStr(polluant, "fond"), Len(polluant))
+                    debut = 8
+                    fin = InStr(polluant, "(")
+                    Temp = Mid(polluant, debut, fin - debut)
+                    debut = InStr(polluant, "responsable") + 12
+                    fin = InStr(polluant, ")")
+                    Temp1 = Mid(polluant, debut, fin - debut)
+                    nivAlert = nivAlert & "Fond : " & Temp1 & " : " & Temp
+                End If
+            Else
+                WriteLog("ERR: GetEuroPolluant : Erreur, Ville non trouvée")
+            End If
+            If nivAlert = "" Then
+                nivAlert = "Pas de données"
+            End If
+            WriteLog("DBG: Actualité Pollution => " & nivAlert)
+            Return nivAlert
+        Catch ex As Exception
+            WriteLog("ERR: GetEuroPolluant, Exception : " & ex.Message)
+            Return ""
+        End Try
+
+    End Function
+
     Private Sub WriteLog(ByVal message As String)
             Try
                 'utilise la fonction de base pour loguer un event
@@ -1337,4 +1432,3 @@ Imports System.Web
 
     End Class
 
-' Autre adresse  https://www.airqualitynow.eu/fr/rss.php a voir si utile
