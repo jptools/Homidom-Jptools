@@ -313,7 +313,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                             If _Parametres.Item(6).Valeur = False Then        ' Si pas Hors Gele
                                 If _Parametres.Item(9).Valeur = False Then      'Si Pas Mode Confort Forcé
                                     If _Parametres.Item(5).Valeur = True Then      'Si on désire lire le fichier
-                                        If (_Parametres.Item(12).Valeur = True And PlageJour()) Then
+                                        If (_Parametres.Item(12).Valeur = True And PlageJour()) Then 'Mode absence
                                             Objet.Value = _Parametres.Item(3).Valeur    'Valeur Consigne 1/2 Ecc
                                             ModeChauffage = "EC"
                                         Else
@@ -335,7 +335,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                 Case Else
                     WriteLog("ERR: Type non conforme")
             End Select
-            WriteLog("Lecture effectuée sur : " & Objet.adresse1.toUpper & " : " & Objet.Value.ToString)
+            WriteLog("DBG:  Lecture effectuée sur : " & Objet.adresse1.toUpper & " : " & Objet.Value.ToString)
         Catch ex As Exception
             WriteLog("ERR: Lecture des données" & ex.ToString)
         End Try
@@ -757,13 +757,13 @@ Imports STRGS = Microsoft.VisualBasic.Strings
 
                 'Num ligne a calculer en fonction de l'Heure (par tranche 1/2h)
                 Ligne = ((Timer / 3600) * 2) + 1
-                WriteLog(" Mode: " & ModeSemaine & " N° Lignes: " & CStr(Ligne + 1))
+                WriteLog("DBG:  Mode: " & ModeSemaine & " N° Lignes: " & CStr(Ligne + 1))
                 If ModeSemaine = "Conger" Or ModeSemaine = "Normal" Or ModeSemaine = "Reduit" Or ModeSemaine = "Charger" Or ModeSemaine = "Absence" Then
                     worksheet = pck.Workbook.Worksheets.Item(ModeSemaine)
                     ModeChauffage = worksheet.Cells(Ligne + 1, NumJour + 1).Value
-                    WriteLog(" Mode : " & ModeChauffage & " N° Jour: " & CStr(NumJour) & " N° Sem: " & CStr(NumSemaine))
+                    WriteLog("DBG:  Mode : " & ModeChauffage & " N° Jour: " & CStr(NumJour) & " N° Sem: " & CStr(NumSemaine))
                 ElseIf ModeSemaine = "Désactivé" Then
-                    WriteLog("Mode Chauffage : Désactivé")
+                    WriteLog("DBG: Mode Chauffage : Désactivé")
                 Else
                     WriteLog("ERR: Erreur Mode Chauffage")
                     ModeChauffage = "ECC"
@@ -863,7 +863,7 @@ Imports STRGS = Microsoft.VisualBasic.Strings
                 Case Else
                     WriteLog("ERR: Erreur Mode Chauffage")
                     ModeChauffage = "ECC"
-                    Objet.Value = 18
+                    Objet.Value = _Parametres.Item(2).Valeur    '18°C
             End Select
         Catch ex As Exception
             WriteLog("ERR: LireModeChauffage" & ex.ToString)
