@@ -661,14 +661,17 @@ Public Class Driver_ZWave
                         Select Case UCase(Command)
 
                             Case "ALL_LIGHT_ON"
+                                ' Tous les périphériques qui prennent en charge la classe de commande SwitchAll seront allumés. 
                                 m_manager.SwitchAllOn(m_homeId)
                                 WriteLog("DBG: " & "ExecuteCommand, Passage par la commande ALL_LIGHT_ON")
 
                             Case "ALL_LIGHT_OFF"
+                                ' Tous les périphériques qui prennent en charge la classe de commande SwitchAll s'éteind. 
                                 m_manager.SwitchAllOff(m_homeId)
                                 WriteLog("DBG: " & "ExecuteCommand, Passage par la commande ALL_LIGHT_OFF")
 
                             Case "TOGGLE"
+                                ' Inverse l'état du composant
                                 If MyDevice.Value Then
                                     Write(MyDevice, "OFF")
                                 Else
@@ -677,6 +680,7 @@ Public Class Driver_ZWave
                                 WriteLog("DBG: " & "ExecuteCommand, Passage par la commande Toggle")
 
                             Case "SETNAME"
+                                ' définir le nom d’un nœud
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 If Param(0) = "" Then
                                     m_manager.SetNodeName(m_homeId, NodeTemp.ID, MyDevice.Name)
@@ -687,12 +691,14 @@ Public Class Driver_ZWave
                                 End If
 
                             Case "GETNAME"
+                                ' lire le nom d’un nœud
                                 Dim TempName As String
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 TempName = m_manager.GetNodeName(m_homeId, NodeTemp.ID)
                                 WriteLog("ExecuteCommand, Passage par la commande Get Name avec le nom = " & TempName)
 
                             Case "SETCONFIGPARAM"
+                                ' envoyer la valeur d’un paramètre configurable dans un dispositif.
                                 Dim RetourSet As Boolean
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 RetourSet = m_manager.SetConfigParam(m_homeId, NodeTemp.ID, Param(0), Param(1))
@@ -704,21 +710,25 @@ Public Class Driver_ZWave
                                 End If
 
                             Case "GETCONFIGPARAM"
+                                '  demander la valeur d’un paramètre configurable à partir d’un périphérique.
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.RequestConfigParam(m_homeId, NodeTemp.ID, Param(0))
                                 WriteLog("ExecuteCommand, Passage par la commande GETCONFIGPARAM pour le noeud " & NodeTemp.Name)
 
                             Case "GETALLCONFIGPARAMS"
+                                ' demander les valeurs de tous les paramètres configurables connus d’un périphérique.
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.RequestAllConfigParams(m_homeId, NodeTemp.ID)
                                 WriteLog("ExecuteCommand, Passage par la commande GETALLCONFIGPARAMS -> le noeud " & NodeTemp.ID)
 
                             Case "REQUESTNODESTATE"
+                                ' Déclencher la récupération de données de la valeur dynamique pour un nœud.
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.RequestNodeState(m_homeId, NodeTemp.ID)
                                 WriteLog("ExecuteCommand, Passage par la commande REQUESTNODESTATE = " & NodeTemp.Name)
 
                             Case "REQUESTNODEDYNAMIC"
+                                ' Déclencher la récupération des données juste valeur dynamique pour un nœud. 
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 If m_manager.RequestNodeDynamic(m_homeId, NodeTemp.ID) Then
                                     WriteLog("ExecuteCommand, Passage par la commande REQUESTNODEDYNAMIC -> le noeud " & NodeTemp.ID & " OK")
@@ -727,21 +737,25 @@ Public Class Driver_ZWave
                                 End If
 
                             Case "TESTNETWORKNODE"
+                                ' Envoie une série de messages à un nœud de réseau pour les essais de fiabilité du réseau.
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.TestNetworkNode(m_homeId, NodeTemp.ID, 1)
                                 WriteLog("ExecuteCommand, Passage par la commande TESTNETWORKNODE = " & NodeTemp.Name)
 
                             Case "REQUESTNETWORKUPDATE"
+                                ' mise à jour du contrôleur avec des informations de réseau dans le SUC/SIS.
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.RequestNetworkUpdate(m_homeId, NodeTemp.ID)
                                 WriteLog("ExecuteCommand, Passage par la commande REQUESTNETWORKUPDATE = " & NodeTemp.Name)
 
                             Case "REQUESTNODENEIGHBORUPDATE"
+                                ' cherche un nœud pour reconstruire sa liste de voisin.
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 m_manager.RequestNodeNeighborUpdate(m_homeId, NodeTemp.ID)
                                 WriteLog("ExecuteCommand, Passage par la commande REQUESTNODENEIGHBORUPDATE = " & NodeTemp.Name)
 
                             Case "GETNUMGROUPS"
+                                ' obtient le nombre de groupes de liaison signalés par ce nœud
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 Dim NumGroup As Byte = m_manager.GetNumGroups(m_homeId, NodeTemp.ID)
                                 If NumGroup Then
@@ -751,18 +765,21 @@ Public Class Driver_ZWave
                                 End If
 
                             Case "ADD_ASSOCIATION"
+                                ' ajoute un nœud à un groupe de l’association.
                                 NodeTemp = GetNode(m_homeId, adr1)             'Group Idx   NodeId
                                 m_manager.AddAssociation(m_homeId, NodeTemp.ID, Param(0), Param(1))
                                 WriteLog("ExecuteCommand, Passage par la commande ADD_ASSOCIATION -> Groupe Id :" & Param(0) & ", Noeud : " & Param(1) & " sur le noeud " & NodeTemp.ID)
                                 m_manager.RefreshNodeInfo(m_homeId, NodeTemp.ID)
 
                             Case "REMOVE_ASSOCIATION"
+                                '  supprime un nœud d’un groupe de l’association.
                                 NodeTemp = GetNode(m_homeId, adr1)                'Group Idx   NodeId
                                 m_manager.RemoveAssociation(m_homeId, NodeTemp.ID, Param(0), Param(1))
                                 WriteLog("ExecuteCommand, Passage par la commande REMOVE_ASSOCIATION -> Groupe Id :" & Param(0) & ", Noeud : " & Param(1) & " sur le noeud " & NodeTemp.ID)
                                 m_manager.RefreshNodeInfo(m_homeId, NodeTemp.ID)
 
                             Case "GET_ASSOCIATION"
+                                ' obtient les associations pour un groupe.
                                 Dim NumGroup As Integer
                                 Dim NumAssociation As Integer
                                 Dim Association() As Byte = Nothing
@@ -785,6 +802,7 @@ Public Class Driver_ZWave
                                 Association = Nothing
 
                             Case "GET_GROUPMAX"
+                                '  obtient le nombre maximal d’associations pour un groupe.
                                 Dim NumGroup As Integer
                                 Dim Nombre As Integer
 
@@ -798,6 +816,7 @@ Public Class Driver_ZWave
                                 End If
 
                             Case "REFRESHNODEINFO"
+                                ' Déclencher la récupération des données fixes sur un nœud
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 If m_manager.RefreshNodeInfo(m_homeId, adr1) Then
                                     WriteLog("ExecuteCommand, Passage par la commande REFRESHNODEINFO -> sur le noeud " & NodeTemp.ID)
@@ -806,6 +825,7 @@ Public Class Driver_ZWave
                                 End If
 
                             Case "GET_NODE_SECURITE"
+                                ' retourne si le noeud prend en charge la sécurité
                                 Dim Securite As Byte = 0
 
                                 NodeTemp = GetNode(m_homeId, adr1)
@@ -818,6 +838,7 @@ Public Class Driver_ZWave
                                 WriteLog("ExecuteCommand, Passage par la commande GET_NODE_SECURITE -> Code : " & Securite & " sur le noeud " & NodeTemp.ID)
 
                             Case "IS_NODE_AWAKE"
+                                ' obtenir si le nœud est éveillé ou endormi
                                 NodeTemp = GetNode(m_homeId, adr1)
                                 If m_manager.IsNodeAwake(m_homeId, NodeTemp.ID) Then
                                     WriteLog("ExecuteCommand, Passage par la commande IS_NODE_AWAKE -> le noeud " & NodeTemp.ID & " est éveillé")
@@ -826,7 +847,8 @@ Public Class Driver_ZWave
                                 End If
 
                             Case "PRESSBOUTON"
-                                Dim RetourSet As Boolean
+                                ' démarre ou arrête une activité dans un dispositif (ouvrir un volet).
+                                Dim RetourSet As Boolean = False
                                 Dim ValueTemp As ZWValueID = Nothing
                                 Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
                                 NodeTemp = GetNode(m_homeId, adr1)
@@ -848,6 +870,7 @@ Public Class Driver_ZWave
                                 WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande PressBouton ")
 
                             Case "SETLIST"
+                                ' envoie un parametre de type liste
                                 Dim RetourSet As Boolean
                                 Dim ValueTemp As ZWValueID = Nothing
                                 Dim ParaAdr2 = Split(MyDevice.Adresse2, ":")
@@ -865,6 +888,44 @@ Public Class Driver_ZWave
                                     WriteLog("ERR: ExecuteCommand,Parametre " & Param(0) & " erreur : Uniquement pour type LIST " & NodeTemp.ID)
                                 End If
                                 WriteLog("DBG: " & Me.Nom & " ExecuteCommand, Passage par la commande SetList ")
+
+                            Case "SET_NODE_LOCATION"
+                                ' Envoyer la localisation du noeud
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                m_manager.SetNodeLocation(m_homeId, NodeTemp.ID, Param(0))
+                                WriteLog("ExecuteCommand, Passage par la commande SET_NODE_LOCATION -> le noeud " & NodeTemp.ID & " : " & Param(0))
+
+                            Case "GET_NODE_LOCATION"
+                                ' obtenir la localisation du noeud
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                Dim Temp As String = ""
+                                Temp = m_manager.GetNodeLocation(m_homeId, NodeTemp.ID)
+                                If Temp <> "" Then
+                                    WriteLog("ExecuteCommand, Passage par la commande GET_NODE_LOCATION -> le noeud " & NodeTemp.ID & " : " & Temp)
+                                Else
+                                    WriteLog("ExecuteCommand, Passage par la commande GET_NODE_LOCATION -> le noeud " & NodeTemp.ID & " Non Localisé")
+                                End If
+
+                            Case "GET_NODE_PRODUCT_NAME"
+                                ' Lecture du nom de produit du noeud
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                Dim Temp As String = ""
+                                Temp = m_manager.GetNodeProductName(m_homeId, NodeTemp.ID)
+                                WriteLog("ExecuteCommand, Passage par la commande GET_NODE_PRODUCT_NAME -> le noeud " & NodeTemp.ID & " : " & Temp)
+
+                            Case "GET_NODE_QUERY_STAGE"
+                                ' Lecture du nom de l’actuel stade de requête du noeud
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                Dim Temp As String = ""
+                                Temp = m_manager.GetNodeQueryStage(m_homeId, NodeTemp.ID)
+                                WriteLog("ExecuteCommand, Passage par la commande GET_NODE_QUERY_STAGE -> le noeud " & NodeTemp.ID & " : " & Temp)
+
+                            Case "GET_NODE_TYPE"
+                                ' Lecture du type du noeud
+                                NodeTemp = GetNode(m_homeId, adr1)
+                                Dim Temp As String = ""
+                                Temp = m_manager.GetNodeType(m_homeId, NodeTemp.ID)
+                                WriteLog("ExecuteCommand, Passage par la commande GET_NODE_TYPE -> le noeud " & NodeTemp.ID & " : " & Temp)
 
                             Case "SETPOINT"
                                 Write(MyDevice, "SETPOINT", Param(0))
@@ -1034,7 +1095,7 @@ Public Class Driver_ZWave
                                 NodeTempID = NodeTemp.ID
                                 If m_manager.IsNodeListeningDevice(m_homeId, NodeTempID) Then IsSleeping = "à l'écoute" Else IsSleeping = "Endormi"
                                 WriteLog(String.Format("{0,-15}{1,-70}{2,30}", NodeTempID & ":" & NodeTemp.Name & " : ", NodeTemp.Manufacturer & "/" & NodeTemp.Product & "     V." & m_manager.GetNodeVersion(m_homeId, NodeTemp.ID), IsSleeping))
-                            Next                                                                                 '****
+                            Next
                         End If
 
                         _NomFileConfigZWave = Convert.ToString(m_homeId, 16).ToString
@@ -1521,7 +1582,6 @@ Public Class Driver_ZWave
                 Add_DeviceCommande("SetPoint", "Nouvelle consigne", 1)
                 Add_DeviceCommande("ALL_LIGHT_ON", "Allume tous les composants", 0)
                 Add_DeviceCommande("ALL_LIGHT_OFF", "Eteind tous les composants", 0)
-                Add_DeviceCommande("Toggle", "Inverse l'état du composant", 0)
                 Add_DeviceCommande("SetName", "Nom du module - Par1 : Paramètre facultatif", 1)
                 Add_DeviceCommande("SetList", "Valeur de la liste : ", 1)
                 Add_DeviceCommande("PressBouton", "Valeur : Byte, Integer : ", 1)
@@ -1542,6 +1602,12 @@ Public Class Driver_ZWave
                 Add_DeviceCommande("Get_Node_Securite", "Lecture code Sécurité", 0)
                 Add_DeviceCommande("RefreshNodeInfo", "Lance le rafraichissement du noeud", 0)
                 Add_DeviceCommande("Is_Node_Awake", "Vérifie si le noeud est éveillé", 0)
+                Add_DeviceCommande("Set_Node_Location", "Parametres de localisation - Par1 : Nom de localisation", 1)
+                Add_DeviceCommande("Get_Node_Location", "Lecture de la localisation", 0)
+                Add_DeviceCommande("Get_Node_Product_Name", "Lecture du nom de produit", 0)
+                Add_DeviceCommande("Get_Node_Query_Stage", "Lecture du nom de l’actuel stade de requête", 0)
+                Add_DeviceCommande("Get_Node_Type", "Lecture du type du noeud", 0)
+
                 Add_DeviceCommande("blue", "Imperihome", 1) 'compatibilité imperihome et lampe rgbw
                 Add_DeviceCommande("red", "Imperihome", 1) 'compatibilité imperihome et lampe rgbw
                 Add_DeviceCommande("green", "imperihome", 1) 'compatibilité imperihome et lampe rgbw
@@ -2047,6 +2113,7 @@ Public Class Driver_ZWave
                             Dim node As Node = GetNode(m_notification.GetHomeId(), m_notification.GetNodeId())
                             If Not IsNothing(node) Then
                                 node.Label = m_manager.GetNodeType(m_homeId, node.ID)
+                                WriteLog("DBG: " & "NotificationHandler - Erreur dans NodeProtocolInfo : node " & m_notification.GetNodeId() & " : " & node.Label)
                             Else
                                 WriteLog("ERR: " & "NotificationHandler - Erreur dans NodeProtocolInfo : node " & m_notification.GetNodeId() & " non trouvé")
                             End If

@@ -1065,6 +1065,14 @@ Imports System.Web
                                 WriteLog("DBG: Flag => " & wflag)
                                 ' traitement du type d'alerte
                                 Select Case True
+                                    Case InStr(wflag, "-t10") > 0
+                                        nivAlert = "Pluies"
+                                    Case InStr(wflag, "-t11") > 0
+                                        nivAlert = "Crues"
+                                    Case InStr(wflag, "-t12") > 0
+                                        nivAlert = "Fortes pluie / inondations"
+                                    Case InStr(wflag, "-t13") > 0
+                                        nivAlert = "Pluie, inondations"
                                     Case InStr(wflag, "-t1") > 0
                                         nivAlert = "Vent"
                                     Case InStr(wflag, "-t2") > 0
@@ -1083,23 +1091,17 @@ Imports System.Web
                                         nivAlert = "Feux de forêt"
                                     Case InStr(wflag, "-t9") > 0
                                         nivAlert = "Avalanches "
-                                    Case InStr(wflag, "-t10") > 0
-                                        nivAlert = "Pluies"
-                                    Case InStr(wflag, "-t11") > 0
-                                        nivAlert = "Crues"
-                                    Case InStr(wflag, "-t12") > 0
-                                        nivAlert = "Fortes précipitations et/ou inondations"
                                 End Select
                                 'traitement du niveau d'alerte
                                 Select Case True
                                     Case InStr(wflag, "l1-") > 0
                                         nivAlert = "Pas de vigilance particulière"
                                     Case InStr(wflag, "l2-") > 0
-                                        nivAlert = nivAlert & ", Vigilance jaune"
+                                        nivAlert = nivAlert & " -> jaune"
                                     Case InStr(wflag, "l3-") > 0
-                                        nivAlert = nivAlert & ", Vigilance orange"
+                                        nivAlert = nivAlert & " -> orange"
                                     Case InStr(wflag, "l4-") > 0
-                                        nivAlert = nivAlert & ", Vigilance rouge"
+                                        nivAlert = nivAlert & " -> rouge"
                                 End Select
                                 desc = Mid(desc, InStr(desc, ".jpg") + 4, Len(desc))
                                 listalert.Add(nivAlert)
@@ -1123,7 +1125,7 @@ Imports System.Web
                     Exit For
                 End If
                 nivAlert = nivAlert & listalert.Item(i)
-                If Not i = listalert.Count - 1 Then nivAlert = nivAlert & Chr(13)
+                If Not i = listalert.Count - 1 Then nivAlert = nivAlert & vbCrLf
             Next
             If nivAlert = "" Then WriteLog("ERR: GetMeteo, Pas de donnée")
             Return nivAlert
