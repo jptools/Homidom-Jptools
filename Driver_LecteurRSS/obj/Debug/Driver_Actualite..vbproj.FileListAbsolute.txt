@@ -1,0 +1,10 @@
+D:\Homidom - Copie\DEBUG\Drivers\Driver_Actualite.dll
+D:\Homidom - Copie\DEBUG\Drivers\Driver_Actualite.pdb
+D:\Homidom - Copie\DEBUG\Drivers\Driver_Actualite.xml
+D:\Homidom - Copie\Drivers\Driver_Actualite\obj\Debug\Driver_Actualite..vbprojAssemblyReference.cache
+D:\Homidom - Copie\Drivers\Driver_Actualite\obj\Debug\Driver_Actualite.Resources.resources
+D:\Homidom - Copie\Drivers\Driver_Actualite\obj\Debug\Driver_Actualite..vbproj.GenerateResource.cache
+D:\Homidom - Copie\Drivers\Driver_Actualite\obj\Debug\Driver_Actualite..vbproj.CoreCompileInputs.cache
+D:\Homidom - Copie\Drivers\Driver_Actualite\obj\Debug\Driver_Actualite.dll
+D:\Homidom - Copie\Drivers\Driver_Actualite\obj\Debug\Driver_Actualite.xml
+D:\Homidom - Copie\Drivers\Driver_Actualite\obj\Debug\Driver_Actualite.pdb

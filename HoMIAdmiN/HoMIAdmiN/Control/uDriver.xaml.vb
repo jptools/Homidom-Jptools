@@ -81,7 +81,7 @@ Partial Public Class uDriver
                         StkPrmName.Children.Add(lbl)
                         Dim txt As New TextBox
                         With txt
-                            .Width = 150
+                            .Width = 350     '150
                             .Text = prm.Valeur
                             .Height = 26        ' Modifier par JPS   26
                             txt.VerticalContentAlignment = Windows.VerticalAlignment.Center  ' Modifier par JPS   26
