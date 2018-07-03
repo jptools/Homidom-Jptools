@@ -812,6 +812,7 @@ Public Class uWidgetEmpty
             _TailleStatus = value
             If _Show = False Then Exit Property
 
+            If _RSS IsNot Nothing And _type = TypeOfWidget.Rss Then _RSS.SizeStatus = value
             LblStatus.FontSize = value
         End Set
     End Property
@@ -882,6 +883,7 @@ Public Class uWidgetEmpty
             _ColorStatus = value
             If _Show = False Then Exit Property
 
+            If _RSS IsNot Nothing And _type = TypeOfWidget.Rss Then _RSS.CouleurStatus = value
             LblStatus.Foreground = value
         End Set
     End Property
@@ -999,6 +1001,7 @@ Public Class uWidgetEmpty
             If _RSS IsNot Nothing And _type = TypeOfWidget.Rss Then _RSS.URIRss = value
         End Set
     End Property
+
 #End Region
 
 #Region "Property/Sub Meteo"
@@ -1460,7 +1463,7 @@ Public Class uWidgetEmpty
                     _Webbrowser.Height = Me.ActualHeight
                 Case TypeOfWidget.Rss
                     _RSS.Width = Me.ActualWidth
-                    _RSS.Height = Me.ActualHeight
+                    _RSS.Height = Me.ActualHeight - 20
                 Case TypeOfWidget.Camera
                     _Camera.Width = Me.ActualWidth
                     _Camera.Height = Me.ActualHeight

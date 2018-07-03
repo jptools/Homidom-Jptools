@@ -82,10 +82,11 @@ D:\Homidom\HoMIWpf\obj\Debug\HoMIWpF.vbproj.GenerateResource.Cache
 D:\Homidom\HoMIWpf\obj\Debug\HoMIWpF.exe
 D:\Homidom\HoMIWpf\obj\Debug\HoMIWpF.xml
 D:\Homidom\HoMIWpf\obj\Debug\HoMIWpF.pdb
-D:\Homidom\HoMIWpf\obj\Debug\HoMIWpF.vbproj.HoMIWpF.exe.config
 D:\Homidom\HoMIWpf\obj\Debug\UserControls\uGauge.baml
 D:\Homidom\HoMIWpf\obj\Debug\UserControls\uThermostat.baml
 D:\Homidom\HoMIWpf\obj\Debug\UserControls\uGauge.g.vb
 D:\Homidom\HoMIWpf\obj\Debug\UserControls\uThermostat.g.vb
 D:\Homidom\HoMIWpf\obj\Debug\UserControls\uChart.baml
 D:\Homidom\HoMIWpf\obj\Debug\UserControls\uChart.g.vb
+D:\Homidom\HoMIWpf\obj\Debug\HoMIWpF.exe.config
+D:\Homidom\HoMIWpf\obj\Debug\HoMIWpF.vbproj.CoreCompileInputs.cache

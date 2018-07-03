@@ -174,6 +174,99 @@ uRSS
 InitializeComponent
 </summary>
 </member>
+<member name="T:HoMIWpF.RSS.RssReader">
+ <summary>
+ Classe permettant de télécharger un flux RSS de façon asynchrone
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="E:HoMIWpF.RSS.RssReader.ProgressChanged">
+ <summary>
+ Permet de connaitre l'avance du téléchargement du flux RSS
+ </summary>
+ <param name="Sender"></param>
+ <param name="e"></param>
+ <remarks></remarks>
+</member>
+<member name="E:HoMIWpF.RSS.RssReader.Completed">
+ <summary>
+ Signal la fin du téléchargement du flux
+ </summary>
+ <param name="Sender"></param>
+ <param name="e"></param>
+ <remarks></remarks>
+</member>
+<member name="M:HoMIWpF.RSS.RssReader.Load(System.Uri)">
+ <summary>
+ Télécharge un flux RSS à partir de l'Uri spécifiée
+ </summary>
+ <param name="Uri">Adresse du flux</param>
+ <remarks></remarks>
+</member>
+<member name="M:HoMIWpF.RSS.RssReader.Load(System.Uri,System.Object)">
+ <summary>
+ Télécharge un flux RSS à partir de l'Uri spécifiée
+ </summary>
+ <param name="Uri">Adresse du flux</param>
+ <param name="UserState">Objet défini par l'utilisateur retourné à la fin de l'opération asynchrone </param>
+ <remarks></remarks>
+</member>
+<member name="M:HoMIWpF.RSS.RssReader.Cancel">
+ <summary>
+ Annule le téléchargement du flux
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="P:HoMIWpF.RSS.RssReader.IsBusy">
+ <summary>
+ Détermine si un téléchargement est en cours
+ </summary>
+ <value></value>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="T:HoMIWpF.RSS.RssFeed">
+ <summary>
+ Représente un flux RSS
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="P:HoMIWpF.RSS.RssFeed.Elements">
+ <summary>
+ Liste de tous les éléments d'un flux. Accessible par index ou par nom
+ </summary>
+ <value></value>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="P:HoMIWpF.RSS.RssFeed.Items">
+ <summary>
+ Liste des items contenus dans ce flux.
+ </summary>
+ <value></value>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="T:HoMIWpF.RSS.RssItem">
+ <summary>
+ Item contenu dans un flux RSS
+ </summary>
+ <remarks></remarks>
+</member>
+<member name="P:HoMIWpF.RSS.RssItem.Elements">
+ <summary>
+ Liste de tous les éléments d'un item. Accessible par index ou par nom
+ </summary>
+ <value></value>
+ <returns></returns>
+ <remarks></remarks>
+</member>
+<member name="T:HoMIWpF.RSS.RssTag">
+ <summary>
+ Elément (propriété) d'un flux ou d'un item RSS
+ </summary>
+ <remarks></remarks>
+</member>
 <member name="M:HoMIWpF.FctLog.AfficheMessageAndLog(HoMIWpF.FctLog.TypeLog,System.String,System.String,System.String)">
  <summary>
  Affiche le message et connecté log dans le serveur
@@ -688,6 +781,36 @@ uMeteos
 <member name="M:HoMIWpF.uMeteos.InitializeComponent">
 <summary>
 InitializeComponent
+</summary>
+</member>
+<member name="T:HoMIWpF.XamlGeneratedNamespace.GeneratedInternalTypeHelper">
+<summary>
+GeneratedInternalTypeHelper
+</summary>
+</member>
+<member name="M:HoMIWpF.XamlGeneratedNamespace.GeneratedInternalTypeHelper.CreateInstance(System.Type,System.Globalization.CultureInfo)">
+<summary>
+CreateInstance
+</summary>
+</member>
+<member name="M:HoMIWpF.XamlGeneratedNamespace.GeneratedInternalTypeHelper.GetPropertyValue(System.Reflection.PropertyInfo,System.Object,System.Globalization.CultureInfo)">
+<summary>
+GetPropertyValue
+</summary>
+</member>
+<member name="M:HoMIWpF.XamlGeneratedNamespace.GeneratedInternalTypeHelper.SetPropertyValue(System.Reflection.PropertyInfo,System.Object,System.Object,System.Globalization.CultureInfo)">
+<summary>
+SetPropertyValue
+</summary>
+</member>
+<member name="M:HoMIWpF.XamlGeneratedNamespace.GeneratedInternalTypeHelper.CreateDelegate(System.Type,System.Object,System.String)">
+<summary>
+CreateDelegate
+</summary>
+</member>
+<member name="M:HoMIWpF.XamlGeneratedNamespace.GeneratedInternalTypeHelper.AddEventHandler(System.Reflection.EventInfo,System.Object,System.Delegate)">
+<summary>
+AddEventHandler
 </summary>
 </member>
 </members>

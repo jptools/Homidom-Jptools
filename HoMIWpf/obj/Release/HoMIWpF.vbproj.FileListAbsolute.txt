@@ -87,4 +87,5 @@ D:\Homidom\HoMIWpf\obj\Release\UserControls\uChart.baml
 D:\Homidom\HoMIWpf\obj\Release\UserControls\uChart.g.vb
 D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.exe.config
 D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbproj.CoreCompileInputs.cache
-D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbprojResolveAssemblyReference.cache
+D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbprojAssemblyReference.cache
+D:\Homidom\HoMIWpf\obj\Release\HoMIWpF.vbproj.CopyComplete

@@ -94,6 +94,7 @@ Imports System.Web
             NametoNum.Add("&raquo;", "187")
             NametoNum.Add("&Agrave;", "192")
             NametoNum.Add("&Egrave;", "200")
+            NametoNum.Add("&Eacute;", "201")
             NametoNum.Add("&Igrave;", "204")
             NametoNum.Add("&Ograve;", "210")
             NametoNum.Add("&Ugrave;", "217")
@@ -717,11 +718,11 @@ Imports System.Web
             Dim nodes As XmlNodeList
             Dim Donnees As String = ""
             Dim stringurl As String = ""
+            ' Dim Infos As String = ""
             Dim NbInfos As Integer = 0
             Dim Temp As String = ""
             Dim NbCaract As Integer = 0
             Dim Temp1 As String = ""
-            Dim Separat As New String("-", _NbCARACT + 15)
 
             doc = New XmlDocument()
             stringurl = AdresseWeb
@@ -751,9 +752,11 @@ Imports System.Web
                                             Else
                                                 NbCaract = InStr(_NbCARACT, Temp, " ")
                                                 If NbCaract Then
-                                                    If InStr(_NbCARACT, Temp, ":") = NbCaract + 1 Then
-                                                        NbCaract = NbCaract + 2
-                                                    End If
+                                                    Select Case True
+                                                        Case InStr(_NbCARACT, Temp, ":") = NbCaract + 1 : NbCaract = NbCaract + 2
+                                                        Case InStr(_NbCARACT, Temp, "?") = NbCaract + 1 : NbCaract = NbCaract + 2
+                                                        Case InStr(_NbCARACT, Temp, "!") = NbCaract + 1 : NbCaract = NbCaract + 2
+                                                    End Select
                                                     Temp1 = Left(Temp, NbCaract)
                                                     Donnees = Donnees & Temp1 & vbCrLf
                                                     Temp = Mid(Temp, NbCaract + 1, Len(Temp))
@@ -780,9 +783,11 @@ Imports System.Web
                                             Else
                                                 NbCaract = InStr(_NbCARACT, Temp, " ")
                                                 If NbCaract Then
-                                                    If InStr(_NbCARACT, Temp, ":") = NbCaract + 1 Then
-                                                        NbCaract = NbCaract + 2
-                                                    End If
+                                                    Select Case True
+                                                        Case InStr(_NbCARACT, Temp, ":") = NbCaract + 1 : NbCaract = NbCaract + 2
+                                                        Case InStr(_NbCARACT, Temp, "?") = NbCaract + 1 : NbCaract = NbCaract + 2
+                                                        Case InStr(_NbCARACT, Temp, "!") = NbCaract + 1 : NbCaract = NbCaract + 2
+                                                    End Select
                                                     Temp1 = Left(Temp, NbCaract)
                                                     Donnees = Donnees & Temp1 & vbCrLf
                                                     Temp = Mid(Temp, NbCaract + 1, Len(Temp))
@@ -794,6 +799,7 @@ Imports System.Web
                         Next
                         NbInfos = NbInfos + 1
                         If _LIGNESEPARAT And (NbInfos < _NbLIGNES) Then
+                            Dim Separat As New String("-", _NbCARACT + 15)
                             Donnees = Donnees & Separat & vbCrLf
                         End If
                         If _SAUTLIGNE And (NbInfos < _NbLIGNES) Then

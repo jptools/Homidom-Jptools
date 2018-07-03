@@ -4,19 +4,19 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    
+             d:DesignHeight="300" d:DesignWidth="300" FontSize="16">
+
     <Grid x:Name="LayoutRoot" >
         <Grid.RowDefinitions >
             <RowDefinition />
+            <RowDefinition Height="9*"/>
             <RowDefinition Height=" Auto" />
-            <RowDefinition />
+            <RowDefinition Height="10*" />
         </Grid.RowDefinitions>
-        <ListBox Grid.Row="0" Name="Lstb" VerticalContentAlignment="Top">
-            
-        </ListBox>
-        <GridSplitter Grid.Row="1" Name="Splitter1" Height="3" HorizontalAlignment="Stretch" VerticalAlignment="Center" ShowsPreview="True" />
-        <WebBrowser Name="WebBrowser1" Grid.Row="2"/>
+        <ListBox x:Name="LstRssItems" Margin="2,27,5,10" Grid.RowSpan="3" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="1"/>
+        <Button x:Name="Charger" Content="Charger" Height="33" Margin="0,4,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="61" Grid.RowSpan="2"/>
+        <Image x:Name="PicImage" Height="38" Margin="2,4,0,0" VerticalAlignment="Top" Source="/HoMIWpF;component/Images/Homidom_banniere_817_203.png" HorizontalAlignment="Left" Width="76" Stretch="Fill" Grid.RowSpan="2"/>
+        <TextBlock x:Name="LabelTitre" Margin="83,4,76,113" TextWrapping="Wrap" Text="TextBlock" FontSize="18" FontWeight="Bold" Foreground="#FFFFFDFD" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.RowSpan="2"/>
     </Grid>
 
 

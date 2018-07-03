@@ -132,7 +132,7 @@ Public Class WWidgetProperty
                             Refresh_LstHttpBtn()
                         Case uWidgetEmpty.TypeOfWidget.Rss
                             StkPicture.Visibility = Visibility.Collapsed
-                            StkStatus.Visibility = Visibility.Collapsed
+                            StkStatus.Visibility = Visibility.Visible      'Collapsed
                             StkRss.Visibility = Windows.Visibility.Visible
                             BtnEditAction.Visibility = Windows.Visibility.Collapsed
                             BtnEditVisu.Visibility = Windows.Visibility.Collapsed

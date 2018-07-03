@@ -966,7 +966,13 @@ Imports System.Web
             Dim response As Net.HttpWebResponse = CType(Request.GetResponse(), Net.HttpWebResponse)
 
             doc.Load(response.GetResponseStream)
-            nodes = doc.SelectNodes("xml/root/node")
+            Dim version As String = doc.DocumentElement.GetAttribute("version")
+            If version = "2.0" Then
+                nodes = doc.SelectNodes("xml/root/node")
+            Else
+                nodes = doc.SelectNodes("root/node")
+            End If
+
             For Each node As XmlNode In nodes
                 indice = "0"
                 agglomeration = ""
@@ -976,17 +982,23 @@ Imports System.Web
                 IndiceSO2 = "0"
                 For Each _child As XmlNode In node
                     Select Case _child.Name
-                        Case "valeurIndice" : indice = _child.FirstChild.Value
+                        Case "valeurIndice"
+                            If _child.FirstChild IsNot Nothing Then indice = _child.FirstChild.Value
                             WriteLog("DBG: ValeurIndice => " & indice)
-                        Case "agglomeration" : agglomeration = _child.FirstChild.Value
+                        Case "agglomeration"
+                            If _child.FirstChild IsNot Nothing Then agglomeration = _child.FirstChild.Value
                            ' WriteLog("DBG: Agglomeration => " & agglomeration)
-                        Case "SousIndiceO3" : IndiceO3 = _child.FirstChild.Value
+                        Case "SousIndiceO3"
+                            If _child.FirstChild IsNot Nothing Then IndiceO3 = _child.FirstChild.Value
                            ' WriteLog("DBG: SousIndiceO3 => " & IndiceO3)
-                        Case "SousIndiceNO2" : IndiceNO2 = _child.FirstChild.Value
+                        Case "SousIndiceNO2"
+                            If _child.FirstChild IsNot Nothing Then IndiceNO2 = _child.FirstChild.Value
                            ' WriteLog("DBG: SousIndiceNO2 => " & IndiceNO2)
-                        Case "SousIndicePM10" : IndicePM10 = _child.FirstChild.Value
+                        Case "SousIndicePM10"
+                            If _child.FirstChild IsNot Nothing Then IndicePM10 = _child.FirstChild.Value
                             'WriteLog("DBG: SousIndicePM10 => " & IndicePM10)
-                        Case "SousIndiceSO2" : IndiceSO2 = _child.FirstChild.Value
+                        Case "SousIndiceSO2"
+                            If _child.FirstChild IsNot Nothing Then IndiceSO2 = _child.FirstChild.Value
                             ' WriteLog("DBG: SousIndiceSO2 => " & IndiceSO2)
                     End Select
                 Next
@@ -1070,7 +1082,7 @@ Imports System.Web
                                     Case InStr(wflag, "-t11") > 0
                                         nivAlert = "Crues"
                                     Case InStr(wflag, "-t12") > 0
-                                        nivAlert = "Fortes pluie / inondations"
+                                        nivAlert = "Inondations"
                                     Case InStr(wflag, "-t13") > 0
                                         nivAlert = "Pluie, inondations"
                                     Case InStr(wflag, "-t1") > 0
