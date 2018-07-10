@@ -13,10 +13,10 @@
             <RowDefinition Height=" Auto" />
             <RowDefinition Height="10*" />
         </Grid.RowDefinitions>
-        <ListBox x:Name="LstRssItems" Margin="2,27,5,10" Grid.RowSpan="3" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" Grid.Row="1"/>
-        <Button x:Name="Charger" Content="Charger" Height="33" Margin="0,4,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="61" Grid.RowSpan="2"/>
+        <Button x:Name="Charger" Template="{DynamicResource GlassButton}" Content="Charger" Height="33" Margin="0,4,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="61" Grid.RowSpan="2" Foreground="White"/>
         <Image x:Name="PicImage" Height="38" Margin="2,4,0,0" VerticalAlignment="Top" Source="/HoMIWpF;component/Images/Homidom_banniere_817_203.png" HorizontalAlignment="Left" Width="76" Stretch="Fill" Grid.RowSpan="2"/>
         <TextBlock x:Name="LabelTitre" Margin="83,4,76,113" TextWrapping="Wrap" Text="TextBlock" FontSize="18" FontWeight="Bold" Foreground="#FFFFFDFD" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.RowSpan="2"/>
+        <ListView x:Name="LstRssItems" Margin="1,27,5,11" Grid.RowSpan="3" Grid.Row="1"/>
     </Grid>
 
 

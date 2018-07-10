@@ -1,12 +1,5 @@
-﻿Imports System.Net
+﻿'Imports System.Net
 Imports System.Xml
-Imports System.Xml.XmlReader
-Imports System.IO
-Imports System.ServiceModel.Syndication
-Imports System.Threading
-Imports System.ComponentModel
-Imports System.Drawing
-Imports System.Windows.Forms
 Imports System.Text.RegularExpressions
 Imports System.Windows.Threading
 
@@ -88,8 +81,8 @@ Public Class uRSS
 
         'Lancer le Timer_Tick
         dt = New DispatcherTimer()
-        AddHandler dt.Tick, AddressOf dispatcherTimer_Tick
-        dt.Interval = New TimeSpan(0, 30, 0) ' 30 minutes
+        AddHandler dt.Tick, AddressOf DispatcherTimer_Tick
+        dt.Interval = New TimeSpan(1, 0, 0) ' 30 minutes
         dt.Start()
     End Sub
 
@@ -97,7 +90,7 @@ Public Class uRSS
         Try
             If dt IsNot Nothing Then
                 dt.Stop()
-                RemoveHandler dt.Tick, AddressOf dispatcherTimer_Tick
+                RemoveHandler dt.Tick, AddressOf DispatcherTimer_Tick
                 dt = Nothing
             End If
         Catch ex As Exception
@@ -105,7 +98,7 @@ Public Class uRSS
         End Try
     End Sub
 
-    Public Sub dispatcherTimer_Tick(ByVal sender As Object, ByVal e As EventArgs)
+    Public Sub DispatcherTimer_Tick(ByVal sender As Object, ByVal e As EventArgs)
         RefreshChannel()
     End Sub
 
@@ -150,15 +143,16 @@ Public Class uRSS
 
     Private Sub RefreshChannel()
         Try
+            'LstRssItems.Items.Clear()
+            LstRssItems.FontSize = SizeStatus
+            LstRssItems.Foreground = CouleurStatus
+            LstRssItems.Background = Background
+
             'Si internet n'est pas disponible on ne mets pas à jour les informations
             If My.Computer.Network.IsAvailable = False Then
                 'Log(FctLog.TypeLog.ERREUR, "Erreur RSS -> RefreshChannel: ", "Pas de connexion réseau, lecture des infos impossible", "")
                 Exit Sub
             End If
-            LstRssItems.Items.Clear()
-            LstRssItems.FontSize = SizeStatus
-            LstRssItems.Foreground = CouleurStatus
-            LstRssItems.Background = Background
 
             ' Téléchargement du flux           
             'RssReader.Load(New Uri("http://lemonde.fr/rss/une.xml"))
@@ -181,11 +175,12 @@ Public Class uRSS
         Dim Temp As String = ""
         Dim NbCaract As Integer = 0
         Dim Temp1 As String = ""
-        Dim _NbCARACT As Integer = (Width / ((LstRssItems.FontSize) / 2)) - 3
+        Dim _NbCARACT As Integer = (ActualWidth / ((LstRssItems.FontSize) / 2)) '-3 ****  
         Dim Separat As New String("-", _NbCARACT + 17)
         Dim NbInfos As Integer = 0
 
         Try
+            LstRssItems.Items.Clear()
             If RssFeed IsNot Nothing Then
                 PicImage.Visibility = Windows.Visibility.Hidden
                 If Not String.IsNullOrEmpty(RssFeed.ImageUrl) Then
@@ -194,10 +189,11 @@ Public Class uRSS
                 If PicImage.IsLoaded = True Then
                     PicImage.Visibility = Windows.Visibility.Visible
                 End If
-                LabelTitre.Text = RssFeed.Title
+                Dim larg As Integer = LabelTitre.ActualWidth / (LabelTitre.FontSize / 2)
+                LabelTitre.Text = Left(RssFeed.Title, larg * 2) '2 lignes
                 For Each item As RSS.RssItem In RssFeed.Items
 
-                    ' LstRssItems.Items.Add(item.Title)
+                    'Titre
                     Temp = item.Title
                     Temp = Replace(Temp, vbCrLf, "")
                     Do
@@ -212,6 +208,7 @@ Public Class uRSS
                                     Case InStr(_NbCARACT, Temp, ":") = NbCaract + 1 : NbCaract = NbCaract + 2
                                     Case InStr(_NbCARACT, Temp, "?") = NbCaract + 1 : NbCaract = NbCaract + 2
                                     Case InStr(_NbCARACT, Temp, "!") = NbCaract + 1 : NbCaract = NbCaract + 2
+                                    Case InStr(_NbCARACT, Temp, "»") = NbCaract + 1 : NbCaract = NbCaract + 2
                                 End Select
                                 Temp1 = Left(Temp, NbCaract)
                                 LstRssItems.Items.Add(Temp1)
@@ -220,7 +217,7 @@ Public Class uRSS
                         End If
                     Loop Until Len(Temp) = 0
 
-                    'LstRssItems.Items.Add(item.Description)
+                    'Description                  
                     Temp = item.Description
                     Temp = Remplace_html_entities(Temp)
                     Temp = Replace(Temp, vbCrLf, "")
@@ -236,6 +233,7 @@ Public Class uRSS
                                     Case InStr(_NbCARACT, Temp, ":") = NbCaract + 1 : NbCaract = NbCaract + 2
                                     Case InStr(_NbCARACT, Temp, "?") = NbCaract + 1 : NbCaract = NbCaract + 2
                                     Case InStr(_NbCARACT, Temp, "!") = NbCaract + 1 : NbCaract = NbCaract + 2
+                                    Case InStr(_NbCARACT, Temp, "»") = NbCaract + 1 : NbCaract = NbCaract + 2
                                 End Select
                                 Temp1 = Left(Temp, NbCaract)
                                 LstRssItems.Items.Add(Temp1)
@@ -243,7 +241,7 @@ Public Class uRSS
                             End If
                         End If
                     Loop Until Len(Temp) = 0
-                    LstRssItems.Items.Add(NbInfos.ToString & ": Lire la suite ->")  'item.Link
+                    LstRssItems.Items.Add(NbInfos.ToString & ": Lire la suite ->")  'item.Link                         
                     LstRssItems.Items.Add(Separat)
                     NbInfos = NbInfos + 1
                 Next
@@ -272,7 +270,7 @@ Public Class uRSS
         End Try
     End Function
 
-    Private Sub DClickPage(sender As Object, e As MouseButtonEventArgs) Handles LstRssItems.MouseDoubleClick
+    Private Sub SelectClickPage(sender As Object, e As MouseButtonEventArgs) Handles LstRssItems.MouseLeftButtonUp
         If e.Source.SelectedIndex > -1 Then
             Dim Debut As Integer = InStr(e.Source.SelectedValue, "Lire la suite ->")
             If Debut Then
@@ -287,10 +285,43 @@ Public Class uRSS
         End If
     End Sub
 
+    Private Sub ChangerFormat(sender As Object, e As SizeChangedEventArgs) Handles LstRssItems.SizeChanged
+        ShowInfos()
+    End Sub
+
+    '**********************************************************
+    'Private Sub LstRssItems_SelectionChanged(sender As Object, e As SelectionChangedEventArgs) Handles LstRssItems.SelectionChanged
+    'If InStr(e.Source.SelectedValue, "Lire la suite ->") Then
+    'Dim teb As ToolTip = New ToolTip With {
+    '.ToolTip = "Cliquer pour lancer"
+    '  }
+    '   LstRssItems.ToolTip = teb.ToolTip
+
+    ' e.Source.Foreground = Brushes.Blue
+    'Else
+    ' LstRssItems.Foreground = CouleurStatus
+    'Else
+    ' LstRssItems.ToolTip = Nothing
+    'End If
+    ' End Sub
+
+    ' Private Sub AfficheTolTip(sender As Object, e As MouseEventArgs) Handles LstRssItems.MouseEnter
+    'If InStr(e.Source.SelectedValue, "Lire la suite ->") Then
+    'Dim TolInfo As ToolTip = New ToolTip With {
+    '.ToolTip = "Cliquer pour lancer"
+    ' }
+    '  LstRssItems.ToolTip = TolInfo.ToolTip
+    'Else
+    ' LstRssItems.ToolTip = Nothing
+    'End If
+    ' End Sub
+
+
 
 #End Region
 
 End Class
+
 
 
 Namespace RSS
