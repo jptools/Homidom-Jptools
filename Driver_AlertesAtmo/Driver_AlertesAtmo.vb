@@ -769,6 +769,9 @@ Imports System.Web
                 ville = str
 
             Select Case UCase(typealerte)
+                Case "QUALITEAIR"
+                    Dim alrt As String = GetQualiteAir(UCase(ville))
+                    If alrt <> "" Then Objet.Value = alrt
                 Case "NIVPOLLEN"
                     Dim alrt As String = GetPollensWarns()
                     If alrt <> "" Then Objet.Value = alrt
@@ -780,7 +783,7 @@ Imports System.Web
                     If alrt <> "" Then Objet.Value = alrt
                 Case "POLLEN"
                     If Len(departement) = 1 Then departement = "0" + departement
-                    Dim alrt As String = getpollen(departement, Objet.Adresse2)
+                    Dim alrt As String = Getpollen(departement, Objet.Adresse2)
                     If alrt <> "" Then Objet.Value = alrt
                 Case "METEO"
                     Dim alrt As String = GetMeteo(departement, Objet.Adresse2)
@@ -944,7 +947,80 @@ Imports System.Web
 #Region "Fonctions internes"
 
 
-    Function GetPollution(ville As String) As String
+    Function GetQualiteAir(ville As String) As String    'Flux csv
+        Try
+            Dim wc As New WebClient
+            Dim Data As String
+            Dim Temp As String = ""
+            Dim Pos As Integer
+            Dim indice As String = ""
+            Dim IndiceO3 As String = ""
+            Dim IndiceNO2 As String = ""
+            Dim IndicePM10 As String = ""
+            Dim IndiceSO2 As String = ""
+
+            WriteLog("DBG: Recherche indice de pollution pour la ville => " & ville)
+            ' Dim url As New Uri("http://www.lcsqa.org/surveillance/indices/prevus/jour/csv/" & Now.ToString("yyyy-MM-dd"))  'du jour
+            Dim url As New Uri("https://www.lcsqa.org/indices-qualite-air/prevus/jour/csv/" & Now.ToString("yyyy-MM-dd"))  'du jour
+            Dim url1 As New Uri("https://www.lcsqa.org/indices-qualite-air/csv/" & Now.AddDays(-1).ToString("yyyy-MM-dd"))    'du jour - 1            
+            WriteLog("DBG: Chargement de " & url.AbsoluteUri)
+
+            'Indices du jour
+            Data = wc.DownloadString(url)
+            If InStr(Data, ville) Then
+                Pos = InStr(Data, ville)
+                Temp = Mid(Data, Pos, Len(Data))
+                Temp = Left(Temp, InStr(Temp, "http"))    'MULHOUSE;3;;;...     .......
+
+                Dim ParaIndices = Split(Temp, ";")
+                If ParaIndices.Length > 5 Then
+                    indice = ParaIndices(1)
+                    IndiceO3 = ParaIndices(2)
+                    IndiceNO2 = ParaIndices(3)
+                    IndicePM10 = ParaIndices(4)
+                    IndiceSO2 = ParaIndices(5)
+
+                    ' Indice du jour - 1
+                    Data = wc.DownloadString(url1)
+                    If InStr(Data, ville) Then
+                        Pos = InStr(Data, ville)
+                        Temp = Mid(Data, Pos, Len(Data))
+                        Temp = Left(Temp, InStr(Temp, "http"))
+
+                        Dim ParaIndices1 = Split(Temp, ";")
+                        If ParaIndices1.Length > 5 Then
+                            ' Remplacer les indices vides par les indices du jour précédent
+                            If indice = "" Then indice = "(" & ParaIndices1(1) & ")"
+                            If IndiceO3 = "" Then IndiceO3 = "(" & ParaIndices1(2) & ")"
+                            If IndiceNO2 = "" Then IndiceNO2 = "(" & ParaIndices1(3) & ")"
+                            If IndicePM10 = "" Then IndicePM10 = "(" & ParaIndices1(4) & ")"
+                            If IndiceSO2 = "" Then IndiceSO2 = "(" & ParaIndices1(5) & ")"
+                        End If
+                    End If
+                Else
+                    Temp = ""
+                    WriteLog("ERR: GetQualiteAir : Erreur, Indices non trouvés")
+                End If
+                If _DETAILS Then
+                    Temp = "indice : " & indice & vbCrLf & "O3 : " & IndiceO3 & vbCrLf & "NO2 : " & IndiceNO2 & vbCrLf &
+                        "PM10 : " & IndicePM10 & vbCrLf & "SO2 : " & IndiceSO2
+                Else
+                    Temp = indice
+                End If
+            Else
+                Temp = ""
+                WriteLog("ERR: GetQualiteAir : Erreur, Ville non trouvée")
+            End If
+            WriteLog("DBG: GetQualiteAir => " & Temp)
+            Return Temp
+
+        Catch ex As Exception
+            WriteLog("ERR: GetQualiteAir, Exception : " & ex.Message)
+            Return 0
+        End Try
+    End Function
+
+    Function GetPollution(ville As String) As String   'Flux xml
         Try
             Dim doc As New XmlDocument
             Dim nodes As XmlNodeList
@@ -955,13 +1031,16 @@ Imports System.Web
             Dim IndicePM10 As String = ""
             Dim IndiceSO2 As String = ""
             Dim Temp As String = ""
+            Dim Commentaire As String = ""
             Dim IsVilleTrouve As Boolean = False
 
             WriteLog("DBG: Recherche indice de pollution pour la ville => " & ville)
 
             doc = New XmlDocument()
-            Dim url As New Uri("http://www.lcsqa.org/surveillance/indices/prevus/jour/xml/" & DateAndTime.Now.ToString("yyyy-MM-dd"))
-            WriteLog("DBG: Chargement de http://www.lcsqa.org/surveillance/indices/prevus/jour/xml/" & DateAndTime.Now.ToString("yyyy-MM-dd"))
+            ' Dim url As New Uri("http://www.lcsqa.org/surveillance/indices/prevus/jour/xml/" & DateAndTime.Now.ToString("yyyy-MM-dd"))
+            'Dim url As New Uri("https://www.lcsqa.org/indices-qualite-air/xml/" & Now.AddDays(-1).ToString("yyyy-MM-dd"))
+            Dim url As New Uri("https://www.lcsqa.org/indices-qualite-air/prevus/jour/xml/" & Now.ToString("yyyy-MM-dd"))
+            WriteLog("DBG: Chargement de " & url.AbsoluteUri)
             Dim Request As HttpWebRequest = CType(HttpWebRequest.Create(url), System.Net.HttpWebRequest)
             Dim response As Net.HttpWebResponse = CType(Request.GetResponse(), Net.HttpWebResponse)
 
@@ -980,6 +1059,7 @@ Imports System.Web
                 IndiceNO2 = "0"
                 IndicePM10 = "0"
                 IndiceSO2 = "0"
+                Commentaire = ""
                 For Each _child As XmlNode In node
                     Select Case _child.Name
                         Case "valeurIndice"
@@ -1000,6 +1080,11 @@ Imports System.Web
                         Case "SousIndiceSO2"
                             If _child.FirstChild IsNot Nothing Then IndiceSO2 = _child.FirstChild.Value
                             ' WriteLog("DBG: SousIndiceSO2 => " & IndiceSO2)
+
+                        Case "Commentaires"
+                            If _child.FirstChild IsNot Nothing Then Commentaire = _child.FirstChild.Value
+                            ' WriteLog("DBG: Commentaires => " & Commentaires)
+
                     End Select
                 Next
                 If (agglomeration = ville) Then
@@ -1011,7 +1096,7 @@ Imports System.Web
             Next
             If IsVilleTrouve Then
                 If _DETAILS Then
-                    Temp = "Ind : " & indice & vbCrLf & "O3 : " & IndiceO3 & vbCrLf & "NO2 : " & IndiceNO2 & vbCrLf &
+                    Temp = "indice : " & indice & vbCrLf & "O3 : " & IndiceO3 & vbCrLf & "NO2 : " & IndiceNO2 & vbCrLf &
                    "PM10 : " & IndicePM10 & vbCrLf & "SO2 : " & IndiceSO2
                 Else
                     Temp = indice
@@ -1019,6 +1104,28 @@ Imports System.Web
             Else
                 Temp = ""
                 WriteLog("ERR: GetPollution : Erreur, Ville non trouvée")
+            End If
+            'Traitement Commentaires si indices = 1  et _DETAILS = False  
+            If Temp = "1" And Len(Commentaire) > 0 Then
+                Dim Pos As Integer
+                Pos = InStr(Commentaire, "indices")
+                If Pos Then
+                    Temp = Mid(Commentaire, Pos + 8, 8)
+                    If InStr(Temp, "-") Then
+                        Temp = Left(Temp, 3)
+                    ElseIf InStr(Temp, "à") Then
+                        Temp = Left(Temp, 5)
+                    Else
+                        Temp = Left(Temp, 1)
+                    End If
+                Else
+                    Pos = InStr(Commentaire, "indice")
+                    If Pos Then
+                        Temp = Mid(Commentaire, Pos + 7, 1)
+                    Else
+                        Temp = "NC"
+                    End If
+                End If
             End If
             WriteLog("DBG: GetPollution => " & Temp)
             Return Temp
@@ -1147,7 +1254,7 @@ Imports System.Web
         End Try
     End Function
 
-    Private Function getpollen(departement As String, parampollen As String)
+    Private Function Getpollen(departement As String, parampollen As String)
         Try
             CodePollen()
             WriteLog("DBG: GetPollen, parametres : Dept / pollen => " & departement & " / " & parampollen)
@@ -1227,8 +1334,8 @@ Imports System.Web
                 If DataPollenRnsa.errorMessage = "OK" Then
                     Dim indicestrAir As String = ""
                     For Each _alerts In DataPollenRnsa.data.alerts
-                        indicestrAir = "Ind. Trafic : " & _alerts.air.roadside_pollutant & " : " & _alerts.air.roadside_index & vbCrLf
-                        indicestrAir = indicestrAir & "Ind. Fond : " & _alerts.air.background_pollutant & " : " & _alerts.air.background_index
+                        indicestrAir = "Trafic : " & _alerts.air.roadside_pollutant & " : " & _alerts.air.roadside_index & vbCrLf
+                        indicestrAir = indicestrAir & "Fond : " & _alerts.air.background_pollutant & " : " & _alerts.air.background_index
                     Next
                     WriteLog("DBG: GetPolluant: " & indicestrAir)
                     Return indicestrAir
