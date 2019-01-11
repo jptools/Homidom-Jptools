@@ -970,7 +970,7 @@ Imports System.Web
             If InStr(Data, ville) Then
                 Pos = InStr(Data, ville)
                 Temp = Mid(Data, Pos, Len(Data))
-                Temp = Left(Temp, InStr(Temp, "http"))    'MULHOUSE;3;;;...     .......
+                Temp = Left(Temp, InStr(Temp, "http"))    'MULHOUSE;3;1;5;3;4;..........;http.........
 
                 Dim ParaIndices = Split(Temp, ";")
                 If ParaIndices.Length > 5 Then
@@ -1439,7 +1439,7 @@ Imports System.Web
                 End If
                 WriteLog("DBG: GetSentinelle Alerte => " & Temp)
                 nivAlert = nivAlert & Temp
-                If Not i = listalert.Count - 2 Then nivAlert = nivAlert & Chr(13)
+                If Not i = listalert.Count - 2 Then nivAlert = nivAlert & vbCrLf
             Next
             WriteLog("DBG: Actualité Epidemologique => " & nivAlert)
             Return nivAlert
