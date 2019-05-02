@@ -20,6 +20,7 @@
                         <Button Height="25" Template="{DynamicResource GlassButton}" HorizontalAlignment="Right" Margin="2" Name="BtnClose" VerticalAlignment="Top" Width="90" Foreground="White">Fermer</Button>
                         <StackPanel Orientation="Horizontal" >
                         </StackPanel>
+                        <Button Height="25" Template="{DynamicResource GlassButton}" HorizontalAlignment="Right" Margin="2" x:Name="BtnSauver" VerticalAlignment="Top" Width="90" Foreground="White" Content="Archiver"/>
                     </StackPanel>
                     <Label FontSize="24" FontStyle="Italic" Foreground="DarkOrange" Name="Label1" VerticalAlignment="Top" HorizontalContentAlignment="Center">Nouveau(x) Composant(s)</Label>
 

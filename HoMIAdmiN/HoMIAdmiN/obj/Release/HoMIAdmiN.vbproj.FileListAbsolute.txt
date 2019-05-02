@@ -81,4 +81,5 @@ D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\uSelectExp.g.vb
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\WParam.g.vb
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\Control\WParam.baml
 D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.vbproj.CoreCompileInputs.cache
-D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.vbprojResolveAssemblyReference.cache
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.vbprojAssemblyReference.cache
+D:\Homidom\HoMIAdmiN\HoMIAdmiN\obj\Release\HoMIAdmiN.vbproj.CopyComplete

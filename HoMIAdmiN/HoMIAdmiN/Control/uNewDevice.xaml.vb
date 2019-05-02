@@ -9,6 +9,7 @@ Public Class uNewDevice
     Public Event CreateNewDevice(ByVal MyObject As Object)
     Dim _list As New List(Of NewDevice)
     Dim _Listdevices As New List(Of TemplateDevice)
+    Dim newFile As FileInfo
 
     Private Sub BtnClose_Click(ByVal sender As System.Object, ByVal e As System.Windows.RoutedEventArgs) Handles BtnClose.Click
         RaiseEvent CloseMe(Me)
@@ -262,5 +263,81 @@ Public Class uNewDevice
             Return 0
         End Try
     End Function
+
+    Private Sub BtnSauver_Click(sender As Object, e As RoutedEventArgs) Handles BtnSauver.Click
+        'Sauver la liste des New Devices dans un fichier "NewDevicesList.csv"  Ajouter par JPS
+        Try
+            Dim ListNewDevice As New List(Of NewDevice)
+            Dim zipFile As FileInfo
+            Dim newFile As FileInfo
+            Dim NomFichier As String
+            Dim DriverNam As String = ""
+            Dim IdDriver As String = ""
+
+            ListNewDevice.Clear()
+            ListNewDevice = myService.GetAllNewDevice
+            NomFichier = My.Application.Info.DirectoryPath & "\Config\NewDevicesList.csv"
+            newFile = New FileInfo(NomFichier)
+            If newFile.Exists Then
+                SauverCopiefichier()
+                newFile.Delete()
+            End If
+            zipFile = New FileInfo(NomFichier)
+            Dim Fichier As StreamWriter = zipFile.CreateText()
+
+            Fichier.WriteLine("Adresse1" & ";" & "Name" & ";" & "Type" & ";" & "Ignore" & ";" & "ID" & ";" & "Date/Heure" &
+                              ";" & "Value" & ";" & "Driver")
+            For i = 0 To ListNewDevice.Count - 1
+                If String.IsNullOrEmpty(ListNewDevice(i).IdDriver) = False Then
+                    If ListNewDevice(i).IdDriver <> IdDriver Then
+                        Dim x As HoMIDom.HoMIDom.TemplateDriver = myService.ReturnDriverByID(IdSrv, ListNewDevice(i).IdDriver)
+                        If x IsNot Nothing Then DriverNam = x.Nom
+                        IdDriver = ListNewDevice(i).IdDriver
+                    End If
+                    Fichier.WriteLine(ListNewDevice(i).Adresse1 & ";" &
+                                  ListNewDevice(i).Name & ";" &
+                                  ListNewDevice(i).Type & ";" &
+                                  ListNewDevice(i).Ignore & ";" &
+                                  ListNewDevice(i).ID & ";" &
+                                  ListNewDevice(i).DateTetect & ";" &
+                                  ListNewDevice(i).Value & ";" &
+                                  DriverNam)
+                End If
+            Next
+            Fichier.Flush()
+            Fichier.Close()
+            ListNewDevice.Clear()
+            'newFile = Nothing
+            'zipFile = Nothing
+            'ListNewDevice = Nothing
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauve NewDeviceList : ", "Réussit", "")
+        Catch ex As IO.IOException
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur NewDeviceList.csv : " & ex.ToString, "ERREUR", "")
+
+        Catch ex As Exception
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur BtnSauver_Click : " & ex.ToString, "ERREUR", "")
+        End Try
+    End Sub
+
+    Private Sub SauverCopiefichier()    'Ajouter par JPS
+        Try
+            Dim zipFile As FileInfo
+            Dim newFile As FileInfo
+            Dim NomFichier As String
+
+            'Sauver une copie du fichier en "NewDevices.bak"
+            NomFichier = My.Application.Info.DirectoryPath & "\Config\NewDevicesList.csv"
+            Dim ParaFichier = Split(NomFichier, ".")
+            ParaFichier(1) = "bak"
+            zipFile = New FileInfo(ParaFichier(0) + "." + ParaFichier(1))
+            If (zipFile.Exists) Then
+                zipFile.Delete()
+            End If
+            newFile = New FileInfo(NomFichier)
+            newFile.CopyTo(zipFile.FullName)
+        Catch ex As Exception
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur SauverCopiefichier: " & ex.ToString, "ERREUR", "")
+        End Try
+    End Sub
 
 End Class

@@ -1,0 +1,10 @@
+D:\Homidom\RELEASE\Drivers\Driver_RFXtrx.dll
+D:\Homidom\RELEASE\Drivers\Driver_RFXtrx.pdb
+D:\Homidom\RELEASE\Drivers\Driver_RFXtrx.xml
+D:\Homidom\Drivers\Driver_RFXtrx\obj\Release\Driver_RFXtrx.vbprojAssemblyReference.cache
+D:\Homidom\Drivers\Driver_RFXtrx\obj\Release\Driver_RFXtrx.Resources.resources
+D:\Homidom\Drivers\Driver_RFXtrx\obj\Release\Driver_RFXtrx.vbproj.GenerateResource.cache
+D:\Homidom\Drivers\Driver_RFXtrx\obj\Release\Driver_RFXtrx.vbproj.CoreCompileInputs.cache
+D:\Homidom\Drivers\Driver_RFXtrx\obj\Release\Driver_RFXtrx.dll
+D:\Homidom\Drivers\Driver_RFXtrx\obj\Release\Driver_RFXtrx.xml
+D:\Homidom\Drivers\Driver_RFXtrx\obj\Release\Driver_RFXtrx.pdb

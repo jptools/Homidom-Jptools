@@ -1,4 +1,5 @@
-﻿Imports HoMIDom.HoMIDom
+﻿Imports System.IO
+Imports HoMIDom.HoMIDom
 
 Public Class WActionParametrage
     Dim _ObjAction As Object = Nothing
@@ -212,25 +213,25 @@ Public Class WActionParametrage
         Try
             Cb2.Items.Clear()
             If _ObjAction.TypeAction = Action.TypeAction.ActionDevice Then
-            If Cb1.SelectedItem IsNot Nothing Then
-                'Ajout des commandes standard
-                For i As Integer = 0 To Cb1.SelectedItem.DeviceAction.Count - 1
-                    Cb2.Items.Add(Cb1.SelectedItem.DeviceAction.Item(i).Nom)
-                Next
+                If Cb1.SelectedItem IsNot Nothing Then
+                    'Ajout des commandes standard
+                    For i As Integer = 0 To Cb1.SelectedItem.DeviceAction.Count - 1
+                        Cb2.Items.Add(Cb1.SelectedItem.DeviceAction.Item(i).Nom)
+                    Next
 
-                'Ajout des commandes avancées
-                For i As Integer = 0 To Cb1.SelectedItem.GetDeviceCommandePlus.Count - 1
-                    Cb2.Items.Add("{" & Cb1.SelectedItem.GetDeviceCommandePlus.Item(i).NameCommand & "}")
-                Next
+                    'Ajout des commandes avancées
+                    For i As Integer = 0 To Cb1.SelectedItem.GetDeviceCommandePlus.Count - 1
+                        Cb2.Items.Add("{" & Cb1.SelectedItem.GetDeviceCommandePlus.Item(i).NameCommand & "}")
+                    Next
 
-            End If
+                End If
             ElseIf _ObjAction.TypeAction = Action.TypeAction.ActionDriver Then
-            If Cb1.SelectedItem IsNot Nothing Then
-                'Ajout des commandes standard
-                Cb2.Items.Add("Start")
-                Cb2.Items.Add("Stop")
-                Cb2.Items.Add("Restart")
-            End If
+                If Cb1.SelectedItem IsNot Nothing Then
+                    'Ajout des commandes standard
+                    Cb2.Items.Add("Start")
+                    Cb2.Items.Add("Stop")
+                    Cb2.Items.Add("Restart")
+                End If
             End If
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur Cb1_selectionChanged: " & ex.ToString, "Erreur Admin", "")
@@ -726,6 +727,7 @@ Public Class WActionParametrage
                         TxtValue.Width = 650
                         TxtValue.VerticalScrollBarVisibility = ScrollBarVisibility.Auto
                         TxtValue.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto
+                        BtnArchiver.Visibility = Windows.Visibility.Visible    ' Ajout JPS
 
                         Txt2.Text = obj.Label
                         TxtValue.Text = obj.Script
@@ -1177,6 +1179,61 @@ Public Class WActionParametrage
             End If
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur RefreshCondition: " & ex.ToString, "ERREUR", "")
+        End Try
+    End Sub
+
+    Private Sub BtnArchiver_Click(sender As Object, e As RoutedEventArgs) Handles BtnArchiver.Click
+        'Sauver le script dans un fichier pour archivage Ajout JPS
+        Try
+            Dim _typ As Action.TypeAction
+            Dim zipFile As FileInfo
+            Dim newFile As FileInfo
+            Dim NomFichier As String
+
+            If _ObjAction IsNot Nothing Then
+                _typ = _ObjAction.TypeAction
+                Select Case _typ
+                    Case HoMIDom.HoMIDom.Action.TypeAction.ActionVB
+                        If String.IsNullOrEmpty(_ObjAction.Label) = False Then
+                            NomFichier = (My.Application.Info.DirectoryPath & "\Config\" & _ObjAction.Label & ".vb")
+                            newFile = New FileInfo(NomFichier)
+                            If newFile.Exists Then
+                                SauverCopiefichier(NomFichier)
+                                newFile.Delete()
+                            End If
+                            zipFile = New FileInfo(NomFichier)
+                            Dim Fichier As StreamWriter = zipFile.CreateText()
+                            If String.IsNullOrEmpty(_ObjAction.Script) = False Then
+                                Fichier.WriteLine(_ObjAction.Script)
+                            End If
+                            Fichier.Flush()
+                            Fichier.Close()
+                            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Archiver Script : ", "Réussit", "")
+                        End If
+                End Select
+            End If
+
+        Catch ex As Exception
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur Archiver Script: " & ex.ToString, "Erreur Admin", "")
+        End Try
+    End Sub
+
+    Private Sub SauverCopiefichier(ByVal FileTitle As String)    'Ajouter par JPS
+        Try
+            Dim zipFile As FileInfo
+            Dim newFile As FileInfo
+
+            'Sauver une copie du fichier en "*.bak"            
+            Dim ParaFichier = Split(FileTitle, ".")
+            ParaFichier(1) = "bak"
+            zipFile = New FileInfo(ParaFichier(0) + "." + ParaFichier(1))
+            If (zipFile.Exists) Then
+                zipFile.Delete()
+            End If
+            newFile = New FileInfo(FileTitle)
+            newFile.CopyTo(zipFile.FullName)
+        Catch ex As Exception
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur SauverCopiefichier: " & ex.ToString, "ERREUR", "")
         End Try
     End Sub
 #End Region

@@ -54,7 +54,10 @@
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>
-                <Button Content="Ok" Height="28" HorizontalAlignment="Left" Margin="15" Name="BtnOk" VerticalAlignment="Top" Width="72" Template="{DynamicResource GlassButton}" Foreground="White" />
+                <StackPanel VerticalAlignment="Top">
+                    <Button Content="Ok" Height="28" HorizontalAlignment="Left" Margin="15" Name="BtnOk" VerticalAlignment="Top" Width="72" Template="{DynamicResource GlassButton}" Foreground="White" />
+                    <Button Content="Archiver" Height="28" HorizontalAlignment="Left" Margin="15,0,15,15" x:Name="BtnArchiver" VerticalAlignment="Top" Width="72" Template="{DynamicResource GlassButton}" Foreground="White" Visibility="Collapsed" />
+                </StackPanel>
             </StackPanel>
 
             <TabControl HorizontalAlignment="Left" Margin="5" Name="TabControl1" VerticalAlignment="Center" Width="611">
