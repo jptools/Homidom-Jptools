@@ -1,0 +1,14 @@
+D:\Homidom\RELEASE\HoMIGuI.exe.config
+D:\Homidom\RELEASE\HoMIGuI.exe
+D:\Homidom\RELEASE\HoMIGuI.pdb
+D:\Homidom\RELEASE\HoMIGuI.xml
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.AboutForm.resources
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.HoMIGuI.resources
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.LogsForm.resources
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.Resources.resources
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.vbproj.GenerateResource.Cache
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.exe
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.xml
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.pdb
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.vbproj.CoreCompileInputs.cache
+D:\Homidom\HoMIGuI\obj\x86\Release\HoMIGuI.vbprojAssemblyReference.cache

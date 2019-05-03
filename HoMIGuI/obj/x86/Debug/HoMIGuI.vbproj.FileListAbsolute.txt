@@ -1,0 +1,28 @@
+D:\Homidom\DEBUG\HoMIGuI.exe.config
+D:\Homidom\DEBUG\HoMIGuI.exe
+D:\Homidom\DEBUG\HoMIGuI.pdb
+D:\Homidom\DEBUG\HoMIGuI.xml
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.AboutForm.resources
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.HoMIGuI.resources
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.LogsForm.resources
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.Resources.resources
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.vbproj.GenerateResource.Cache
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.exe
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.xml
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.pdb
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.vbprojResolveAssemblyReference.cache
+D:\Homidom\HoMIGuI\obj\x86\Debug\HoMIGuI.vbproj.CoreCompileInputs.cache
+D:\Homidom - Copie\DEBUG\HoMIGuI.exe.config
+D:\Homidom - Copie\DEBUG\HoMIGuI.exe
+D:\Homidom - Copie\DEBUG\HoMIGuI.pdb
+D:\Homidom - Copie\DEBUG\HoMIGuI.xml
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.AboutForm.resources
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.HoMIGuI.resources
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.LogsForm.resources
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.Resources.resources
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.vbproj.GenerateResource.cache
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.vbproj.CoreCompileInputs.cache
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.exe
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.xml
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.pdb
+D:\Homidom - Copie\HoMIGuI\obj\x86\Debug\HoMIGuI.vbprojAssemblyReference.cache
