@@ -1856,7 +1856,6 @@ Public Class Driver_ZWave
                 Dim Trouve As Boolean = False
 
                 If _IsConnect Then
-                    WriteLog("ReplaceFailedNode sur Noeud -> " & m_nodeList.ElementAt(i).ID)
                     If NumNode = Nothing Then NumNode = 0
                     If Securite = Nothing Then Securite = False
                     If NumNode > 1 Then
@@ -1864,16 +1863,20 @@ Public Class Driver_ZWave
                             node = GetNode(m_homeId, m_nodeList.ElementAt(i).ID)
                             If NumNode = node.ID Then
                                 Trouve = True
+                                WriteLog("ReplaceFailedNode sur Noeud -> " & m_nodeList.ElementAt(NumNode).ID & " : " &
+                                          m_nodeList.ElementAt(NumNode).Product)
                                 If m_manager.HasNodeFailed(m_homeId, NumNode) Then
                                     If m_manager.ReplaceFailedNode(m_homeId, node.ID) Then
-                                        WriteLog("ReplaceFailedNode réussi sur Noeud : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Product)
+                                        WriteLog("ReplaceFailedNode réussi sur Noeud : " & m_nodeList.ElementAt(i).ID & " / " &
+                                                 m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
                                         If m_manager.AddNode(m_homeId, Securite) Then
                                             WriteLog("Début de la séquence d'inclusion.")
                                         Else
                                             WriteLog("ERR: Impossible d'exécuter la séquence d'inclusion.")
                                         End If
                                     Else
-                                        WriteLog("ERR: ReplaceFailedNode échoué : " & m_nodeList.ElementAt(i).ID & " / " & m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
+                                        WriteLog("ERR: ReplaceFailedNode échoué : " & m_nodeList.ElementAt(i).ID & " / " &
+                                                 m_nodeList.ElementAt(i).Product & " -> " & m_nodeList.ElementAt(i).Label)
                                     End If
                                     Exit For
                                 Else
@@ -2344,7 +2347,7 @@ Public Class Driver_ZWave
                 WriteLog("DBG: m_devices total -> Nb Device " & m_devices.Count)
 
                 ' Pas de composant => ajout automatique dans la liste des nouveaux composants
-                If (m_devices.Count = 0 And _AutoDiscover) Then
+                If (m_devices.Count = 0 And (_AutoDiscover Or _Server.GetModeDecouverte)) Then
 
 
                     ' Ne traite pas les notifications COMMAND_CLASS_CONFIGURATION & COMMAND_CLASS_VERSION
@@ -2377,8 +2380,8 @@ Public Class Driver_ZWave
 
                     ' Vérifie que le composant n'a pas déja été ajouté à la liste des nouveaux composants.
                     Dim m_newDevice As HoMIDom.HoMIDom.NewDevice =
-                        (From dev In _Server.GetAllNewDevice() _
-                            Where dev.IdDriver = Me.ID _
+                        (From dev In _Server.GetAllNewDevice()
+                         Where dev.IdDriver = Me.ID _
                             And dev.Adresse1 = m_nodeId _
                             And dev.Adresse2 = m_valueLabel).FirstOrDefault()
 
@@ -2429,8 +2432,8 @@ Public Class Driver_ZWave
                             m_device.Type = String.Empty
                         End If
 
-                        WriteLog("NewDevice " & String.Format("{0} (CommandClassId={1},Genre={2},Index={3},Type={4}, Units={5})", _
-                                               m_deviceName, _
+                        WriteLog("NewDevice " & String.Format("{0} (CommandClassId={1},Genre={2},Index={3},Type={4}, Units={5})",
+                                               m_deviceName,
                                                m_valueID.GetCommandClassId(), m_valueID.GetGenre(), m_valueID.GetIndex(), m_valueID.GetType(), m_manager.GetValueUnits(m_valueID)))
 
                         _Server.GetAllNewDevice().Add(m_device)
