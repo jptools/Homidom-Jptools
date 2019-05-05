@@ -163,7 +163,7 @@ Public Class uSelectElmt
 
             Select Case _TypeElement
                 Case "tag_driver"
-                    NomFichier = My.Application.Info.DirectoryPath & "\Config\DiversList.csv"
+                    NomFichier = My.Application.Info.DirectoryPath & "\Config\DriversList.csv"
                 Case "tag_composant"
                     NomFichier = My.Application.Info.DirectoryPath & "\Config\DevicesList.csv"
                 Case "tag_zone"
@@ -180,7 +180,7 @@ Public Class uSelectElmt
             End If
             Select Case _TypeElement
                 Case "tag_driver"
-                    SauverDiverList(NomFichier)
+                    SauverDriverList(NomFichier)
                 Case "tag_composant"
                     SauverDeviceList(NomFichier)
                 Case "tag_zone"
@@ -190,37 +190,37 @@ Public Class uSelectElmt
                 Case "tag_macro"
                     SauverMacroList(NomFichier)
             End Select
+            newFile = Nothing
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur  BtnArchiver_Click : " & ex.ToString, "ERREUR", "")
         End Try
     End Sub
 
-    Private Sub SauverDiverList(ByVal NomFichier As String)
+    Private Sub SauverDriverList(ByVal NomFichier As String)
         'Sauver la liste des Drivers dans un fichier "DiversList.csv"  Ajouter par JPS
         Try
-            Dim ListDiver As New List(Of HoMIDom.HoMIDom.TemplateDriver)
+            Dim ListDriver As New List(Of HoMIDom.HoMIDom.TemplateDriver)
             Dim zipFile As FileInfo
 
-            ListDiver.Clear()
-            ListDiver = myService.GetAllDrivers(IdSrv)
+            ListDriver.Clear()
+            ListDriver = myService.GetAllDrivers(IdSrv)
             zipFile = New FileInfo(NomFichier)
             Dim Fichier As StreamWriter = zipFile.CreateText()
             Fichier.WriteLine("Nom" & ";" & "Enable" & ";" & "IsConnect" & ";" & "StartAuto" & ";" & "ID" & ";" & "Description")
-            For i = 0 To ListDiver.Count - 1
-                Fichier.WriteLine(ListDiver(i).Nom & ";" &
-                ListDiver(i).Enable & ";" &
-                ListDiver(i).IsConnect & ";" &
-                ListDiver(i).StartAuto & ";" &
-                ListDiver(i).ID & ";" &
-                ListDiver(i).Description)
+            For i = 0 To ListDriver.Count - 1
+                Fichier.WriteLine(ListDriver(i).Nom & ";" &
+                ListDriver(i).Enable & ";" &
+                ListDriver(i).IsConnect & ";" &
+                ListDriver(i).StartAuto & ";" &
+                ListDriver(i).ID & ";" &
+                ListDriver(i).Description)
             Next
             Fichier.Flush()
             Fichier.Close()
-            ListDiver.Clear()
-            'newFile = Nothing
-            'zipFile = Nothing
-            'ListDevice = Nothing
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauve DiverList : ", "Réussit", "")
+            ListDriver.Clear()
+            zipFile = Nothing
+            ListDriver = Nothing
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauver DiverList.csv : ", "Réussit", "")
 
         Catch ex As IO.IOException
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur DiverList.csv : " & ex.ToString, "ERREUR", "")
@@ -262,10 +262,10 @@ Public Class uSelectElmt
             Fichier.Close()
             ListZone.Clear()
             Device.Clear()
-            'newFile = Nothing
-            'zipFile = Nothing
-            'ListDevice = Nothing
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauve ZoneList : ", "Réussit", "")
+            zipFile = Nothing
+            ListZone = Nothing
+            Device = Nothing
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauver ZoneList.csv : ", "Réussit", "")
 
         Catch ex As IO.IOException
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur ZoneList.csv : " & ex.ToString, "ERREUR", "")
@@ -312,10 +312,10 @@ Public Class uSelectElmt
             Fichier.Close()
             ListTrigger.Clear()
             ListMacro.Clear()
-            'newFile = Nothing
-            'zipFile = Nothing
-            'ListDevice = Nothing
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauve TriggerList : ", "Réussit", "")
+            zipFile = Nothing
+            ListTrigger = Nothing
+            ListMacro = Nothing
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauver TriggerList.csv : ", "Réussit", "")
 
         Catch ex As IO.IOException
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur TriggerList.csv : " & ex.ToString, "ERREUR", "")
@@ -496,11 +496,9 @@ Public Class uSelectElmt
             Fichier.Flush()
             Fichier.Close()
             ListMacro.Clear()
-
-            'newFile = Nothing
-            'zipFile = Nothing
-            'ListDevice = Nothing
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauve MacroList : ", "Réussit", "")
+            zipFile = Nothing
+            ListMacro = Nothing
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauver MacroList.csv : ", "Réussit", "")
 
         Catch ex As IO.IOException
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur MacroList.csv : " & ex.ToString, "ERREUR", "")
@@ -674,10 +672,9 @@ Public Class uSelectElmt
             Fichier.Flush()
             Fichier.Close()
             Listdevices.Clear()
-            'newFile = Nothing
-            'zipFile = Nothing
-            'ListNewDevice = Nothing
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauve DeviceList : ", "Réussit", "")
+            zipFile = Nothing
+            Listdevices = Nothing
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauver DeviceList.csv : ", "Réussit", "")
         Catch ex As IO.IOException
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur DeviceList.csv : " & ex.ToString, "ERREUR", "")
 
@@ -700,6 +697,8 @@ Public Class uSelectElmt
             End If
             newFile = New FileInfo(FileTitle)
             newFile.CopyTo(zipFile.FullName)
+            newFile = Nothing
+            zipFile = Nothing
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur SauverCopiefichier: " & ex.ToString, "ERREUR", "")
         End Try

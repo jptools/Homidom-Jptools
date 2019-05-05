@@ -307,10 +307,10 @@ Public Class uNewDevice
             Fichier.Flush()
             Fichier.Close()
             ListNewDevice.Clear()
-            'newFile = Nothing
-            'zipFile = Nothing
-            'ListNewDevice = Nothing
-            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauve NewDeviceList : ", "Réussit", "")
+            newFile = Nothing
+            zipFile = Nothing
+            ListNewDevice = Nothing
+            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Sauver NewDeviceList.csv : ", "Réussit", "")
         Catch ex As IO.IOException
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur NewDeviceList.csv : " & ex.ToString, "ERREUR", "")
 
@@ -335,6 +335,8 @@ Public Class uNewDevice
             End If
             newFile = New FileInfo(NomFichier)
             newFile.CopyTo(zipFile.FullName)
+            newFile = Nothing
+            zipFile = Nothing
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur SauverCopiefichier: " & ex.ToString, "ERREUR", "")
         End Try

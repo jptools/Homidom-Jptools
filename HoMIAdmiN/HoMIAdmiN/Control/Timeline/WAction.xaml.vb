@@ -1208,7 +1208,9 @@ Public Class WActionParametrage
                             End If
                             Fichier.Flush()
                             Fichier.Close()
-                            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Archiver Script : ", "Réussit", "")
+                            newFile = Nothing
+                            zipFile = Nothing
+                            AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.INFO, "Archiver Script : " & _ObjAction.Label, "Réussit", "")
                         End If
                 End Select
             End If
@@ -1232,6 +1234,8 @@ Public Class WActionParametrage
             End If
             newFile = New FileInfo(FileTitle)
             newFile.CopyTo(zipFile.FullName)
+            zipFile = Nothing
+            newFile = Nothing
         Catch ex As Exception
             AfficheMessageAndLog(HoMIDom.HoMIDom.Server.TypeLog.ERREUR, "Erreur SauverCopiefichier: " & ex.ToString, "ERREUR", "")
         End Try
