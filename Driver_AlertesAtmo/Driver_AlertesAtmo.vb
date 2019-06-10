@@ -1152,11 +1152,11 @@ Imports System.Web
 
             doc = New XmlDocument()
             If IsNumeric(departement) Then
-                stringurl = "http://www.meteoalarm.eu/documents/rss/fr.rss"
+                stringurl = "https://www.meteoalarm.eu/documents/rss/fr.rss"
                 WriteLog("DBG: GetMeteo, Chargement de " & stringurl)
                 dept = ListeDepFR.Item(departement)
             Else
-                stringurl = "http://www.meteoalarm.eu/documents/rss/" & LCase(Mid(departement, 1, 2)) & ".rss"
+                stringurl = "https://www.meteoalarm.eu/documents/rss/" & LCase(Mid(departement, 1, 2)) & ".rss"
                 departement = Trim(Mid(departement, 3, Len(departement)))
                 WriteLog("DBG: GetMeteo, Chargement de " & stringurl & " dept : " & departement)
                 dept = ListeDepBE.Item(departement)
@@ -1164,6 +1164,7 @@ Imports System.Web
 
             WriteLog("DBG: GetMeteo, Departement demande => " & dept)
             Dim url As New Uri(stringurl)
+            '   ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 'Ajout après erreur SSL/TLS
             Dim Request As HttpWebRequest = CType(HttpWebRequest.Create(url), System.Net.HttpWebRequest)
             Dim response As Net.HttpWebResponse = CType(Request.GetResponse(), Net.HttpWebResponse)
 
@@ -1409,6 +1410,7 @@ Imports System.Web
             WriteLog("DBG: Getsentinelle, Chargement de " & stringurl)
 
             Dim url As New Uri(stringurl)
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 'Ajout après erreur SSL/TLS
             Dim Request As HttpWebRequest = CType(HttpWebRequest.Create(url), System.Net.HttpWebRequest)
             Dim response As Net.HttpWebResponse = CType(Request.GetResponse(), Net.HttpWebResponse)
 
